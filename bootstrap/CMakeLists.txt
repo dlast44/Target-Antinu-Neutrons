@@ -24,14 +24,14 @@ endif()
 #endif()
 
 ExternalProject_Add(MAT
-                    GIT_REPOSITORY https://github.com/MinervaExpt/MAT.git
+                    GIT_REPOSITORY git@github.com:MinervaExpt/MAT.git
                     GIT_TAG main
                     SOURCE_DIR "${SOURCE_CODE_DIR}/MAT"
                     UPDATE_COMMAND ""
                     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE})
 
 ExternalProject_Add(MAT-MINERvA
-                    GIT_REPOSITORY https://github.com/MinervaExpt/MAT-MINERvA.git
+                    GIT_REPOSITORY git@github.com:MinervaExpt/MAT-MINERvA.git
                     GIT_TAG main
                     SOURCE_DIR "${SOURCE_CODE_DIR}/MAT-MINERvA"
                     #UPDATE_COMMAND ""
@@ -40,7 +40,7 @@ ExternalProject_Add(MAT-MINERvA
                     DEPENDS MAT)
 
 ExternalProject_Add(UnfoldUtils
-                    GIT_REPOSITORY https://github.com/MinervaExpt/UnfoldUtils.git
+                    GIT_REPOSITORY git@github.com:MinervaExpt/UnfoldUtils.git
                     GIT_TAG main
                     ${CVS_DOWNLOAD_COMMAND}
                     SOURCE_DIR "${SOURCE_CODE_DIR}/UnfoldUtils"
@@ -49,7 +49,7 @@ ExternalProject_Add(UnfoldUtils
                     DEPENDS MAT MAT-MINERvA)
 
 ExternalProject_Add(GENIEXSecExtract
-                    GIT_REPOSITORY https://github.com/MinervaExpt/GENIEXSecExtract.git
+                    GIT_REPOSITORY git@github.com:MinervaExpt/GENIEXSecExtract.git
                     GIT_TAG main
                     SOURCE_DIR "${SOURCE_CODE_DIR}/GENIEXSecExtract"
                     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
@@ -84,8 +84,8 @@ ExternalProject_Add(MATFluxAndReweightFiles
 #No need to download!  This is necessary because ExternalProject_Add()
 #happens at build time.  FetchContent() fixes this in CMake 3.11, but
 #that's newer than the CMake version on the GPVMs or my laptop.
-ExternalProject_Add(MINERvA-101-Cross-Section
-                    SOURCE_DIR "${SOURCE_CODE_DIR}/MINERvA-101-Cross-Section"
+ExternalProject_Add(Target-Antinu-Neutrons
+                    SOURCE_DIR "${SOURCE_CODE_DIR}/Target-Antinu-Neutrons"
                     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                     UPDATE_COMMAND ""
                     PATCH_COMMAND ""
