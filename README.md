@@ -1,4 +1,4 @@
-# Antineutrino Analysis in the Target region focused on neutrons in the final state.
+# Antineutrino Analysis in the MINERvA's Target region focused on neutrons in the final state.
 Code for David Last's thesis analysis which currently looks for CC muon anti-neutrino events with at least one well-identified neutron in the final state in the passive nuclear targets in MINERvA. Uses the MINERvA Analysis Toolkit (MAT).  Starts from slightly-modified (longterm plan is to not have these modifications be separate, but some careful handling of merging them in is needed) MINERvA data preservation "anaTuple" .root files, produced by MasterAnaDev (MAD), and produces all histograms needed to extract a cross section.  The code is based on the tutorial from which it is forked. See [the wiki](https://github.com/MinervaExpt/MINERvA-101-Cross-Section/wiki) for more information on the tutorial.
 
 ## Installation Instructions
