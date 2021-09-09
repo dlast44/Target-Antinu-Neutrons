@@ -1,15 +1,15 @@
-# CC Inclusive Cross Section Example for MINERvA 101 2021
-An example of a charged current (CC) inclusive cross section analysis using the MINERvA Analysis Toolkit (MAT).  Starts from the official MINERvA data preservation "anaTuple" .root files, produced by MasterAnaDev (MAD), and produces all histograms needed to extract a cross section.  The basic tutorial does not attempt to constrain backgrounds with sidebands.  Based on Ben Messerly's examples of using the MINERvA Analysis Toolkit and work by Mehreen Sultana on her thesis analysis.
+# Antineutrino Analysis in the Target region focused on neutrons in the final state.
+Code for David Last's thesis analysis which currently looks for CC muon anti-neutrino events with at least one well-identified neutron in the final state in the passive nuclear targets in MINERvA. Uses the MINERvA Analysis Toolkit (MAT).  Starts from slightly-modified (longterm plan is to not have these modifications be separate, but some careful handling of merging them in is needed) MINERvA data preservation "anaTuple" .root files, produced by MasterAnaDev (MAD), and produces all histograms needed to extract a cross section.  The code is based on the tutorial from which it is forked. See [the wiki](https://github.com/MinervaExpt/MINERvA-101-Cross-Section/wiki) for more information on the tutorial.
 
 ## Installation Instructions
-**First** try [the wiki instructions](https://github.com/MinervaExpt/MINERvA-101-Cross-Section/wiki/Installation/#installing_the_whole_minerva_101_2021_tutorial) for a comprehensive guide to the dependencies as well as this package.  If that file no longer exists, you'll have to install the [dependencies](#Dependencies) yourself and follow the instrutions below.
+**First** try [the wiki instructions](https://github.com/MinervaExpt/MINERvA-101-Cross-Section/wiki/Installation/#installing_the_whole_minerva_101_2021_tutorial) with `dlast44/Target-Antinu-Neutrons.git` replacing instances of `MinervaExpt/MINERvA-101-Cross-Section.git` for a comprehensive guide to the dependencies and this package.  If that file no longer exists, you'll have to install the [dependencies](#Dependencies) yourself and follow the instrutions below.
 
 **In case the wiki instructions aren't available:**
 1. Install [dependencies](#Dependencies)
-2. Make a working directory.  Mine is called `MINERvA101_2021/`
-3. Download the complete source from [MinervaExpt](https://github.com/MinervaExpt/MAT_IncPions): `git clone https://github.com/MinervaExpt/MAT_IncPions.git #Makes a src subdirectory for you`
+2. Make a working directory.  Mine is called `TargetNeutronsAna/`
+3. Download the complete source from [github](https://github.com/dlast44/Target-Antinu-Neutrons): `git clone git@github.com:dlast44/Target-Antinu-Neutrons.git #Makes a src subdirectory for you`
 4. Make a build directory: `mkdir opt && cd opt && mkdir build && cd build #opt for optimized build as opposed to debug build`
-5. Run cmake to generate a build system: ``cmake ../../src -DCMAKE_INSTALL_PREFIX=`pwd`/.. -DCMAKE_BUILD_TYPE=Release``
+5. Run cmake to generate a build system: ``cmake ../../Target-Antinu-Neutrons/bootstrap -DCMAKE_INSTALL_PREFIX=`pwd`/.. -DCMAKE_BUILD_TYPE=Release``
    If `cmake` fails talking about dependencies, you may have to manually point to them with command line arguments like `-DPlotUtils_DIR=/path/to/PlotUtilsInstallPrefix/lib`
 6. Compile and install: `make install`
 
