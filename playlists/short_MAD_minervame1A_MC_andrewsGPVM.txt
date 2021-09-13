@@ -1,0 +1,5 @@
+/minerva/data/Minerva101/Summer2021/anatuples/MC/MasterAnaDev_mc_AnaTuple_run00110000_Playlist.root
+/minerva/data/Minerva101/Summer2021/anatuples/MC/MasterAnaDev_mc_AnaTuple_run00110001_Playlist.root
+/minerva/data/Minerva101/Summer2021/anatuples/MC/MasterAnaDev_mc_AnaTuple_run00110002_Playlist.root
+/minerva/data/Minerva101/Summer2021/anatuples/MC/MasterAnaDev_mc_AnaTuple_run00110003_Playlist.root
+/minerva/data/Minerva101/Summer2021/anatuples/MC/MasterAnaDev_mc_AnaTuple_run00110004_Playlist.root
