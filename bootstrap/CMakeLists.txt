@@ -1,9 +1,11 @@
 #A CMakeLists.txt that automatically sets up all dependencies for this package.
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.2) #Require version 3.2, can't use GPVM default
 
 include(ExternalProject)
 
+set(MY_GIT_TAG "main" CACHE STRING "Check out the same git tag for all projects")
+set(GIT_CHECKOUT_PREFIX "git@github.com:" CACHE STRING "SSH checkout for all external git projects")
 set(SOURCE_CODE_DIR ${CMAKE_SOURCE_DIR}/../..)
 set(CVS_DOWNLOAD_COMMAND)
 
@@ -24,15 +26,15 @@ endif()
 #endif()
 
 ExternalProject_Add(MAT
-                    GIT_REPOSITORY git@github.com:MinervaExpt/MAT.git
-                    GIT_TAG main
+                    GIT_REPOSITORY ${GIT_CHECKOUT_PREFIX}MinervaExpt/MAT.git
+                    GIT_TAG ${MY_GIT_TAG}
                     SOURCE_DIR "${SOURCE_CODE_DIR}/MAT"
                     UPDATE_COMMAND ""
                     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE})
 
 ExternalProject_Add(MAT-MINERvA
-                    GIT_REPOSITORY git@github.com:MinervaExpt/MAT-MINERvA.git
-                    GIT_TAG main
+                    GIT_REPOSITORY ${GIT_CHECKOUT_PREFIX}MinervaExpt/MAT-MINERvA.git
+                    GIT_TAG ${MY_GIT_TAG}
                     SOURCE_DIR "${SOURCE_CODE_DIR}/MAT-MINERvA"
                     #UPDATE_COMMAND ""
                     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
@@ -40,8 +42,8 @@ ExternalProject_Add(MAT-MINERvA
                     DEPENDS MAT)
 
 ExternalProject_Add(UnfoldUtils
-                    GIT_REPOSITORY git@github.com:MinervaExpt/UnfoldUtils.git
-                    GIT_TAG main
+                    GIT_REPOSITORY ${GIT_CHECKOUT_PREFIX}MinervaExpt/UnfoldUtils.git
+                    GIT_TAG ${MY_GIT_TAG}
                     ${CVS_DOWNLOAD_COMMAND}
                     SOURCE_DIR "${SOURCE_CODE_DIR}/UnfoldUtils"
                     UPDATE_COMMAND ""
@@ -49,8 +51,8 @@ ExternalProject_Add(UnfoldUtils
                     DEPENDS MAT MAT-MINERvA)
 
 ExternalProject_Add(GENIEXSecExtract
-                    GIT_REPOSITORY git@github.com:MinervaExpt/GENIEXSecExtract.git
-                    GIT_TAG main
+                    GIT_REPOSITORY ${GIT_CHECKOUT_PREFIX}MinervaExpt/GENIEXSecExtract.git
+                    GIT_TAG ${MY_GIT_TAG}
                     SOURCE_DIR "${SOURCE_CODE_DIR}/GENIEXSecExtract"
                     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                     DEPENDS MAT MAT-MINERvA)
