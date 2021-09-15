@@ -199,7 +199,7 @@ class CVUniverse : public PlotUtils::MinervaUniverse {
   // Functions added by David that have no match in the above.
   virtual int GetNTracks() const { return GetInt("multiplicity"); }
 
-  virtual int GetNNeutBlobs() const { return GetInt("MasterAnaDev_BlobIs3D_sz"); }
+  virtual int GetNNeutBlobs() const { return GetInt((GetAnaToolName() + "_BlobIs3D_sz").c_str()); }
 
   virtual std::vector<double> GetEMBlobStartZVec() const { return GetVec<double>("nonvtx_iso_blobs_start_position_z_in_prong"); }
 
@@ -244,7 +244,7 @@ class CVUniverse : public PlotUtils::MinervaUniverse {
 
   virtual int GetNImprovedMichel() const { return GetInt("improved_michel_vertex_type_sz"); }
 
-  virtual int GetNuHelicity() const { return GetInt("MasterAnaDev_nuHelicity"); }
+  virtual int GetNuHelicity() const { return GetInt((GetAnaToolName()+"_nuHelicity").c_str()); }
 
   virtual double GetEnuCCQEPickledGeV() const{ //RETURNS IN MeV^2
     int charge=-1; //hard-coded since I'm focused on anti-nu
