@@ -98,3 +98,7 @@ namespace NeutronCandidates{
   }
 
 }
+
+NeutronEvent::NeutronEvent(int nCands){
+  this->SetNCands(nCands);
+}

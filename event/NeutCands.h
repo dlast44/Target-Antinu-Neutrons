@@ -132,8 +132,15 @@ namespace NeutronCandidates{
 
 }
 
-struct NeutronEvent{
-  NeutronCandidates::NeutCand leadCandidate;
+class NeutronEvent{
+ private:
+  int fNCands;
+ public:
+  NeutronEvent() : fNCands(0) { }
+  NeutronEvent(int nCands);
+  void SetNCands(int nCands) { fNCands=nCands; }
+  int GetNCands() { return fNCands; }
+  //  NeutronCandidates::NeutCand leadCandidate;
 };
 
 #endif
