@@ -67,6 +67,11 @@ class CVUniverse : public PlotUtils::MinervaUniverse {
   // write these accessor functions.
   
   //Muon kinematics
+  double GetMuonP() const //GeV/c
+  {
+    return GetPmu()/1000.0 ;
+  }
+
   double GetMuonPT() const //GeV/c
   {
     return GetPmu()/1000. * sin(GetThetamu());
