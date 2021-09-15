@@ -65,6 +65,10 @@ class CVUniverse : public PlotUtils::MinervaUniverse {
   // Although unlikely, in principle these quanties could be shifted by a
   // systematic. And when they are, they'll only be shifted correctly if we
   // write these accessor functions.
+
+  //Dummy function for truth variables I don't yet have sorted out yet.
+  //Testing only
+  double GetDummyTrue() const { return 1.0; }
   
   //Muon kinematics
   double GetMuonP() const //GeV/c
