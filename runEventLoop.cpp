@@ -444,7 +444,9 @@ int main(const int argc, const char** argv)
   for(int whichBin = 0; whichBin < 41; ++whichBin) myPmuBins.push_back(myPmuBinWidth * whichBin);
 
   const double myVtxZBinWidth = 10.;
-  for(int whichBin = 0; whichBin < 152; ++whichBin) myVtxZBins.push_back(myVtxZBinWidth * whichBin);
+  const double myVtxZBase = 5800.; //Tracker for plot testing
+  //const double myVtxZBase = 4470.; //Targets for later!!!
+  for(int whichBin = 0; whichBin < 281; ++whichBin) myVtxZBins.push_back(myVtxZBinWidth * whichBin + myVtxZBase);
 
   std::vector<Variable*> vars = {
     new Variable("pTmu", "p_{T, #mu} [GeV/c]", dansPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
