@@ -134,6 +134,14 @@ void LoopAndFillEventSelection(
 
         const bool isSignal = michelcuts.isSignal(*universe, weight);
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Untested Changes                                                                                                                    //
+	int intType = 1; //Dummy Value for testing need to set to the correct thing at some point
+	int tgtType = 1; //Dummy Value for testing need to set to the correct thing at some point
+	int leadBlobType = 1; //Dummy Value for testing need to set to the correct thing at some point
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
         if(isSignal)
         {
           for(auto& study: studies) study->SelectedSignal(*universe, myevent, weight);
@@ -144,6 +152,13 @@ void LoopAndFillEventSelection(
             var->efficiencyNumerator->FillUniverse(universe, var->GetTrueValue(*universe), weight);
             var->migration->FillUniverse(universe, var->GetRecoValue(*universe), var->GetTrueValue(*universe), weight);
             var->selectedSignalReco->FillUniverse(universe, var->GetRecoValue(*universe), weight); //Efficiency numerator in reco variables.  Useful for warping studies.
+
+	    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	    //Untested Changes                                                                                                                    //
+	    (*var->m_BkgIntTypeHists)[intType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
           }
 
           for(auto& var: vars2D)
@@ -157,7 +172,15 @@ void LoopAndFillEventSelection(
           if (universe->GetCurrent()==2)bkgd_ID=0;
           else bkgd_ID=1;
 
-          for(auto& var: vars) (*var->m_backgroundHists)[bkgd_ID].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+          for(auto& var: vars){
+	    (*var->m_backgroundHists)[bkgd_ID].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	    //Untested Changes                                                                                                                    //
+	    (*var->m_BkgIntTypeHists)[intType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	  }
           for(auto& var: vars2D) (*var->m_backgroundHists)[bkgd_ID].FillUniverse(universe, var->GetRecoValueX(*universe), var->GetRecoValueY(*universe), weight);
         }
       } // End band's universe loop
