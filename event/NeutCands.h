@@ -129,5 +129,11 @@ namespace NeutronCandidates{
     NeutCand GetMaxCandidate(){ return fCandMaxE; };
     std::map<int, NeutCand> GetCandidates(){ return fCands; };
   };
+
 }
+
+struct NeutronEvent{
+  NeutronCandidates::NeutCand leadCandidate;
+};
+
 #endif

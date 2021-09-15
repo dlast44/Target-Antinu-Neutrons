@@ -48,6 +48,7 @@ enum ErrorCodes
 //Includes from this package
 #include "event/CVUniverse.h"
 #include "event/MichelEvent.h"
+#include "event/NeutCands.h"
 #include "systematics/Systematics.h"
 #include "cuts/MaxPzMu.h"
 #include "util/Variable.h"
@@ -94,8 +95,8 @@ void LoopAndFillEventSelection(
     std::vector<Variable*> vars,
     std::vector<Variable2D*> vars2D,
     std::vector<Study*> studies,
-    PlotUtils::Cutter<CVUniverse, MichelEvent>& michelcuts,
-    PlotUtils::Model<CVUniverse, MichelEvent>& model)
+    PlotUtils::Cutter<CVUniverse, NeutronEvent>& michelcuts,
+    PlotUtils::Model<CVUniverse, NeutronEvent>& model)
 {
   assert(!error_bands["cv"].empty() && "\"cv\" error band is empty!  Can't set Model weight.");
   auto& cvUniv = error_bands["cv"].front();
@@ -106,7 +107,7 @@ void LoopAndFillEventSelection(
   {
     if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::flush;
 
-    MichelEvent cvEvent;
+    NeutronEvent cvEvent;
     cvUniv->SetEntry(i);
     model.SetEntry(*cvUniv, cvEvent);
     const double cvWeight = model.GetWeight(*cvUniv, cvEvent);
@@ -119,7 +120,7 @@ void LoopAndFillEventSelection(
       std::vector<CVUniverse*> error_band_universes = band.second;
       for (auto universe : error_band_universes)
       {
-        MichelEvent myevent; // make sure your event is inside the error band loop. 
+        NeutronEvent myevent; // make sure your event is inside the error band loop. 
     
         // Tell the Event which entry in the TChain it's looking at
         universe->SetEntry(i);
@@ -187,7 +188,7 @@ void LoopAndFillData( PlotUtils::ChainWrapper* data,
 				std::vector<Variable*> vars,
                                 std::vector<Variable2D*> vars2D,
                                 std::vector<Study*> studies,
-				PlotUtils::Cutter<CVUniverse, MichelEvent>& michelcuts)
+				PlotUtils::Cutter<CVUniverse, NeutronEvent>& michelcuts)
 
 {
   std::cout << "Starting data loop...\n";
@@ -196,14 +197,14 @@ void LoopAndFillData( PlotUtils::ChainWrapper* data,
     for (auto universe : data_band) {
       universe->SetEntry(i);
       if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::flush;
-      MichelEvent myevent; 
+      NeutronEvent myevent; 
       if (!michelcuts.isDataSelected(*universe, myevent).all()) continue;
 
       for(auto& study: studies) study->Selected(*universe, myevent, 1); 
 
       for(auto& var: vars)
       {
-        var->dataHist->FillUniverse(universe, var->GetRecoValue(*universe, myevent.m_idx), 1);
+        var->dataHist->FillUniverse(universe, var->GetRecoValue(*universe), 1);
       }
 
       for(auto& var: vars2D)
@@ -219,8 +220,8 @@ void LoopAndFillEffDenom( PlotUtils::ChainWrapper* truth,
     				std::map<std::string, std::vector<CVUniverse*> > truth_bands,
     				std::vector<Variable*> vars,
                                 std::vector<Variable2D*> vars2D,
-    				PlotUtils::Cutter<CVUniverse, MichelEvent>& michelcuts,
-                                PlotUtils::Model<CVUniverse, MichelEvent>& model)
+    				PlotUtils::Cutter<CVUniverse, NeutronEvent>& michelcuts,
+                                PlotUtils::Model<CVUniverse, NeutronEvent>& model)
 {
   assert(!truth_bands["cv"].empty() && "\"cv\" error band is empty!  Could not set Model entry.");
   auto& cvUniv = truth_bands["cv"].front();
@@ -231,7 +232,7 @@ void LoopAndFillEffDenom( PlotUtils::ChainWrapper* truth,
   {
     if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::flush;
 
-    MichelEvent cvEvent;
+    NeutronEvent cvEvent;
     cvUniv->SetEntry(i);
     model.SetEntry(*cvUniv, cvEvent);
     const double cvWeight = model.GetWeight(*cvUniv, cvEvent);
@@ -244,7 +245,7 @@ void LoopAndFillEffDenom( PlotUtils::ChainWrapper* truth,
       std::vector<CVUniverse*> truth_band_universes = band.second;
       for (auto universe : truth_band_universes)
       {
-        MichelEvent myevent; //Only used to keep the Model happy
+        NeutronEvent myevent; //Only used to keep the Model happy
 
         // Tell the Event which entry in the TChain it's looking at
         universe->SetEntry(i);
@@ -372,16 +373,16 @@ int main(const int argc, const char** argv)
 
   //Now that we've defined what a cross section is, decide which sample and model
   //we're extracting a cross section for.
-  PlotUtils::Cutter<CVUniverse, MichelEvent>::reco_t sidebands, preCuts;
-  PlotUtils::Cutter<CVUniverse, MichelEvent>::truth_t signalDefinition, phaseSpace;
+  PlotUtils::Cutter<CVUniverse, NeutronEvent>::reco_t sidebands, preCuts;
+  PlotUtils::Cutter<CVUniverse, NeutronEvent>::truth_t signalDefinition, phaseSpace;
 
   const double minZ = 5980, maxZ = 8422, apothem = 850; //All in mm
-  preCuts.emplace_back(new reco::ZRange<CVUniverse, MichelEvent>("Tracker", minZ, maxZ));
-  preCuts.emplace_back(new reco::Apothem<CVUniverse, MichelEvent>(apothem));
-  preCuts.emplace_back(new reco::MaxMuonAngle<CVUniverse, MichelEvent>(20.));
-  preCuts.emplace_back(new reco::HasMINOSMatch<CVUniverse, MichelEvent>());
-  preCuts.emplace_back(new reco::NoDeadtime<CVUniverse, MichelEvent>(1, "Deadtime"));
-  preCuts.emplace_back(new reco::IsNeutrino<CVUniverse, MichelEvent>());
+  preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>("Tracker", minZ, maxZ));
+  preCuts.emplace_back(new reco::Apothem<CVUniverse, NeutronEvent>(apothem));
+  preCuts.emplace_back(new reco::MaxMuonAngle<CVUniverse, NeutronEvent>(20.));
+  preCuts.emplace_back(new reco::HasMINOSMatch<CVUniverse, NeutronEvent>());
+  preCuts.emplace_back(new reco::NoDeadtime<CVUniverse, NeutronEvent>(1, "Deadtime"));
+  preCuts.emplace_back(new reco::IsNeutrino<CVUniverse, NeutronEvent>());
                                                                                                                                                    
   signalDefinition.emplace_back(new truth::IsNeutrino<CVUniverse>());
   signalDefinition.emplace_back(new truth::IsCC<CVUniverse>());
@@ -391,16 +392,16 @@ int main(const int argc, const char** argv)
   phaseSpace.emplace_back(new truth::MuonAngle<CVUniverse>(20.));
   phaseSpace.emplace_back(new truth::PZMuMin<CVUniverse>(1500.));
                                                                                                                                                    
-  PlotUtils::Cutter<CVUniverse, MichelEvent> mycuts(std::move(preCuts), std::move(sidebands) , std::move(signalDefinition),std::move(phaseSpace));
+  PlotUtils::Cutter<CVUniverse, NeutronEvent> mycuts(std::move(preCuts), std::move(sidebands) , std::move(signalDefinition),std::move(phaseSpace));
 
-  std::vector<std::unique_ptr<PlotUtils::Reweighter<CVUniverse, MichelEvent>>> MnvTunev1;
-  MnvTunev1.emplace_back(new PlotUtils::FluxAndCVReweighter<CVUniverse, MichelEvent>());
-  MnvTunev1.emplace_back(new PlotUtils::GENIEReweighter<CVUniverse, MichelEvent>(true, false));
-  MnvTunev1.emplace_back(new PlotUtils::LowRecoil2p2hReweighter<CVUniverse, MichelEvent>());
-  MnvTunev1.emplace_back(new PlotUtils::MINOSEfficiencyReweighter<CVUniverse, MichelEvent>());
-  MnvTunev1.emplace_back(new PlotUtils::RPAReweighter<CVUniverse, MichelEvent>());
+  std::vector<std::unique_ptr<PlotUtils::Reweighter<CVUniverse, NeutronEvent>>> MnvTunev1;
+  MnvTunev1.emplace_back(new PlotUtils::FluxAndCVReweighter<CVUniverse, NeutronEvent>());
+  MnvTunev1.emplace_back(new PlotUtils::GENIEReweighter<CVUniverse, NeutronEvent>(true, false));
+  MnvTunev1.emplace_back(new PlotUtils::LowRecoil2p2hReweighter<CVUniverse, NeutronEvent>());
+  MnvTunev1.emplace_back(new PlotUtils::MINOSEfficiencyReweighter<CVUniverse, NeutronEvent>());
+  MnvTunev1.emplace_back(new PlotUtils::RPAReweighter<CVUniverse, NeutronEvent>());
 
-  PlotUtils::Model<CVUniverse, MichelEvent> model(std::move(MnvTunev1));
+  PlotUtils::Model<CVUniverse, NeutronEvent> model(std::move(MnvTunev1));
 
   // Make a map of systematic universes
   // Leave out systematics when making validation histograms

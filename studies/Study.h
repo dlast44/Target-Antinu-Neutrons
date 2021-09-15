@@ -4,7 +4,7 @@
 //ROOT includes
 #include "TDirectory.h"
 
-class MichelEvent;
+class NeutronEvent;
 class CVUniverse;
 
 class Study
@@ -12,18 +12,18 @@ class Study
   public:
     Study() {} //TODO: Any base constructor needed?
 
-    void Selected(const CVUniverse& univ, const MichelEvent& evt, const double weight)
+    void Selected(const CVUniverse& univ, const NeutronEvent& evt, const double weight)
     {
       fillSelected(univ, evt, weight);
     }
     
     
-    void SelectedSignal(const CVUniverse& univ, const MichelEvent& evt, const double weight)
+    void SelectedSignal(const CVUniverse& univ, const NeutronEvent& evt, const double weight)
     {
       fillSelectedSignal(univ, evt, weight);
     }
 
-    void TruthSignal(const CVUniverse& univ, const MichelEvent& evt, const double weight)
+    void TruthSignal(const CVUniverse& univ, const NeutronEvent& evt, const double weight)
     {
       fillTruthSignal(univ, evt, weight);
     }
@@ -35,9 +35,9 @@ class Study
   private:
     using Hist = PlotUtils::HistWrapper<CVUniverse>;
 
-    virtual void fillSelected(const CVUniverse& univ, const MichelEvent& evt, const double weight) = 0;
-    virtual void fillSelectedSignal(const CVUniverse& univ, const MichelEvent& evt, const double weight) = 0;
-    virtual void fillTruthSignal(const CVUniverse& univ, const MichelEvent& evt, const double weight) = 0;
+    virtual void fillSelected(const CVUniverse& univ, const NeutronEvent& evt, const double weight) = 0;
+    virtual void fillSelectedSignal(const CVUniverse& univ, const NeutronEvent& evt, const double weight) = 0;
+    virtual void fillTruthSignal(const CVUniverse& univ, const NeutronEvent& evt, const double weight) = 0;
 };
 
 #endif //STUDY_H
