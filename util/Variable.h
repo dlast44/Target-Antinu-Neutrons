@@ -30,21 +30,18 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
       std::map<int, std::string> BKGLabels = {{0, "NC"},
 					       {1, "Wrong_Sign"}};
 
-      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      //Untested Changes                                                                                                                           //
+      //Various breakdowns for signal and background. TODO: Get the mapping correct
       std::map<int, std::string> IntTypeLabels = {{1, "QE"},
 						  {2, "RES"},
 						  {3, "DIS"},
 						  {8, "2p2h"}};
 
-      //TODO: Get the actual ints correct
       std::map<int, std::string> TargetTypeLabels = {{1, "C"},
 						     {2, "Fe"},
 						     {3, "Pb"},
 						     {8, "O"},
 						     {9, "H"}};
 
-      //TODO: Get the actual ints correct
       std::map<int, std::string> LeadBlobTypeLabels = {{1, "neut"},
 						       {2, "mu"},
 						       {3, "pi0"},
@@ -52,14 +49,12 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
 						       {9, "pip"},
 						       {10, "prot"},
 						       {11, "None"}};
-      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       
       m_backgroundHists = new util::Categorized<Hist, int>((GetName() + "_background").c_str(),
 							   GetName().c_str(), BKGLabels,
 							   GetBinVec(), mc_error_bands);
 
-      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      //Untested Changes                                                                                                                           //
+      //Hists for the aforementioned various breakdowns.
       m_SigIntTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig_IntType").c_str(),
 							   GetName().c_str(), IntTypeLabels,
 							   GetBinVec(), mc_error_bands);
@@ -83,7 +78,6 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
       m_BkgLeadBlobTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg_LeadBlobType").c_str(),
 							   GetName().c_str(), LeadBlobTypeLabels,
 							   GetBinVec(), mc_error_bands);
-      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       
       efficiencyNumerator = new Hist((GetName() + "_efficiency_numerator").c_str(), GetName().c_str(), GetBinVec(), mc_error_bands);
       efficiencyDenominator = new Hist((GetName() + "_efficiency_denominator").c_str(), GetName().c_str(), GetBinVec(), truth_error_bands);
@@ -94,16 +88,12 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
 
     //Histograms to be filled
     util::Categorized<Hist, int>* m_backgroundHists;
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //Untested Changes                                                                                                                           //
     util::Categorized<Hist, int>* m_SigIntTypeHists;
     util::Categorized<Hist, int>* m_SigTargetTypeHists;
     util::Categorized<Hist, int>* m_SigLeadBlobTypeHists;
     util::Categorized<Hist, int>* m_BkgIntTypeHists;
     util::Categorized<Hist, int>* m_BkgTargetTypeHists;
     util::Categorized<Hist, int>* m_BkgLeadBlobTypeHists;
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     Hist* dataHist;
     Hist* efficiencyNumerator;
@@ -137,8 +127,6 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
                                       categ.hist->Write(); //TODO: Or let the TFile destructor do this the "normal" way?                                                                                           
                                     });
 
-      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      //Untested Changes                                                                                                                           //
       m_SigIntTypeHists->visit([&file](Hist& categ)
                                     {
                                       categ.hist->SetDirectory(&file);
@@ -174,7 +162,6 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
                                       categ.hist->SetDirectory(&file);
                                       categ.hist->Write(); //TODO: Or let the TFile destructor do this the "normal" way?                                                                                           
                                     });
-      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       
       if(efficiencyNumerator)
       {
@@ -214,15 +201,13 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
     void SyncCVHistos()
     {
       m_backgroundHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
-      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      //Untested Changes                                                                                                                           //
       m_SigIntTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
       m_SigTargetTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
       m_SigLeadBlobTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
       m_BkgIntTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
       m_BkgTargetTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
       m_BkgLeadBlobTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
-      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
       if(dataHist) dataHist->SyncCVHistos();
       if(efficiencyNumerator) efficiencyNumerator->SyncCVHistos();
       if(efficiencyDenominator) efficiencyDenominator->SyncCVHistos();
