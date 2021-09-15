@@ -62,19 +62,19 @@ include_directories(${GENIEXSecExtract_INCLUDE_DIR})
 #Tell CMake to compile subdirectories before compiling main application
 add_subdirectory(playlists)
 add_subdirectory(util)
+add_subdirectory(event)
 #TODO: Split these directories' headers into .cpp files
-#add_subdirectory(event)
 #add_subdirectory(cuts)
 #add_subdirectory(studies)
 #add_subdirectory(systematics)
 
 #Build main executables
 add_executable(runEventLoop runEventLoop.cpp)
-target_link_libraries(runEventLoop ${ROOT_LIBRARIES} util MAT MAT-MINERvA) #event cuts studies systematics)
+target_link_libraries(runEventLoop ${ROOT_LIBRARIES} util event MAT MAT-MINERvA) #event cuts studies systematics)
 install(TARGETS runEventLoop DESTINATION bin)
 
 add_executable(ExtractCrossSection ExtractCrossSection.cpp)
-target_link_libraries(ExtractCrossSection ${ROOT_LIBRARIES} util MAT UnfoldUtils)
+target_link_libraries(ExtractCrossSection ${ROOT_LIBRARIES} util event MAT UnfoldUtils)
 install(TARGETS ExtractCrossSection DESTINATION bin)
 
 add_executable(runXSecLooper runXSecLooper.cpp)
