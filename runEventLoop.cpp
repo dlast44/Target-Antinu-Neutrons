@@ -136,8 +136,8 @@ void LoopAndFillEventSelection(
         const bool isSignal = michelcuts.isSignal(*universe, weight);
 
 	//Categorize various breakdown quantities.
-	int intType = 1; //Dummy Value for testing need to set to the correct thing at some point
-	int tgtType = 1; //Dummy Value for testing need to set to the correct thing at some point
+	int intType = universe->GetInteractionType();
+	int tgtType = universe->GetTargetZ();
 	//int leadBlobType = 1; //Dummy Value for testing need to set to the correct thing at some point
 
         if(isSignal)
@@ -425,13 +425,33 @@ int main(const int argc, const char** argv)
   std::vector<double> dansPTBins = {0, 0.075, 0.15, 0.25, 0.325, 0.4, 0.475, 0.55, 0.7, 0.85, 1, 1.25, 1.5, 2.5, 4.5},
                       dansPzBins = {1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 8, 9, 10, 15, 20, 40, 60},
                       robsEmuBins = {0,1,2,3,4,5,7,9,12,15,18,22,36,50,75,100,120},
-                      robsRecoilBins;
+		      robsRecoilBins,
+		      nBlobsBins,
+		      myRecoilBins,
+		      myPmuBins,
+		      myVtxZBins;
 
   const double robsRecoilBinWidth = 50; //MeV
   for(int whichBin = 0; whichBin < 100 + 1; ++whichBin) robsRecoilBins.push_back(robsRecoilBinWidth * whichBin);
 
+  const double nBlobsBinWidth = 1;
+  for(int whichBin = 0; whichBin < 21; ++whichBin) nBlobsBins.push_back(nBlobsBinWidth * whichBin);
+
+  const double myRecoilBinWidth = 1.5/50.;
+  for(int whichBin = 0; whichBin < 51; ++whichBin) myRecoilBins.push_back(myRecoilBinWidth * whichBin);
+
+  const double myPmuBinWidth = 0.5;
+  for(int whichBin = 0; whichBin < 41; ++whichBin) myPmuBins.push_back(myPmuBinWidth * whichBin);
+
+  const double myVtxZBinWidth = 10.;
+  for(int whichBin = 0; whichBin < 152; ++whichBin) myVtxZBins.push_back(myVtxZBinWidth * whichBin);
+
   std::vector<Variable*> vars = {
     new Variable("pTmu", "p_{T, #mu} [GeV/c]", dansPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
+    new Variable("nBlobs", "No.", nBlobsBins, &CVUniverse::GetNNeutBlobs, &CVUniverse::GetDummyTrue), //truth?
+    new Variable("My_recoilE", "Recoil E [GeV]", myRecoilBins, &CVUniverse::GetDANRecoilEnergyGeV, &CVUniverse::GetDummyTrue), //truth?
+    new Variable("pmu", "p_{#mu} [GeV/c]", myPmuBins, &CVUniverse::GetMuonP, &CVUniverse::GetDummyTrue), //make fill truth properly at some point
+    new Variable("vtxZ", "Z [mm]", myVtxZBins, &CVUniverse::GetVtxZ, &CVUniverse::GetDummyTrue), //Make fill truth properly at some point
   };
 
   std::vector<Variable2D*> vars2D;
