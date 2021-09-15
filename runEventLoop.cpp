@@ -155,9 +155,9 @@ void LoopAndFillEventSelection(
 
 	    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	    //Untested Changes                                                                                                                    //
-	    (*var->m_BkgIntTypeHists)[intType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
-	    (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
-	    (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    (*var->m_SigIntTypeHists)[intType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    (*var->m_SigTargetTypeHists)[tgtType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    (*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
 	    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
           }
 

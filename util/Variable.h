@@ -60,27 +60,27 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
 
       ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       //Untested Changes                                                                                                                           //
-      m_SigIntTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig").c_str(),
+      m_SigIntTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig_IntType").c_str(),
 							   GetName().c_str(), IntTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
-      m_SigTargetTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig").c_str(),
+      m_SigTargetTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig_TargetType").c_str(),
 							   GetName().c_str(), TargetTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
-      m_SigLeadBlobTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig").c_str(),
+      m_SigLeadBlobTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig_LeadBlobType").c_str(),
 							   GetName().c_str(), LeadBlobTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
-      m_BkgIntTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg").c_str(),
+      m_BkgIntTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg_IntType").c_str(),
 							   GetName().c_str(), IntTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
-      m_BkgTargetTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg").c_str(),
+      m_BkgTargetTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg_TargetType").c_str(),
 							   GetName().c_str(), TargetTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
-      m_BkgLeadBlobTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg").c_str(),
+      m_BkgLeadBlobTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg_LeadBlobType").c_str(),
 							   GetName().c_str(), LeadBlobTypeLabels,
 							   GetBinVec(), mc_error_bands);
       ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
