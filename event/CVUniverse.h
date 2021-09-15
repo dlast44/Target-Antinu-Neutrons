@@ -271,6 +271,8 @@ class CVUniverse : public PlotUtils::MinervaUniverse {
 
   virtual std::vector<double> GetVtx() const { return GetVec<double>("vtx"); }
 
+  virtual double GetVtxZ() const { return GetVtx().at(2); }
+
   virtual int GetIsMinosMatchTrack() const { return GetInt("isMinosMatchTrack"); }
   
   virtual int GetIsMinosMatchTrackOLD() const { return GetInt("muon_is_minos_match_track"); }
