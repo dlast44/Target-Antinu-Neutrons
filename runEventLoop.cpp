@@ -51,6 +51,7 @@ enum ErrorCodes
 #include "event/NeutCands.h"
 #include "systematics/Systematics.h"
 #include "cuts/MaxPzMu.h"
+#include "cuts/CCQECuts.h"
 #include "util/Variable.h"
 #include "util/Variable2D.h"
 #include "util/GetFluxIntegral.h"
@@ -385,7 +386,11 @@ int main(const int argc, const char** argv)
   preCuts.emplace_back(new reco::MaxMuonAngle<CVUniverse, NeutronEvent>(20.));
   preCuts.emplace_back(new reco::HasMINOSMatch<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new reco::NoDeadtime<CVUniverse, NeutronEvent>(1, "Deadtime"));
-  preCuts.emplace_back(new reco::IsNeutrino<CVUniverse, NeutronEvent>());
+  preCuts.emplace_back(new MyCCQECuts::PMuRange<CVUniverse, NeutronEvent>("1.5 <= Pmu <= 20",1.5,20.0));
+  preCuts.emplace_back(new MyCCQECuts::IsAntiNu<CVUniverse, NeutronEvent>());
+  preCuts.emplace_back(new MyCCQECuts::IsSingleTrack<CVUniverse, NeutronEvent>());
+  preCuts.emplace_back(new MyCCQECuts::NoMichels<CVUniverse, NeutronEvent>());
+  //preCuts.emplace_back(new reco::IsNeutrino<CVUniverse, NeutronEvent>());
                                                                                                                                                    
   signalDefinition.emplace_back(new truth::IsNeutrino<CVUniverse>());
   signalDefinition.emplace_back(new truth::IsCC<CVUniverse>());
@@ -447,9 +452,9 @@ int main(const int argc, const char** argv)
   for(int whichBin = 0; whichBin < 41; ++whichBin) myPmuBins.push_back(myPmuBinWidth * whichBin);
 
   const double myVtxZBinWidth = 10.;
-  const double myVtxZBase = 5800.; //Tracker for plot testing
-  //const double myVtxZBase = 4470.; //Targets for later!!!
-  for(int whichBin = 0; whichBin < 281; ++whichBin) myVtxZBins.push_back(myVtxZBinWidth * whichBin + myVtxZBase);
+  //const double myVtxZBase = 5800.; //Tracker for plot testing
+  const double myVtxZBase = 4470.; //Targets for later!!!
+  for(int whichBin = 0; whichBin < 152; ++whichBin) myVtxZBins.push_back(myVtxZBinWidth * whichBin + myVtxZBase);
 
   std::vector<Variable*> vars = {
     new Variable("pTmu", "p_{T, #mu} [GeV/c]", dansPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
