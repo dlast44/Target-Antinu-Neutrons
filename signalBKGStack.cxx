@@ -182,6 +182,157 @@ TCanvas* DrawIntType(string name_QE, TFile* inFile, TString sample){
   return c1;
 }
 
+TCanvas* DrawTargetType(string name_C, TFile* inFile, TString sample){
+
+  TCanvas* c1 = new TCanvas("c1","c1",1200,800);
+  c1->cd();
+
+  MnvH1D* h_C_Sig = (MnvH1D*)inFile->Get((TString)name_C);
+  h_C_Sig->SetLineColor(TColor::GetColor("#88CCEE"));
+  h_C_Sig->SetFillColor(TColor::GetColor("#88CCEE"));
+
+  string name_sig = (string)h_C_Sig->GetName();
+  name_sig.erase(name_sig.length()-2,name_sig.length());
+  string name_bkg = name_sig;
+  name_bkg.erase(name_bkg.length()-15,name_bkg.length());
+
+  cout << "Handling: " << name_sig << endl;
+  string title = (string)h_C_Sig->GetTitle();
+  TString Xtitle = h_C_Sig->GetXaxis()->GetTitle();
+  TString Ytitle = h_C_Sig->GetYaxis()->GetTitle();
+  /*
+  cout << title << endl;
+  title.erase(0, 7);
+  cout << title << endl;
+  cout << "" << endl;
+  */
+
+  MnvH1D* h_Fe_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_Fe");
+  h_Fe_Sig->SetLineColor(TColor::GetColor("#882255"));
+  h_Fe_Sig->SetFillColor(TColor::GetColor("#882255"));
+
+  MnvH1D* h_Pb_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_Pb");
+  h_Pb_Sig->SetLineColor(TColor::GetColor("#117733"));
+  h_Pb_Sig->SetFillColor(TColor::GetColor("#117733"));
+
+  MnvH1D* h_O_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_O");
+  h_O_Sig->SetLineColor(TColor::GetColor("#332288"));
+  h_O_Sig->SetFillColor(TColor::GetColor("#332288"));
+
+  MnvH1D* h_H_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_H");
+  h_H_Sig->SetLineColor(TColor::GetColor("#DDCC77"));
+  h_H_Sig->SetFillColor(TColor::GetColor("#DDCC77"));
+
+  //h_Prot_Sig->SetFillColor(TColor::GetColor("#999933"));
+
+  MnvH1D* h_Other_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_Other");
+  h_Other_Sig->SetLineColor(TColor::GetColor("#CC6677"));
+  h_Other_Sig->SetFillColor(TColor::GetColor("#CC6677"));
+
+  //h_None_Sig->SetFillColor(TColor::GetColor("#882255"));
+
+  MnvH1D* h_C_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_TargetType_C");
+  h_C_Bkg->SetLineColor(TColor::GetColor("#88CCEE"));
+  h_C_Bkg->SetFillColor(TColor::GetColor("#88CCEE"));
+  h_C_Bkg->SetFillStyle(3444);
+
+  MnvH1D* h_Fe_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_TargetType_Fe");
+  h_Fe_Bkg->SetLineColor(TColor::GetColor("#882255"));
+  h_Fe_Bkg->SetFillColor(TColor::GetColor("#882255"));
+  h_Fe_Bkg->SetFillStyle(3444);
+
+  MnvH1D* h_Pb_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_TargetType_Pb");
+  h_Pb_Bkg->SetLineColor(TColor::GetColor("#117733"));
+  h_Pb_Bkg->SetFillColor(TColor::GetColor("#117733"));
+  h_Pb_Bkg->SetFillStyle(3444);
+
+  MnvH1D* h_O_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_TargetType_O");
+  h_O_Bkg->SetLineColor(TColor::GetColor("#332288"));
+  h_O_Bkg->SetFillColor(TColor::GetColor("#332288"));
+  h_O_Bkg->SetFillStyle(3444);
+
+  MnvH1D* h_H_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_TargetType_H");
+  h_H_Bkg->SetLineColor(TColor::GetColor("#DDCC77"));
+  h_H_Bkg->SetFillColor(TColor::GetColor("#DDCC77"));
+  h_H_Bkg->SetFillStyle(3444);
+
+  MnvH1D* h_Other_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_TargetType_Other");
+  h_Other_Bkg->SetLineColor(TColor::GetColor("#CC6677"));
+  h_Other_Bkg->SetFillColor(TColor::GetColor("#CC6677"));
+  h_Other_Bkg->SetFillStyle(3444);
+
+  THStack* h = new THStack();
+  h->Add(h_Other_Bkg);
+  h->Add(h_H_Bkg);
+  h->Add(h_O_Bkg);
+  h->Add(h_Pb_Bkg);
+  h->Add(h_Fe_Bkg);
+  h->Add(h_C_Bkg);
+
+  h->Add(h_Other_Sig);
+  h->Add(h_H_Sig);
+  h->Add(h_O_Sig);
+  h->Add(h_Pb_Sig);
+  h->Add(h_Fe_Sig);
+  h->Add(h_C_Sig);
+
+  h->Draw("hist");
+  c1->Update();
+
+  h->SetTitle(sample+" Target Type Breakdown");//+title.c_str());
+  h->GetXaxis()->SetTitle(Xtitle);
+  h->GetXaxis()->SetTitleSize(0.045);
+  h->GetYaxis()->SetTitle(Ytitle);
+  h->GetYaxis()->SetTitleSize(0.045);
+  h->GetYaxis()->SetTitleOffset(1.075);
+  
+  size_t pos=0;
+  if ((pos=name_sig.find("_primary_parent")) != string::npos){
+    h->GetXaxis()->SetBinLabel(1,"None");
+    h->GetXaxis()->SetBinLabel(2,"");
+    h->GetXaxis()->SetBinLabel(3,"n");
+    h->GetXaxis()->SetBinLabel(4,"p");
+    h->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+    h->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+    h->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+    h->GetXaxis()->SetBinLabel(8,"#gamma");
+    h->GetXaxis()->SetBinLabel(9,"e");
+    h->GetXaxis()->SetBinLabel(10,"#mu");
+    h->GetXaxis()->SetLabelSize(0.06);
+    h->GetXaxis()->SetTitle("Blob Primary Parent");
+    h->GetXaxis()->SetTitleSize(0.045);
+  }
+
+  h->Draw("hist");
+  c1->Update();
+
+  TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
+
+  leg->SetNColumns(2);
+
+  leg->AddEntry(h_C_Sig,"Sig. + C");
+  leg->AddEntry(h_C_Bkg,"Bkg. + C");
+
+  leg->AddEntry(h_Fe_Sig,"Sig. + Fe");
+  leg->AddEntry(h_Fe_Bkg,"Bkg. + Fe");
+
+  leg->AddEntry(h_Pb_Sig,"Sig. + Pb");  
+  leg->AddEntry(h_Pb_Bkg,"Bkg. + Pb");
+  
+  leg->AddEntry(h_O_Sig,"Sig. + O");
+  leg->AddEntry(h_O_Bkg,"Bkg. + O");
+
+  leg->AddEntry(h_H_Sig,"Sig. + H");
+  leg->AddEntry(h_H_Bkg,"Bkg. + H");
+
+  leg->AddEntry(h_Other_Sig,"Sig. + Other");
+  leg->AddEntry(h_Other_Bkg,"Bkg. + Other");
+
+  leg->Draw();
+  c1->Update();
+  return c1;
+}
+
 bool PathExists(string path){
   struct stat buffer;
   return (stat (path.c_str(), &buffer) == 0);
@@ -246,16 +397,29 @@ int main(int argc, char* argv[]) {
     //cout << key->GetName() << endl;
     pos=0;
     string name=(string)key->GetName();
-    if((pos = name.find("_sig_IntType_QE")) == string::npos) continue;
-    TCanvas* c1 = DrawIntType(name,inFile,label);
-    name.erase(name.length()-3,name.length());
-    cout << name << endl;
-    //cout << name.length() << endl;
-    name.erase(name.length()-12,name.length());
-    cout << name << endl;
-    c1->Print((TString)outDir+(TString)name+"_IntType_stacked_test.pdf");
-    c1->Print((TString)outDir+(TString)name+"_IntType_stacked_test.png");
-    delete c1;
+    if((pos = name.find("_sig_IntType_QE")) != string::npos){
+      TCanvas* c1 = DrawIntType(name,inFile,label);
+      name.erase(name.length()-15,name.length());
+      c1->Print((TString)outDir+(TString)name+"_IntType_stacked_test.pdf");
+      c1->Print((TString)outDir+(TString)name+"_IntType_stacked_test.png");
+      cout << "" << endl;
+      delete c1;
+    }
+    else if ((pos = name.find("_sig_TargetType_C")) != string::npos){
+      TCanvas* c1 = DrawTargetType(name,inFile,label);
+      name.erase(name.length()-17,name.length());
+      c1->Print((TString)outDir+(TString)name+"_TargetType_stacked_test.pdf");
+      c1->Print((TString)outDir+(TString)name+"_TargetType_stacked_test.png");
+      cout << "" << endl;
+      delete c1;
+    }
+    /*
+    else if ((pos = name.find("_sig_Type_C")) != string::npos){
+      cout << "FOUND: " << name << endl;
+      name.erase(name.length()-18,name.length());
+      cout << "Parsed to: " << name  << endl;
+    }
+    */
   }
 
   cout << "HEY YOU DID IT!!!" << endl;
