@@ -76,28 +76,22 @@ namespace MyCCQECuts{
     }
   };
 
-  //Not sure how I wish to handle this... might use Event... might call function
-  //3 times... Only worry is if either is a reasonable sideband that I wouldn't want
-  //the two criteria to be appleid together...  
-    /*  
-template <class UNIVERSE, class EVENT = PlotUtils::detail::empty>
-  class MaxEMBlobs: public PlotUtils::Cut<UNIVERSE, EVENT>
+  // Maybe break this apart/ use the EVENT class to handle this cut. Currently implementing as before.
+  template <class UNIVERSE, class EVENT = PlotUtils::detail::empty>
+  class AllEMBlobsCuts: public PlotUtils::Cut<UNIVERSE, EVENT>
   {
   public:
     // Constructor
-    MaxEMBlobs(const std::string& name, const double nMax): PlotUtils::Cut<UNIVERSE, EVENT>(name), fMax(nMax) 
-    {
-    }
+    AllEMBlobsCuts(): PlotUtils::Cut<UNIVERSE, EVENT>("EM Blobs Cuts") {}
 
   private:
-    bool checkCut(const UNIVERSE& univ, EVENT& evt) const override
+    bool checkCut(const UNIVERSE& univ, EVENT& /*evt*/) const override
     {
-      return evt.GetNEMBlobs() >= fMax;
+      std::vector<double> EMBlobInfo = univ.GetEMNBlobsTotalEnergyTotalNHits();
+      return EMBlobInfo.at(0) < 2 && EMBlobInfo.at(1) >= 10.0*EMBlobInfo.at(2);
     }
 
-    const double fMax;
   };
-*/
 
 }
 #endif //David_CCQECuts_H

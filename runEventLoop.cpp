@@ -369,7 +369,7 @@ int main(const int argc, const char** argv)
   // You're required to make some decisions
   PlotUtils::MinervaUniverse::SetNuEConstraint(true);
   PlotUtils::MinervaUniverse::SetPlaylist(options.m_plist_string); //TODO: Infer this from the files somehow?
-  PlotUtils::MinervaUniverse::SetAnalysisNuPDG(14);
+  PlotUtils::MinervaUniverse::SetAnalysisNuPDG(-14);
   PlotUtils::MinervaUniverse::SetNFluxUniverses(100);
   PlotUtils::MinervaUniverse::SetZExpansionFaReweight(false);
 
@@ -389,17 +389,23 @@ int main(const int argc, const char** argv)
   preCuts.emplace_back(new MyCCQECuts::PMuRange<CVUniverse, NeutronEvent>("1.5 <= Pmu <= 20",1.5,20.0));
   preCuts.emplace_back(new MyCCQECuts::IsAntiNu<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyCCQECuts::IsSingleTrack<CVUniverse, NeutronEvent>());
+  preCuts.emplace_back(new MyCCQECuts::AllEMBlobsCuts<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyCCQECuts::NoMichels<CVUniverse, NeutronEvent>());
   //preCuts.emplace_back(new reco::IsNeutrino<CVUniverse, NeutronEvent>());
-                                                                                                                                                   
-  signalDefinition.emplace_back(new truth::IsNeutrino<CVUniverse>());
+  
+  //signalDefinition.emplace_back(new truth::IsNeutrino<CVUniverse>());
+  signalDefinition.emplace_back(new MySignal::IsAntiNu<CVUniverse>());
   signalDefinition.emplace_back(new truth::IsCC<CVUniverse>());
-                                                                                                                                                   
+  signalDefinition.emplace_back(new MySignal::IsCorrectFS<CVUniverse>());
+
+  //REMOVED FOR DIAGNOSTIC PURPOSES TO CHECK OLD SIGNAL DEFINITION
+  /*
   phaseSpace.emplace_back(new truth::ZRange<CVUniverse>("Tracker", minZ, maxZ));
   phaseSpace.emplace_back(new truth::Apothem<CVUniverse>(apothem));
   phaseSpace.emplace_back(new truth::MuonAngle<CVUniverse>(20.));
   phaseSpace.emplace_back(new truth::PZMuMin<CVUniverse>(1500.));
-                                                                                                                                                   
+  */
+
   PlotUtils::Cutter<CVUniverse, NeutronEvent> mycuts(std::move(preCuts), std::move(sidebands) , std::move(signalDefinition),std::move(phaseSpace));
 
   std::vector<std::unique_ptr<PlotUtils::Reweighter<CVUniverse, NeutronEvent>>> MnvTunev1;
