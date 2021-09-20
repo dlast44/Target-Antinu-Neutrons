@@ -391,6 +391,7 @@ int main(const int argc, const char** argv)
   preCuts.emplace_back(new MyCCQECuts::IsSingleTrack<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyCCQECuts::AllEMBlobsCuts<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyCCQECuts::NoMichels<CVUniverse, NeutronEvent>());
+  preCuts.emplace_back(new MyCCQECuts::RecoilCut<CVUniverse, NeutronEvent>());
   //preCuts.emplace_back(new reco::IsNeutrino<CVUniverse, NeutronEvent>());
   
   //signalDefinition.emplace_back(new truth::IsNeutrino<CVUniverse>());
