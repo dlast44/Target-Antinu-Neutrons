@@ -471,10 +471,10 @@ int main(const int argc, const char** argv)
 
   std::vector<Variable*> vars = {
     new Variable("pTmu", "p_{T, #mu} [GeV/c]", dansPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
-    new Variable("nBlobs", "No.", nBlobsBins, &CVUniverse::GetNNeutBlobs, &CVUniverse::GetDummyTrue), //truth?
-    new Variable("My_recoilE", "Recoil E [GeV]", myRecoilBins, &CVUniverse::GetDANRecoilEnergyGeV, &CVUniverse::GetDummyTrue), //truth?
-    new Variable("pmu", "p_{#mu} [GeV/c]", myPmuBins, &CVUniverse::GetMuonP, &CVUniverse::GetDummyTrue), //make fill truth properly at some point
-    new Variable("vtxZ", "Z [mm]", myVtxZBins, &CVUniverse::GetVtxZ, &CVUniverse::GetDummyTrue), //Make fill truth properly at some point
+    new Variable("nBlobs", "No.", nBlobsBins, &CVUniverse::GetNNeutBlobs),//Don't need GetDummyTrue perhaps...
+    new Variable("My_recoilE", "Recoil E [GeV]", myRecoilBins, &CVUniverse::GetDANRecoilEnergyGeV),//Don't need GetDummyTrue perhaps...
+    new Variable("pmu", "p_{#mu} [GeV/c]", myPmuBins, &CVUniverse::GetMuonP),//Don't need GetDummyTrue perhaps...
+    new Variable("vtxZ", "Z [mm]", myVtxZBins, &CVUniverse::GetVtxZ),//Don't need GetDummyTrue perhaps...
     //new Variable("leadBlobE", "E [MeV]", myBlobEBins, &NeutronCandidates::NeutCand::GetTotalE, &CVUniverse::GetDummyTrue),
   };
 
