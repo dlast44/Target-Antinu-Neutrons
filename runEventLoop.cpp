@@ -511,6 +511,8 @@ int main(const int argc, const char** argv)
     LoopAndFillData(options.m_data, data_band, vars, vars2D, data_studies, mycuts);
     std::cout << "Data cut summary:\n" << mycuts << "\n";
 
+    std::cout << "Writing MC Output File." << std::endl;
+
     //Write MC results
     TFile* mcOutDir = TFile::Open(MC_OUT_FILE_NAME, "RECREATE");
     if(!mcOutDir)
@@ -530,6 +532,9 @@ int main(const int argc, const char** argv)
     PlotUtils::TargetUtils targetInfo;
     assert(error_bands["cv"].size() == 1 && "List of error bands must contain a universe named \"cv\" for the flux integral.");
 
+    //Removed for antineutrino and targets since these functions don't cover those cases as written yet.
+
+    /*
     for(const auto& var: vars)
     {
       //Flux integral only if systematics are being done (temporary solution)
@@ -538,6 +543,9 @@ int main(const int argc, const char** argv)
       auto nNucleons = new TParameter<double>((var->GetName() + "_fiducial_nucleons").c_str(), targetInfo.GetTrackerNNucleons(minZ, maxZ, true, apothem));
       nNucleons->Write();
     }
+    */
+
+    std::cout << "Writing Data Output File" << std::endl;
 
     //Write data results
     TFile* dataOutDir = TFile::Open(DATA_OUT_FILE_NAME, "RECREATE");
