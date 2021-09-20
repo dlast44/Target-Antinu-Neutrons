@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <bitset>
 
 namespace NeutronCandidates{
@@ -21,6 +22,8 @@ namespace NeutronCandidates{
 
   intBranchMap GetBranchIntMap();
   doubleBranchMap GetBranchDoubleMap();
+
+  std::unordered_map<int,int> GetPDGBins();
 
   class NeutCand{
   private:
@@ -56,8 +59,19 @@ namespace NeutronCandidates{
     int GetTopMCPID() const { return fTopMCPID; };
     int GetMCParentTrackID() const { return fMCParentTrackID; };
     int GetMCParentPID() const { return fMCParentPID; };
+    
     double GetTotalE() const { return fTotE; };
     double GetAngleToFP() const { return fAngleToFP; };
+
+    double GetPDGBin() const { return GetPDGBins()[fTopMCPID]; };
+    double GetLength() const { return fDirection.Mag(); };
+    double GetDEDX() const { 
+      if (GetLength() > 0) return fTotE/GetLength(); 
+      else return -1.0;
+    };
+    double GetVtxDist() const { return fFlightPath.Mag(); };
+    double GetVtxZDist() const { return abs(fFlightPath.Z()); };
+
     TVector3 GetBegPos() const { return fBegPos; };
     TVector3 GetEndPos() const { return fEndPos; };
     TVector3 GetFlightPath() const { return fFlightPath; };

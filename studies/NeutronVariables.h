@@ -30,21 +30,54 @@ class NeutronVariables: public Study
       const double mySelfAngleBinWidth = 3.2/180.;
       for (int whichBin=0; whichBin < 181; ++whichBin) mySelfAngleBins.push_back(mySelfAngleBinWidth * whichBin);
 
+      std::vector<double> myPDGBins;
+      const double myPDGBinWidth = 1.;
+      for (int whichBin=0; whichBin < 11; ++whichBin) myPDGBins.push_back(myPDGBinWidth * whichBin);
+
+      std::vector<double> myLenBins;
+      const double myLenBinWidth = 10.;
+      for (int whichBin=0; whichBin < 51; ++whichBin) myLenBins.push_back(myLenBinWidth * whichBin);
+
+      std::vector<double> myDEDXBins;
+      const double myDEDXBinWidth = 2.;
+      for (int whichBin=0; whichBin < 26; ++whichBin) myDEDXBins.push_back(myDEDXBinWidth * whichBin);
+
+      std::vector<double> myVtxDistBins;
+      const double myVtxDistBinWidth = 10.;
+      for (int whichBin=0; whichBin < 101; ++whichBin) myVtxDistBins.push_back(myVtxDistBinWidth * whichBin);
+
       fLeadVars = {
 	new NeutronVariable("leadBlob_blobE","E [MeV]", myBlobEBins,&NeutronCandidates::NeutCand::GetTotalE),
 	new NeutronVariable("leadBlob_SelfAngle","Angle [rad]", mySelfAngleBins,&NeutronCandidates::NeutCand::GetAngleToFP),
+	new NeutronVariable("leadBlob_primary_parent","", myPDGBins,&NeutronCandidates::NeutCand::GetPDGBin),
+	new NeutronVariable("leadBlob_length","len. [mm]", myLenBins,&NeutronCandidates::NeutCand::GetLength),
+	new NeutronVariable("leadBlob_avg_dEdx","dE/dx [MeV/mm]", myDEDXBins,&NeutronCandidates::NeutCand::GetDEDX),
+	new NeutronVariable("leadBlob_dist","dist. [mm]", myVtxDistBins,&NeutronCandidates::NeutCand::GetVtxDist),
+	new NeutronVariable("leadBlob_Zdist","Z dist. [mm]", myVtxDistBins,&NeutronCandidates::NeutCand::GetVtxZDist),
       };
       fAllVars = {
 	new NeutronVariable("All_blobE","E [MeV]", myBlobEBins,&NeutronCandidates::NeutCand::GetTotalE),
-	new NeutronVariable("All_SelfAngle","Angle [rad]", mySelfAngleBins,&NeutronCandidates::NeutCand::GetAngleToFP),
+	new NeutronVariable("All_primary_parent","", myPDGBins,&NeutronCandidates::NeutCand::GetPDGBin),
+	new NeutronVariable("All_length","len. [mm]", myLenBins,&NeutronCandidates::NeutCand::GetLength),
+	new NeutronVariable("All_avg_dEdx","dE/dx [MeV/mm]", myDEDXBins,&NeutronCandidates::NeutCand::GetDEDX),
+	new NeutronVariable("All_dist","dist. [mm]", myVtxDistBins,&NeutronCandidates::NeutCand::GetVtxDist),
+	new NeutronVariable("All_Zdist","Z dist. [mm]", myVtxDistBins,&NeutronCandidates::NeutCand::GetVtxZDist),
       };
       fTgtVars = {
 	new NeutronVariable("target_blobE","E [MeV]", myBlobEBins,&NeutronCandidates::NeutCand::GetTotalE),
-	new NeutronVariable("target_SelfAngle","Angle [rad]", mySelfAngleBins,&NeutronCandidates::NeutCand::GetAngleToFP),
+	new NeutronVariable("target_primary_parent","", myPDGBins,&NeutronCandidates::NeutCand::GetPDGBin),
+	new NeutronVariable("target_length","len. [mm]", myLenBins,&NeutronCandidates::NeutCand::GetLength),
+	new NeutronVariable("target_avg_dEdx","dE/dx [MeV/mm]", myDEDXBins,&NeutronCandidates::NeutCand::GetDEDX),
+	new NeutronVariable("target_dist","dist. [mm]", myVtxDistBins,&NeutronCandidates::NeutCand::GetVtxDist),
+	new NeutronVariable("target_Zdist","Z dist. [mm]", myVtxDistBins,&NeutronCandidates::NeutCand::GetVtxZDist),
       };
       fTrackVars = {
 	new NeutronVariable("tracker_blobE","E [MeV]", myBlobEBins,&NeutronCandidates::NeutCand::GetTotalE),
-	new NeutronVariable("tracker_SelfAngle","Angle [rad]", mySelfAngleBins,&NeutronCandidates::NeutCand::GetAngleToFP),
+	new NeutronVariable("tracker_primary_parent","", myPDGBins,&NeutronCandidates::NeutCand::GetPDGBin),
+	new NeutronVariable("tracker_length","len. [mm]", myLenBins,&NeutronCandidates::NeutCand::GetLength),
+	new NeutronVariable("tracker_avg_dEdx","dE/dx [MeV/mm]", myDEDXBins,&NeutronCandidates::NeutCand::GetDEDX),
+	new NeutronVariable("tracker_dist","dist. [mm]", myVtxDistBins,&NeutronCandidates::NeutCand::GetVtxDist),
+	new NeutronVariable("tracker_Zdist","Z dist. [mm]", myVtxDistBins,&NeutronCandidates::NeutCand::GetVtxZDist),
       };
 
       for(auto& var: fLeadVars) var->InitializeMCHists(mc_error_bands, truth_error_bands);

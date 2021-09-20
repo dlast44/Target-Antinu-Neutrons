@@ -7,6 +7,19 @@
 
 namespace NeutronCandidates{
 
+  std::unordered_map<int,int> GetPDGBins(){ 
+    return {{2112,2},
+	    {2212,3},
+	    {111,4},
+	    {211,5},
+	    {-211,6},
+	    {22,7},
+	    {11,8},
+	    {-11,8},
+	    {-13,9},
+	    {13,9}};
+  };
+
   intBranchMap GetBranchIntMap(){
     //return {{"SetID",{"MasterAnaDev_BlobID"}},{"SetIs3D",{"MasterAnaDev_BlobIs3D"}},{"SetMCPID",{"MasterAnaDev_BlobMCPID"}},{"SetTopMCPID",{"MasterAnaDev_BlobTopMCPID"}},{"SetMCParentTrackID",{"MasterAnaDev_BlobMCParentTrackID"}},{"SetMCParentPID",{"MasterAnaDev_BlobMCParentPID"}},};
     return {{"SetID",{"MasterAnaDev_BlobID"}},{"SetIs3D",{"MasterAnaDev_BlobIs3D"}},{"SetMCPID",{"MasterAnaDev_BlobMCPID"}},{"SetTopMCPID",{"MasterAnaDev_BlobTopMCPID"}},{"SetMCParentTrackID",{"MasterAnaDev_BlobMCParentTrackID"}},};
@@ -15,7 +28,7 @@ namespace NeutronCandidates{
   doubleBranchMap GetBranchDoubleMap(){
     return {{"SetTotE",{"MasterAnaDev_BlobTotalE"}},{"SetBegPos",{"MasterAnaDev_BlobBegX","MasterAnaDev_BlobBegY","MasterAnaDev_BlobBegZ"}},{"SetEndPos",{"MasterAnaDev_BlobEndX","MasterAnaDev_BlobEndY","MasterAnaDev_BlobEndZ"}}, };
   }
-  
+
   NeutCand::NeutCand(){
     this->init();
   }
