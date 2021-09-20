@@ -53,13 +53,14 @@ enum ErrorCodes
 #include "cuts/MaxPzMu.h"
 #include "cuts/CCQECuts.h"
 #include "util/Variable.h"
+#include "util/NeutronVariable.h"
 #include "util/Variable2D.h"
 #include "util/GetFluxIntegral.h"
 #include "util/GetPlaylist.h"
 #include "cuts/SignalDefinition.h"
 #include "cuts/q3RecoCut.h"
 #include "studies/Study.h"
-//#include "studies/NeutronVariables.h"
+#include "studies/NeutronVariables.h"
 //#include "Binning.h" //TODO: Fix me
 
 //PlotUtils includes
@@ -136,15 +137,18 @@ void LoopAndFillEventSelection(
         for(auto& var: vars) var->selectedMCReco->FillUniverse(universe, var->GetRecoValue(*universe), weight); //"Fake data" for closure
 
         const bool isSignal = michelcuts.isSignal(*universe, weight);
-
-	//Categorize various breakdown quantities.
 	int intType = universe->GetInteractionType();
 	int tgtType = universe->GetTargetZ();
-	//int leadBlobType = 1; //Dummy Value for testing need to set to the correct thing at some point
+
+        myevent.SetSignal(isSignal);
+	myevent.SetIntType(intType);
+	myevent.SetTgtZ(tgtType);
+
+	for(auto& study: studies) study->Selected(*universe, myevent, weight);
 
         if(isSignal)
         {
-          for(auto& study: studies) study->SelectedSignal(*universe, myevent, weight);
+          //for(auto& study: studies) study->SelectedSignal(*universe, myevent, weight);
 
           for(auto& var: vars)
           {
@@ -169,6 +173,8 @@ void LoopAndFillEventSelection(
           int bkgd_ID = -1;
           if (universe->GetCurrent()==2)bkgd_ID=0;
           else bkgd_ID=1;
+
+          //for(auto& study: studies) study->SelectedSignal(*universe, myevent, weight);
 
           for(auto& var: vars){
 	    (*var->m_backgroundHists)[bkgd_ID].FillUniverse(universe, var->GetRecoValue(*universe), weight);
@@ -203,7 +209,7 @@ void LoopAndFillData( PlotUtils::ChainWrapper* data,
  
       if (!michelcuts.isDataSelected(*universe, myevent).all()) continue;
 
-      for(auto& study: studies) study->Selected(*universe, myevent, 1); 
+      //for(auto& study: studies) study->Selected(*universe, myevent, 1); 
 
       for(auto& var: vars)
       {
@@ -488,16 +494,16 @@ int main(const int argc, const char** argv)
     vars2D.push_back(new Variable2D(*vars[1], *vars[0]));
   }
     
-  std::vector<Study*> studies;// = {
-    //    new NeutronVariables(),
-    // };
-
   CVUniverse* data_universe = new CVUniverse(options.m_data);
   std::vector<CVUniverse*> data_band = {data_universe};
   std::map<std::string, std::vector<CVUniverse*> > data_error_bands;
   data_error_bands["cv"] = data_band;
   
   std::vector<Study*> data_studies;
+
+  std::vector<Study*> studies = {
+    new NeutronVariables(error_bands, truth_bands, data_band),
+  };
 
   for(auto& var: vars) var->InitializeMCHists(error_bands, truth_bands);
   for(auto& var: vars) var->InitializeDATAHists(data_band);
@@ -530,7 +536,7 @@ int main(const int argc, const char** argv)
       return badOutputFile;
     }
 
-    for(auto& study: studies) study->SaveOrDraw(*mcOutDir);
+    for(auto& study: studies) study->SaveOrDrawMC(*mcOutDir);
     for(auto& var: vars) var->WriteMC(*mcOutDir);
     for(auto& var: vars2D) var->Write(*mcOutDir);
 

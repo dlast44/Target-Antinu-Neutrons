@@ -31,6 +31,8 @@ class Study
     //Find Andrew if you need to know how to overload functions for drawing.
     //Only need this when you write a new Study.
     virtual void SaveOrDraw(TDirectory& outDir) = 0;
+    virtual void SaveOrDrawData(TFile& outFile) = 0;
+    virtual void SaveOrDrawMC(TFile& outFile) = 0;
 
   private:
     using Hist = PlotUtils::HistWrapper<CVUniverse>;

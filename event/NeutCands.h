@@ -47,19 +47,22 @@ namespace NeutronCandidates{
     NeutCand();
     NeutCand(NeutronCandidates::intCandData candIntData, NeutronCandidates::doubleCandData candDoubleData, TVector3 vtx);
 
-    int GetID(){ return fID; };
-    int GetIs3D(){ return fIs3D; };
-    int GetMCPID(){ return fMCPID; };
-    int GetTopMCPID(){ return fTopMCPID; };
-    int GetMCParentTrackID(){ return fMCParentTrackID; };
-    int GetMCParentPID(){ return fMCParentPID; };
-    double GetTotalE(){ return fTotE; };
-    double GetAngleToFP(){ return fAngleToFP; };
-    TVector3 GetBegPos(){ return fBegPos; };
-    TVector3 GetEndPos(){ return fEndPos; };
-    TVector3 GetFlightPath(){ return fFlightPath; };
-    TVector3 GetDirection(){ return fDirection; };
-    TVector3 GetEvtVtx(){ return fEvtVtx; };
+    //Here for use in Variable-like classes
+    double GetDummyVar() const { return -999.; }
+
+    int GetID() const { return fID; };
+    int GetIs3D() const { return fIs3D; };
+    int GetMCPID() const { return fMCPID; };
+    int GetTopMCPID() const { return fTopMCPID; };
+    int GetMCParentTrackID() const { return fMCParentTrackID; };
+    int GetMCParentPID() const { return fMCParentPID; };
+    double GetTotalE() const { return fTotE; };
+    double GetAngleToFP() const { return fAngleToFP; };
+    TVector3 GetBegPos() const { return fBegPos; };
+    TVector3 GetEndPos() const { return fEndPos; };
+    TVector3 GetFlightPath() const { return fFlightPath; };
+    TVector3 GetDirection() const { return fDirection; };
+    TVector3 GetEvtVtx() const { return fEvtVtx; };
     std::bitset<4> GetClassifier();
 
     void SetID(std::vector<int> ID){ fID=ID.at(0); };
@@ -121,25 +124,37 @@ namespace NeutronCandidates{
       fNCands=inCands.size();
     }
 
-    int GetIDMaxE(){ return fIDmaxE; };
-    int GetNCands(){ return fNCands; };
+    int GetIDMaxE()  const { return fIDmaxE; };
+    int GetNCands()  const { return fNCands; };
     NeutCand GetCandidate(int ID){ 
       if (fNCands == 0) return NeutCand();
       else return fCands[ID]; };
-    NeutCand GetMaxCandidate(){ return fCandMaxE; };
-    std::map<int, NeutCand> GetCandidates(){ return fCands; };
+    NeutCand GetMaxCandidate() const { return fCandMaxE; };
+    std::map<int, NeutCand> GetCandidates() const { return fCands; };
   };
 
 }
 
 class NeutronEvent{
  private:
+  bool fIsSignal;
+  int fIntType;
+  int fTgtZ;
   NeutronCandidates::NeutCands fNeutCands;
  public:
- NeutronEvent() : fNeutCands() { }
+  NeutronEvent() : fNeutCands() { }
   NeutronEvent(NeutronCandidates::NeutCands cands) { fNeutCands = cands; }
-  NeutronCandidates::NeutCand GetLeadingNeutCand() { return fNeutCands.GetMaxCandidate(); };
-  NeutronCandidates::NeutCands GetNeutCands() { return fNeutCands; };
+
+  bool IsSignal() const { return fIsSignal; }
+  int GetIntType() const { return fIntType; }
+  int GetTgtZ() const { return fTgtZ; }
+  NeutronCandidates::NeutCand GetLeadingNeutCand() const { return fNeutCands.GetMaxCandidate(); }
+  NeutronCandidates::NeutCands GetNeutCands() const { return fNeutCands; }
+
+  void SetSignal(bool isSignal){ fIsSignal = isSignal; }
+  void SetIntType(int intType){ fIntType = intType; }
+  void SetTgtZ(int tgtZ){ fTgtZ = tgtZ; }
+
 };
 
 #endif
