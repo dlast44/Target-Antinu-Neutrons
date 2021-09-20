@@ -502,7 +502,7 @@ int main(const int argc, const char** argv)
   std::vector<Study*> data_studies;
 
   std::vector<Study*> studies = {
-    new NeutronVariables(error_bands, truth_bands, data_band),
+    new NeutronVariables(maxZ, error_bands, truth_bands, data_band),
   };
 
   for(auto& var: vars) var->InitializeMCHists(error_bands, truth_bands);
