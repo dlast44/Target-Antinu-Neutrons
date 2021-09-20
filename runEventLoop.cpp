@@ -59,6 +59,7 @@ enum ErrorCodes
 #include "cuts/SignalDefinition.h"
 #include "cuts/q3RecoCut.h"
 #include "studies/Study.h"
+//#include "studies/NeutronVariables.h"
 //#include "Binning.h" //TODO: Fix me
 
 //PlotUtils includes
@@ -108,8 +109,8 @@ void LoopAndFillEventSelection(
   {
     if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::flush;
 
-    NeutronEvent cvEvent;
     cvUniv->SetEntry(i);
+    NeutronEvent cvEvent(cvUniv->GetNeutCands());
     model.SetEntry(*cvUniv, cvEvent);
     const double cvWeight = model.GetWeight(*cvUniv, cvEvent);
 
@@ -120,13 +121,12 @@ void LoopAndFillEventSelection(
     {
       std::vector<CVUniverse*> error_band_universes = band.second;
       for (auto universe : error_band_universes)
-      {
-        NeutronEvent myevent; // make sure your event is inside the error band loop. 
-    
+      {    
         // Tell the Event which entry in the TChain it's looking at
         universe->SetEntry(i);
         
         // This is where you would Access/create a Michel
+        NeutronEvent myevent(universe->GetNeutCands()); // make sure your event is inside the error band loop. 
 
         //weight is ignored in isMCSelected() for all but the CV Universe.
         if (!michelcuts.isMCSelected(*universe, myevent, cvWeight).all()) continue; //all is another function that will later help me with sidebands
@@ -199,7 +199,8 @@ void LoopAndFillData( PlotUtils::ChainWrapper* data,
     for (auto universe : data_band) {
       universe->SetEntry(i);
       if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::flush;
-      NeutronEvent myevent; 
+      NeutronEvent myevent;
+ 
       if (!michelcuts.isDataSelected(*universe, myevent).all()) continue;
 
       for(auto& study: studies) study->Selected(*universe, myevent, 1); 
@@ -444,7 +445,9 @@ int main(const int argc, const char** argv)
 		      nBlobsBins,
 		      myRecoilBins,
 		      myPmuBins,
-		      myVtxZBins;
+		      myVtxZBins//,
+		      //myBlobEBins
+		      ;
 
   const double robsRecoilBinWidth = 50; //MeV
   for(int whichBin = 0; whichBin < 100 + 1; ++whichBin) robsRecoilBins.push_back(robsRecoilBinWidth * whichBin);
@@ -463,12 +466,16 @@ int main(const int argc, const char** argv)
   const double myVtxZBase = 4470.; //Targets for later!!!
   for(int whichBin = 0; whichBin < 152; ++whichBin) myVtxZBins.push_back(myVtxZBinWidth * whichBin + myVtxZBase);
 
+  //const double myBlobEBinWdith = 3.;
+  //for(int whichBin = 0; whichBin < 51; ++whichBin) myBlobEBins.push_back(myBlobEBinWidth * whichBin);
+
   std::vector<Variable*> vars = {
     new Variable("pTmu", "p_{T, #mu} [GeV/c]", dansPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
     new Variable("nBlobs", "No.", nBlobsBins, &CVUniverse::GetNNeutBlobs, &CVUniverse::GetDummyTrue), //truth?
     new Variable("My_recoilE", "Recoil E [GeV]", myRecoilBins, &CVUniverse::GetDANRecoilEnergyGeV, &CVUniverse::GetDummyTrue), //truth?
     new Variable("pmu", "p_{#mu} [GeV/c]", myPmuBins, &CVUniverse::GetMuonP, &CVUniverse::GetDummyTrue), //make fill truth properly at some point
     new Variable("vtxZ", "Z [mm]", myVtxZBins, &CVUniverse::GetVtxZ, &CVUniverse::GetDummyTrue), //Make fill truth properly at some point
+    //new Variable("leadBlobE", "E [MeV]", myBlobEBins, &NeutronCandidates::NeutCand::GetTotalE, &CVUniverse::GetDummyTrue),
   };
 
   std::vector<Variable2D*> vars2D;
@@ -480,8 +487,10 @@ int main(const int argc, const char** argv)
     vars.push_back(new Variable("Erecoil", "E_{recoil}", robsRecoilBins, &CVUniverse::GetRecoilE, &CVUniverse::Getq0True)); //TODO: q0 is not the same as recoil energy without a spline correction
     vars2D.push_back(new Variable2D(*vars[1], *vars[0]));
   }
-
-  std::vector<Study*> studies;
+    
+  std::vector<Study*> studies;// = {
+    //    new NeutronVariables(),
+    // };
 
   CVUniverse* data_universe = new CVUniverse(options.m_data);
   std::vector<CVUniverse*> data_band = {data_universe};

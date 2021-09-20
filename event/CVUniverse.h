@@ -21,10 +21,9 @@
 
 #include "PlotUtils/PhysicsVariables.h"//Included by David, unsure if needed
 #include "PlotUtils/MinervaUniverse.h"
-
-//Includes for old neutron candidate structure which is not currently added into this structure.
-//#include "obj/NeutCands.h"
-//#include "TVector3.h"
+//Needed for neutron candidates business... May change at some point, but for now this is what we're working with.
+#include "event/NeutCands.h"
+#include "TVector3.h"
 
 class CVUniverse : public PlotUtils::MinervaUniverse {
 
@@ -307,14 +306,7 @@ class CVUniverse : public PlotUtils::MinervaUniverse {
     return recoilE;
   }
 
-  //Still needed for some systematics to compile, but shouldn't be used for reweighting anymore.
-  protected:
-  #include "PlotUtils/WeightFunctions.h" // Get*Weight
-};
-
-  //Neutron Candidate Business which may be included at some point
-  /*
-
+  //Neutron Candidate Business. May change at some point, but this is current to what was used before/validating against...
   virtual NeutronCandidates::NeutCand GetNeutCand(int index){
     std::vector<double> vtx = GetVtx();
     TVector3 EvtVtx;
@@ -346,22 +338,9 @@ class CVUniverse : public PlotUtils::MinervaUniverse {
     return EvtCands;
   };
 
-  virtual void UpdateNeutCands(){
-    NeutronCandidates::NeutCands candsIn = GetNeutCands();
-    fNeutCands = candsIn;
-    fNNeutCands = candsIn.GetNCands();
-  };
-
-  NeutronCandidates::NeutCand GetCurrentNeutCand(int index) { return fNeutCands.GetCandidate(index); };
-
-  NeutronCandidates::NeutCand GetCurrentLeadingNeutCand() { return fNeutCands.GetMaxCandidate(); };
-
-  NeutronCandidates::NeutCands GetCurrentNeutCands() { return fNeutCands; };
-
-  int GetNNeutCands(){ return fNNeutCands; }
-  
- private:
-  NeutronCandidates::NeutCands fNeutCands;
-  int fNNeutCands;*/
+  //Still needed for some systematics to compile, but shouldn't be used for reweighting anymore.
+  protected:
+  #include "PlotUtils/WeightFunctions.h" // Get*Weight
+};
 
 #endif

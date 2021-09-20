@@ -134,13 +134,12 @@ namespace NeutronCandidates{
 
 class NeutronEvent{
  private:
-  int fNCands;
+  NeutronCandidates::NeutCands fNeutCands;
  public:
-  NeutronEvent() : fNCands(0) { }
-  NeutronEvent(int nCands);
-  void SetNCands(int nCands) { fNCands=nCands; }
-  int GetNCands() { return fNCands; }
-  //  NeutronCandidates::NeutCand leadCandidate;
+ NeutronEvent() : fNeutCands() { }
+  NeutronEvent(NeutronCandidates::NeutCands cands) { fNeutCands = cands; }
+  NeutronCandidates::NeutCand GetLeadingNeutCand() { return fNeutCands.GetMaxCandidate(); };
+  NeutronCandidates::NeutCands GetNeutCands() { return fNeutCands; };
 };
 
 #endif
