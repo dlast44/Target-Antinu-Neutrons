@@ -71,6 +71,9 @@ namespace NeutronCandidates{
     };
     double GetVtxDist() const { return fFlightPath.Mag(); };
     double GetVtxZDist() const { return abs(fFlightPath.Z()); };
+    double GetXPos() const { return fBegPos.X(); }
+    double GetYPos() const { return fBegPos.Y(); }
+    double GetZPos() const { return fBegPos.Z(); }
 
     TVector3 GetBegPos() const { return fBegPos; };
     TVector3 GetEndPos() const { return fEndPos; };

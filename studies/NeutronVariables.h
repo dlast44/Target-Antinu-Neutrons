@@ -46,6 +46,10 @@ class NeutronVariables: public Study
       const double myVtxDistBinWidth = 10.;
       for (int whichBin=0; whichBin < 101; ++whichBin) myVtxDistBins.push_back(myVtxDistBinWidth * whichBin);
 
+      std::vector<double> myZPosBins;
+      const double myZPosBinWidth = 10.;
+      for (int whichBin=0; whichBin < ((9300-fBound)/10)+1; ++whichBin) myZPosBins.push_back(myZPosBinWidth * whichBin + fBound);
+
       fLeadVars = {
 	new NeutronVariable("leadBlob_blobE","E [MeV]", myBlobEBins,&NeutronCandidates::NeutCand::GetTotalE),
 	new NeutronVariable("leadBlob_SelfAngle","Angle [rad]", mySelfAngleBins,&NeutronCandidates::NeutCand::GetAngleToFP),
@@ -54,6 +58,7 @@ class NeutronVariables: public Study
 	new NeutronVariable("leadBlob_avg_dEdx","dE/dx [MeV/mm]", myDEDXBins,&NeutronCandidates::NeutCand::GetDEDX),
 	new NeutronVariable("leadBlob_dist","dist. [mm]", myVtxDistBins,&NeutronCandidates::NeutCand::GetVtxDist),
 	new NeutronVariable("leadBlob_Zdist","Z dist. [mm]", myVtxDistBins,&NeutronCandidates::NeutCand::GetVtxZDist),
+	new NeutronVariable("leadBlob_ZPos","Z [mm]", myZPosBins,&NeutronCandidates::NeutCand::GetZPos),
       };
       fAllVars = {
 	new NeutronVariable("All_blobE","E [MeV]", myBlobEBins,&NeutronCandidates::NeutCand::GetTotalE),
