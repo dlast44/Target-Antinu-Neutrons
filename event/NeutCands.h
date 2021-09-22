@@ -64,16 +64,26 @@ namespace NeutronCandidates{
     double GetAngleToFP() const { return fAngleToFP; };
 
     double GetPDGBin() const { 
-      if (fMCParentTrackID == 0) return GetPDGBins()[fMCPID];
-      else return GetPDGBins()[fTopMCPID];
+      std::unordered_map<int,int> bins = GetPDGBins();
+      if (fMCParentTrackID == 0) return bins[fMCPID];
+      else return bins[fTopMCPID];
     };
-    double GetLength() const { return fDirection.Mag(); };
-    double GetDEDX() const { 
-      if (GetLength() > 0) return fTotE/GetLength(); 
+    double GetLength() const { 
+      if (fID >= 0) return fDirection.Mag(); 
       else return -1.0;
     };
-    double GetVtxDist() const { return fFlightPath.Mag(); };
-    double GetVtxZDist() const { return abs(fFlightPath.Z()); };
+    double GetDEDX() const { 
+      if (fDirection.Mag() > 0) return fTotE/(fDirection.Mag()); 
+      else return -1.0;
+    };
+    double GetVtxDist() const { 
+      if (fID >= 0) return fFlightPath.Mag(); 
+      else return -1.0;
+    };
+    double GetVtxZDist() const { 
+      if (fID >= 0) return abs(fFlightPath.Z()); 
+      else return -1.0;
+    };
     double GetXPos() const { return fBegPos.X(); }
     double GetYPos() const { return fBegPos.Y(); }
     double GetZPos() const { return fBegPos.Z(); }
