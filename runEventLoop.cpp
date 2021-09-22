@@ -144,6 +144,8 @@ void LoopAndFillEventSelection(
 	myevent.SetIntType(intType);
 	myevent.SetTgtZ(tgtType);
 
+	int leadBlobType = myevent.GetLeadingNeutCand().GetPDGBin();
+
 	for(auto& study: studies) study->Selected(*universe, myevent, weight);
 
         if(isSignal)
@@ -160,7 +162,7 @@ void LoopAndFillEventSelection(
 	    //Various breakdowns of selected signal reco
 	    (*var->m_SigIntTypeHists)[intType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
 	    (*var->m_SigTargetTypeHists)[tgtType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
-	    //(*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    (*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
           }
 
           for(auto& var: vars2D)
@@ -181,7 +183,7 @@ void LoopAndFillEventSelection(
 	    //Various breakdowns of selected backgrounds
 	    (*var->m_BkgIntTypeHists)[intType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
 	    (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
-	    //(*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
 	  }
           for(auto& var: vars2D) (*var->m_backgroundHists)[bkgd_ID].FillUniverse(universe, var->GetRecoValueX(*universe), var->GetRecoValueY(*universe), weight);
         }

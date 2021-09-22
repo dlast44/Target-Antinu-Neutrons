@@ -43,15 +43,14 @@ class NeutronVariable: public PlotUtils::VariableBase<NeutronCandidates::NeutCan
 						     {26, "Fe"},
 						     {82, "Pb"}};
 
-      /*
-      std::map<int, std::string> LeadBlobTypeLabels = {{1, "neut"},
-						       {2, "mu"},
-						       {3, "pi0"},
-						       {8, "pim"},
-						       {9, "pip"},
-						       {10, "prot"},
-						       {11, "None"}};
-      */      
+      std::map<int, std::string> LeadBlobTypeLabels = {{2, "neut"},
+						       {3, "prot"},
+						       {4, "pi0"},
+						       {5, "pip"},
+						       {6, "pim"},
+						       {9, "mu"},
+						       {1, "None"}};
+
       m_backgroundHists = new util::Categorized<Hist, int>((GetName() + "_background").c_str(),
 							   GetName().c_str(), BKGLabels,
 							   GetBinVec(), mc_error_bands);
@@ -65,11 +64,9 @@ class NeutronVariable: public PlotUtils::VariableBase<NeutronCandidates::NeutCan
 							   GetName().c_str(), TargetTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
-      /*
       m_SigLeadBlobTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig_LeadBlobType").c_str(),
 							   GetName().c_str(), LeadBlobTypeLabels,
 							   GetBinVec(), mc_error_bands);
-      */
 
       m_BkgIntTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg_IntType").c_str(),
 							   GetName().c_str(), IntTypeLabels,
@@ -79,11 +76,9 @@ class NeutronVariable: public PlotUtils::VariableBase<NeutronCandidates::NeutCan
 							   GetName().c_str(), TargetTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
-      /*
       m_BkgLeadBlobTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg_LeadBlobType").c_str(),
 							   GetName().c_str(), LeadBlobTypeLabels,
 							   GetBinVec(), mc_error_bands);
-      */
       
       efficiencyNumerator = new Hist((GetName() + "_efficiency_numerator").c_str(), GetName().c_str(), GetBinVec(), mc_error_bands);
       efficiencyDenominator = new Hist((GetName() + "_efficiency_denominator").c_str(), GetName().c_str(), GetBinVec(), truth_error_bands);
@@ -96,10 +91,10 @@ class NeutronVariable: public PlotUtils::VariableBase<NeutronCandidates::NeutCan
     util::Categorized<Hist, int>* m_backgroundHists;
     util::Categorized<Hist, int>* m_SigIntTypeHists;
     util::Categorized<Hist, int>* m_SigTargetTypeHists;
-    //util::Categorized<Hist, int>* m_SigLeadBlobTypeHists;
+    util::Categorized<Hist, int>* m_SigLeadBlobTypeHists;
     util::Categorized<Hist, int>* m_BkgIntTypeHists;
     util::Categorized<Hist, int>* m_BkgTargetTypeHists;
-    //util::Categorized<Hist, int>* m_BkgLeadBlobTypeHists;
+    util::Categorized<Hist, int>* m_BkgLeadBlobTypeHists;
 
     Hist* dataHist;
     Hist* efficiencyNumerator;
@@ -145,13 +140,11 @@ class NeutronVariable: public PlotUtils::VariableBase<NeutronCandidates::NeutCan
                                       categ.hist->Write(); //TODO: Or let the TFile destructor do this the "normal" way?                                                                                           
                                     });
 
-      /*
       m_SigLeadBlobTypeHists->visit([&file](Hist& categ)
                                     {
                                       categ.hist->SetDirectory(&file);
                                       categ.hist->Write(); //TODO: Or let the TFile destructor do this the "normal" way?                                                                                           
                                     });
-      */
 
       m_BkgIntTypeHists->visit([&file](Hist& categ)
                                     {
@@ -165,13 +158,11 @@ class NeutronVariable: public PlotUtils::VariableBase<NeutronCandidates::NeutCan
                                       categ.hist->Write(); //TODO: Or let the TFile destructor do this the "normal" way?                                                                                           
                                     });
 
-      /*
       m_BkgLeadBlobTypeHists->visit([&file](Hist& categ)
                                     {
                                       categ.hist->SetDirectory(&file);
                                       categ.hist->Write(); //TODO: Or let the TFile destructor do this the "normal" way?                                                                                           
                                     });
-      */
       
       if(efficiencyNumerator)
       {
@@ -213,10 +204,10 @@ class NeutronVariable: public PlotUtils::VariableBase<NeutronCandidates::NeutCan
       m_backgroundHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
       m_SigIntTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
       m_SigTargetTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
-      //m_SigLeadBlobTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
+      m_SigLeadBlobTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
       m_BkgIntTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
       m_BkgTargetTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
-      //m_BkgLeadBlobTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
+      m_BkgLeadBlobTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
 
       if(dataHist) dataHist->SyncCVHistos();
       if(efficiencyNumerator) efficiencyNumerator->SyncCVHistos();
