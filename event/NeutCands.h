@@ -63,7 +63,10 @@ namespace NeutronCandidates{
     double GetTotalE() const { return fTotE; };
     double GetAngleToFP() const { return fAngleToFP; };
 
-    double GetPDGBin() const { return GetPDGBins()[fTopMCPID]; };
+    double GetPDGBin() const { 
+      if (fMCParentTrackID == 0) return GetPDGBins()[fMCPID];
+      else return GetPDGBins()[fTopMCPID];
+    };
     double GetLength() const { return fDirection.Mag(); };
     double GetDEDX() const { 
       if (GetLength() > 0) return fTotE/GetLength(); 
