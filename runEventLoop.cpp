@@ -52,6 +52,7 @@ enum ErrorCodes
 #include "systematics/Systematics.h"
 #include "cuts/MaxPzMu.h"
 #include "cuts/CCQECuts.h"
+#include "cuts/NeutCuts.h"
 #include "util/Variable.h"
 #include "util/NeutronVariable.h"
 #include "util/Variable2D.h"
@@ -401,6 +402,10 @@ int main(const int argc, const char** argv)
   preCuts.emplace_back(new MyCCQECuts::AllEMBlobsCuts<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyCCQECuts::NoMichels<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyCCQECuts::RecoilCut<CVUniverse, NeutronEvent>());
+  preCuts.emplace_back(new MyNeutCuts::LeadNeutIs3D<CVUniverse, NeutronEvent>());
+  preCuts.emplace_back(new MyNeutCuts::LeadNeutIsFarFromMuon<CVUniverse, NeutronEvent>());
+  preCuts.emplace_back(new MyNeutCuts::LeadNeutZDistMin<CVUniverse, NeutronEvent>());
+  //preCuts.emplace_back(new MyNeutCuts::LeadNeutInTracker<CVUniverse, NeutronEvent>(maxZ));
   //preCuts.emplace_back(new reco::IsNeutrino<CVUniverse, NeutronEvent>());
   
   //signalDefinition.emplace_back(new truth::IsNeutrino<CVUniverse>());
