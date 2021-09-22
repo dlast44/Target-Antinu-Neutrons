@@ -15,12 +15,14 @@ class NeutronVariables: public Study
     std::vector<NeutronVariable*> fTgtVars;
     std::vector<NeutronVariable*> fTrackVars;
     double fBound;
+    double fMinZ;
 
   public:
-    NeutronVariables(double tgtBoundary, 
+    NeutronVariables(double tgtBoundary,
+		     double minZ,
 		     std::map<std::string, std::vector<CVUniverse*>>& mc_error_bands,
 		     std::map<std::string, std::vector<CVUniverse*>>& truth_error_bands,
-		     std::vector<CVUniverse*>& data_error_bands): Study(), fBound(tgtBoundary)
+		     std::vector<CVUniverse*>& data_error_bands): Study(), fBound(tgtBoundary), fMinZ(minZ)
     {
       std::vector<double> myBlobEBins;
       const double myBlobEBinWidth = 3.;
@@ -48,7 +50,7 @@ class NeutronVariables: public Study
 
       std::vector<double> myZPosBins;
       const double myZPosBinWidth = 10.;
-      for (int whichBin=0; whichBin < ((9300-fBound)/10)+1; ++whichBin) myZPosBins.push_back(myZPosBinWidth * whichBin + fBound);
+      for (int whichBin=0; whichBin < ((9300-fMinZ)/10)+1; ++whichBin) myZPosBins.push_back(myZPosBinWidth * whichBin + fMinZ);
 
       fLeadVars = {
 	new NeutronVariable("leadBlob_blobE","E [MeV]", myBlobEBins,&NeutronCandidates::NeutCand::GetTotalE),
