@@ -454,6 +454,7 @@ int main(const int argc, const char** argv)
   std::vector<double> dansPTBins = {0, 0.075, 0.15, 0.25, 0.325, 0.4, 0.475, 0.55, 0.7, 0.85, 1, 1.25, 1.5, 2.5, 4.5},
                       dansPzBins = {1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 8, 9, 10, 15, 20, 40, 60},
                       robsEmuBins = {0,1,2,3,4,5,7,9,12,15,18,22,36,50,75,100,120},
+		      tejinPmuBins = {1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8, 9, 10, 15, 20}, //include 0, can probably handle with plotting...
 		      robsRecoilBins,
 		      nBlobsBins,
 		      myRecoilBins,
@@ -509,7 +510,7 @@ int main(const int argc, const char** argv)
   std::vector<Study*> data_studies;
 
   std::vector<Study*> studies = {
-    new NeutronVariables(maxZ, error_bands, truth_bands, data_band),
+    new NeutronVariables(maxZ, minZ, error_bands, truth_bands, data_band),
   };
 
   for(auto& var: vars) var->InitializeMCHists(error_bands, truth_bands);
