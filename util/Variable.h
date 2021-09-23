@@ -36,7 +36,7 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
       std::map<int, std::string> IntTypeLabels = {{1, "QE_Other"},
 						  {2, "RES"},
 						  {3, "DIS"},
-						  {3, "QE_H"},
+						  {4, "QE_H"},
 						  {8, "2p2h"}};
 
       /*
