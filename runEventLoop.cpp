@@ -404,7 +404,7 @@ int main(const int argc, const char** argv)
   preCuts.emplace_back(new MyCCQECuts::RecoilCut<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyNeutCuts::LeadNeutIs3D<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyNeutCuts::LeadNeutIsFarFromMuon<CVUniverse, NeutronEvent>());
-  preCuts.emplace_back(new MyNeutCuts::LeadNeutZDistMin<CVUniverse, NeutronEvent>());
+  //preCuts.emplace_back(new MyNeutCuts::LeadNeutZDistMin<CVUniverse, NeutronEvent>());
   //preCuts.emplace_back(new MyNeutCuts::LeadNeutInTracker<CVUniverse, NeutronEvent>(maxZ));
   //preCuts.emplace_back(new reco::IsNeutrino<CVUniverse, NeutronEvent>());
   
