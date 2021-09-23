@@ -91,6 +91,30 @@ enum ErrorCodes
 #include <cstdlib> //getenv()
 
 //==============================================================================
+// Bkgd Helper for Tejin Validation... Does this need to require CC for the pion backgrounds?
+//==============================================================================
+
+int whichBackground(const CVUniverse& univ){
+  int nPiC = 0;
+  int nPi0 = 0;
+  std::vector<int> FSPDGs = univ.GetFSPartPDG();
+  for (int i=0; i < FSPDGs.size(); ++i){
+    if (abs(FSPDGs.at(i)) == 211) nPiC++;
+    else if (FSPDGs.at(i) == 111) nPi0++;
+  }
+  if ((nPiC + nPi0) > 1){
+    return 3;
+  }
+  else if (nPiC == 1){
+    return 1;
+  }
+  else if (nPi0 == 1){
+    return 2;
+  }
+  else return 0;
+}
+
+//==============================================================================
 // Loop and Fill
 //==============================================================================
 void LoopAndFillEventSelection(
@@ -113,6 +137,7 @@ void LoopAndFillEventSelection(
 
     cvUniv->SetEntry(i);
     NeutronEvent cvEvent(cvUniv->GetNeutCands());
+    //NeutronEvent cvEvent();
     model.SetEntry(*cvUniv, cvEvent);
     const double cvWeight = model.GetWeight(*cvUniv, cvEvent);
 
@@ -132,8 +157,8 @@ void LoopAndFillEventSelection(
 
         //weight is ignored in isMCSelected() for all but the CV Universe.
         if (!michelcuts.isMCSelected(*universe, myevent, cvWeight).all()) continue; //all is another function that will later help me with sidebands
-        //const double weight = model.GetWeight(*universe, myevent); //Only calculate the per-universe weight for events that will actually use it.
-        const double weight = 1.0; //Dummy weight for testing/validation pre-weight
+        const double weight = model.GetWeight(*universe, myevent); //Only calculate the per-universe weight for events that will actually use it.
+        //const double weight = 1.0; //Dummy weight for testing/validation pre-weight
 
         for(auto& var: vars) var->selectedMCReco->FillUniverse(universe, var->GetRecoValue(*universe), weight); //"Fake data" for closure
 
@@ -141,11 +166,13 @@ void LoopAndFillEventSelection(
 	int intType = universe->GetInteractionType();
 	int tgtType = universe->GetTargetZ();
 
-        myevent.SetSignal(isSignal);
-	myevent.SetIntType(intType);
-	myevent.SetTgtZ(tgtType);
+	if (intType == 1 && tgtType == 1) intType=4;
 
-	int leadBlobType = myevent.GetLeadingNeutCand().GetPDGBin();
+        //myevent.SetSignal(isSignal);
+	//myevent.SetIntType(intType);
+	//myevent.SetTgtZ(tgtType);
+
+	//int leadBlobType = myevent.GetLeadingNeutCand().GetPDGBin();
 
 	for(auto& study: studies) study->Selected(*universe, myevent, weight);
 
@@ -162,8 +189,8 @@ void LoopAndFillEventSelection(
 
 	    //Various breakdowns of selected signal reco
 	    (*var->m_SigIntTypeHists)[intType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
-	    (*var->m_SigTargetTypeHists)[tgtType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
-	    (*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    //(*var->m_SigTargetTypeHists)[tgtType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
+	    //(*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
           }
 
           for(auto& var: vars2D)
@@ -174,8 +201,10 @@ void LoopAndFillEventSelection(
         else
         {
           int bkgd_ID = -1;
-          if (universe->GetCurrent()==2)bkgd_ID=0;
-          else bkgd_ID=1;
+          //if (universe->GetCurrent()==2)bkgd_ID=0;
+          //else bkgd_ID=1;
+
+	  bkgd_ID = whichBackground(*universe);
 
           //for(auto& study: studies) study->SelectedSignal(*universe, myevent, weight);
 
@@ -388,9 +417,9 @@ int main(const int argc, const char** argv)
   PlotUtils::Cutter<CVUniverse, NeutronEvent>::reco_t sidebands, preCuts;
   PlotUtils::Cutter<CVUniverse, NeutronEvent>::truth_t signalDefinition, phaseSpace;
 
-  //const double minZ = 5980, maxZ = 8422, apothem = 850; //All in mm
+  const double minZ = 5980, maxZ = 8422, apothem = 850; //All in mm
   //preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>("Tracker", minZ, maxZ));
-  const double minZ = 4470, maxZ = 5980, apothem = 850; //All in mm
+  //const double minZ = 4470, maxZ = 5980, apothem = 850; //All in mm
   preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>("Targets", minZ, maxZ));
   preCuts.emplace_back(new reco::Apothem<CVUniverse, NeutronEvent>(apothem));
   preCuts.emplace_back(new reco::MaxMuonAngle<CVUniverse, NeutronEvent>(20.));
@@ -484,11 +513,11 @@ int main(const int argc, const char** argv)
   //for(int whichBin = 0; whichBin < 51; ++whichBin) myBlobEBins.push_back(myBlobEBinWidth * whichBin);
 
   std::vector<Variable*> vars = {
-    new Variable("pTmu", "p_{T, #mu} [GeV/c]", dansPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
-    new Variable("nBlobs", "No.", nBlobsBins, &CVUniverse::GetNNeutBlobs),//Don't need GetDummyTrue perhaps...
-    new Variable("My_recoilE", "Recoil E [GeV]", myRecoilBins, &CVUniverse::GetDANRecoilEnergyGeV),//Don't need GetDummyTrue perhaps...
-    new Variable("pmu", "p_{#mu} [GeV/c]", myPmuBins, &CVUniverse::GetMuonP),//Don't need GetDummyTrue perhaps...
-    new Variable("vtxZ", "Z [mm]", myVtxZBins, &CVUniverse::GetVtxZ),//Don't need GetDummyTrue perhaps...
+    //new Variable("pTmu", "p_{T, #mu} [GeV/c]", dansPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
+    //new Variable("nBlobs", "No.", nBlobsBins, &CVUniverse::GetNNeutBlobs),//Don't need GetDummyTrue perhaps...
+    //new Variable("My_recoilE", "Recoil E [GeV]", myRecoilBins, &CVUniverse::GetDANRecoilEnergyGeV),//Don't need GetDummyTrue perhaps...
+    new Variable("pmu", "p_{#mu} [GeV/c]", tejinPmuBins, &CVUniverse::GetMuonP),//Don't need GetDummyTrue perhaps...
+    //new Variable("vtxZ", "Z [mm]", myVtxZBins, &CVUniverse::GetVtxZ),//Don't need GetDummyTrue perhaps...
     //new Variable("leadBlobE", "E [MeV]", myBlobEBins, &NeutronCandidates::NeutCand::GetTotalE, &CVUniverse::GetDummyTrue),
   };
 
@@ -509,9 +538,9 @@ int main(const int argc, const char** argv)
   
   std::vector<Study*> data_studies;
 
-  std::vector<Study*> studies = {
-    new NeutronVariables(maxZ, minZ, error_bands, truth_bands, data_band),
-  };
+  std::vector<Study*> studies;// = {
+  //new NeutronVariables(maxZ, minZ, error_bands, truth_bands, data_band),
+  //};
 
   for(auto& var: vars) var->InitializeMCHists(error_bands, truth_bands);
   for(auto& var: vars) var->InitializeDATAHists(data_band);
