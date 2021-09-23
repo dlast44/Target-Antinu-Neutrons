@@ -27,15 +27,19 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
                            std::map<std::string, std::vector<CVUniverse*>>& truth_error_bands)
     {
 
-      std::map<int, std::string> BKGLabels = {{0, "NC"},
-					       {1, "Wrong_Sign"}};
+      std::map<int, std::string> BKGLabels = {{1, "1chargePi"},
+					      {2, "1neutPi"},
+					      {3, "NPi"}};
+      
 
       //Various breakdowns for signal and background. TODO: Get the mapping correct
-      std::map<int, std::string> IntTypeLabels = {{1, "QE"},
+      std::map<int, std::string> IntTypeLabels = {{1, "QE_Other"},
 						  {2, "RES"},
 						  {3, "DIS"},
+						  {3, "QE_H"},
 						  {8, "2p2h"}};
 
+      /*
       std::map<int, std::string> TargetTypeLabels = {{1, "H"},
 						     {6, "C"},
 						     {8, "O"},
@@ -50,6 +54,7 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
 						       {6, "pim"},
 						       {9, "mu"},
 						       {1, "None"}};
+      */
 
       m_backgroundHists = new util::Categorized<Hist, int>((GetName() + "_background").c_str(),
 							   GetName().c_str(), BKGLabels,
@@ -60,6 +65,7 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
 							   GetName().c_str(), IntTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
+      /*
       m_SigTargetTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig_TargetType").c_str(),
 							   GetName().c_str(), TargetTypeLabels,
 							   GetBinVec(), mc_error_bands);
@@ -79,7 +85,8 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
       m_BkgLeadBlobTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg_LeadBlobType").c_str(),
 							   GetName().c_str(), LeadBlobTypeLabels,
 							   GetBinVec(), mc_error_bands);
-      
+      */
+
       efficiencyNumerator = new Hist((GetName() + "_efficiency_numerator").c_str(), GetName().c_str(), GetBinVec(), mc_error_bands);
       efficiencyDenominator = new Hist((GetName() + "_efficiency_denominator").c_str(), GetName().c_str(), GetBinVec(), truth_error_bands);
       selectedSignalReco = new Hist((GetName() + "_selected_signal_reco").c_str(), GetName().c_str(), GetBinVec(), mc_error_bands);
@@ -90,11 +97,11 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
     //Histograms to be filled
     util::Categorized<Hist, int>* m_backgroundHists;
     util::Categorized<Hist, int>* m_SigIntTypeHists;
-    util::Categorized<Hist, int>* m_SigTargetTypeHists;
-    util::Categorized<Hist, int>* m_SigLeadBlobTypeHists;
-    util::Categorized<Hist, int>* m_BkgIntTypeHists;
-    util::Categorized<Hist, int>* m_BkgTargetTypeHists;
-    util::Categorized<Hist, int>* m_BkgLeadBlobTypeHists;
+    //util::Categorized<Hist, int>* m_SigTargetTypeHists;
+    //util::Categorized<Hist, int>* m_SigLeadBlobTypeHists;
+    //util::Categorized<Hist, int>* m_BkgIntTypeHists;
+    //util::Categorized<Hist, int>* m_BkgTargetTypeHists;
+    //util::Categorized<Hist, int>* m_BkgLeadBlobTypeHists;
 
     Hist* dataHist;
     Hist* efficiencyNumerator;
@@ -134,6 +141,7 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
                                       categ.hist->Write(); //TODO: Or let the TFile destructor do this the "normal" way?                                                                                           
                                     });
 
+      /*
       m_SigTargetTypeHists->visit([&file](Hist& categ)
                                     {
                                       categ.hist->SetDirectory(&file);
@@ -163,6 +171,7 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
                                       categ.hist->SetDirectory(&file);
                                       categ.hist->Write(); //TODO: Or let the TFile destructor do this the "normal" way?                                                                                           
                                     });
+      */
       
       if(efficiencyNumerator)
       {
@@ -203,11 +212,11 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
     {
       m_backgroundHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
       m_SigIntTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
-      m_SigTargetTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
-      m_SigLeadBlobTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
-      m_BkgIntTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
-      m_BkgTargetTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
-      m_BkgLeadBlobTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
+      //m_SigTargetTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
+      //m_SigLeadBlobTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
+      //m_BkgIntTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
+      //m_BkgTargetTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
+      //m_BkgLeadBlobTypeHists->visit([](Hist& categ) { categ.SyncCVHistos(); });
 
       if(dataHist) dataHist->SyncCVHistos();
       if(efficiencyNumerator) efficiencyNumerator->SyncCVHistos();
