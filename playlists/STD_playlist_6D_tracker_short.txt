@@ -1,0 +1,5 @@
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/sakhter/merged_folder_TVB/Merged_mcfd_WoML_ana_minervame6D_TBV/MasterAnaDev_mc_AnaTuple_run00122565_Playlist.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/sakhter/merged_folder_TVB/Merged_mcfd_WoML_ana_minervame6D_TBV/MasterAnaDev_mc_AnaTuple_run00122566_Playlist.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/sakhter/merged_folder_TVB/Merged_mcfd_WoML_ana_minervame6D_TBV/MasterAnaDev_mc_AnaTuple_run00122567_Playlist.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/sakhter/merged_folder_TVB/Merged_mcfd_WoML_ana_minervame6D_TBV/MasterAnaDev_mc_AnaTuple_run00122568_Playlist.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/sakhter/merged_folder_TVB/Merged_mcfd_WoML_ana_minervame6D_TBV/MasterAnaDev_mc_AnaTuple_run00122569_Playlist.root
