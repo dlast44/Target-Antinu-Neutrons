@@ -1,0 +1,5 @@
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/dlast/merged_MAD_data/6A/Sept_2021_merge/MasterAnaDev_data_AnaTuple_run00022393_Playlist.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/dlast/merged_MAD_data/6A/Sept_2021_merge/MasterAnaDev_data_AnaTuple_run00022394_Playlist.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/dlast/merged_MAD_data/6A/Sept_2021_merge/MasterAnaDev_data_AnaTuple_run00022395_Playlist.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/dlast/merged_MAD_data/6A/Sept_2021_merge/MasterAnaDev_data_AnaTuple_run00022396_Playlist.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/dlast/merged_MAD_data/6A/Sept_2021_merge/MasterAnaDev_data_AnaTuple_run00022397_Playlist.root
