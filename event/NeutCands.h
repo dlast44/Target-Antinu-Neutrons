@@ -170,20 +170,32 @@ class NeutronEvent{
   bool fIsSignal;
   int fIntType;
   int fTgtZ;
+  double fEMNBlobs, fEMBlobE, fEMBlobNHits;
   NeutronCandidates::NeutCands fNeutCands;
+
  public:
-  NeutronEvent() : fNeutCands() { }
-  NeutronEvent(NeutronCandidates::NeutCands cands) { fNeutCands = cands; }
+  NeutronEvent() : fNeutCands(), fIsSignal(false), fIntType(-999), fTgtZ(-999), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0) { }
+  NeutronEvent(NeutronCandidates::NeutCands cands) : fIsSignal(false), fIntType(-999), fTgtZ(-999), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0) { fNeutCands = cands; }
 
   bool IsSignal() const { return fIsSignal; }
   int GetIntType() const { return fIntType; }
   int GetTgtZ() const { return fTgtZ; }
+  double GetEMNBlobs() const { return fEMNBlobs; }
+  double GetEMBlobE() const { return fEMBlobE; }
+  double GetEMBlobNHits() const { return fEMBlobNHits; }
+
   NeutronCandidates::NeutCand GetLeadingNeutCand() const { return fNeutCands.GetMaxCandidate(); }
   NeutronCandidates::NeutCands GetNeutCands() const { return fNeutCands; }
 
   void SetSignal(bool isSignal){ fIsSignal = isSignal; }
   void SetIntType(int intType){ fIntType = intType; }
   void SetTgtZ(int tgtZ){ fTgtZ = tgtZ; }
+  void SetEMBlobInfo(std::vector<double> EMInfo)
+  {
+    fEMNBlobs = EMInfo.at(0);
+    fEMBlobE = EMInfo.at(1);
+    fEMBlobNHits = EMInfo.at(2);
+  }
 
 };
 

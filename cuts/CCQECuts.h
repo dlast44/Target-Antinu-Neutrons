@@ -77,19 +77,83 @@ namespace MyCCQECuts{
   };
 
   // Maybe break this apart/ use the EVENT class to handle this cut. Currently implementing as before.
-  template <class UNIVERSE, class EVENT = PlotUtils::detail::empty>
+  template <class UNIVERSE, class EVENT>
   class AllEMBlobsCuts: public PlotUtils::Cut<UNIVERSE, EVENT>
   {
   public:
     // Constructor
-    AllEMBlobsCuts(): PlotUtils::Cut<UNIVERSE, EVENT>("EM Blobs Cuts") {}
+    AllEMBlobsCuts(const bool useEvent): PlotUtils::Cut<UNIVERSE, EVENT>("EM Blobs Cuts"), fUse(useEvent) {}
 
   private:
-    bool checkCut(const UNIVERSE& univ, EVENT& /*evt*/) const override
+    bool checkCut(const UNIVERSE& univ, EVENT& evt) const override
     {
-      std::vector<double> EMBlobInfo = univ.GetEMNBlobsTotalEnergyTotalNHits();
-      return EMBlobInfo.at(0) < 2 && EMBlobInfo.at(1) >= 10.0*EMBlobInfo.at(2);
+      if (!fUse){
+	std::vector<double> EMBlobInfo = univ.GetEMNBlobsTotalEnergyTotalNHits();
+	if (EMBlobInfo.at(0) == 0) return true;
+	return EMBlobInfo.at(0) < 2 && EMBlobInfo.at(1) >= 10.0*EMBlobInfo.at(2);
+      }
+      else{
+	double nBlobs = evt.GetEMNBlobs();
+	double BlobE = evt.GetEMBlobE();
+	double BlobNHit = evt.GetEMBlobNHits();
+	if (nBlobs == 0) return true;
+	return nBlobs < 2 && BlobE >= 10.0*BlobNHit;
+      }
     }
+
+    const bool fUse;
+
+  };
+
+  template <class UNIVERSE, class EVENT>
+  class EMNBlobsCut: public PlotUtils::Cut<UNIVERSE, EVENT>
+  {
+  public:
+    // Constructor
+    EMNBlobsCut(const bool useEvent): PlotUtils::Cut<UNIVERSE, EVENT>("EM N Blobs Cut"), fUse(useEvent) {}
+
+  private:
+    bool checkCut(const UNIVERSE& univ, EVENT& evt) const override
+    {
+      if (!fUse){
+	std::vector<double> EMBlobInfo = univ.GetEMNBlobsTotalEnergyTotalNHits();
+	return EMBlobInfo.at(0) < 2;
+      }
+      else{
+	double nBlobs = evt.GetEMNBlobs();
+	return nBlobs < 2;
+      }
+    }
+
+    const bool fUse;
+
+  };
+
+  template <class UNIVERSE, class EVENT>
+  class EMBlobENHitRatioCut: public PlotUtils::Cut<UNIVERSE, EVENT>
+  {
+  public:
+    // Constructor
+    EMBlobENHitRatioCut(const bool useEvent): PlotUtils::Cut<UNIVERSE, EVENT>("EM Blob E/NHit Cut"), fUse(useEvent) {}
+
+  private:
+    bool checkCut(const UNIVERSE& univ, EVENT& evt) const override
+    {
+      if (!fUse){
+	std::vector<double> EMBlobInfo = univ.GetEMNBlobsTotalEnergyTotalNHits();
+	if (EMBlobInfo.at(0) == 0) return true;
+	return EMBlobInfo.at(1) >= 10.0*EMBlobInfo.at(2);
+      }
+      else{
+	double nBlobs = evt.GetEMNBlobs();
+	double BlobE = evt.GetEMBlobE();
+	double BlobNHit = evt.GetEMBlobNHits();
+	if (nBlobs == 0) return true;
+	return BlobE >= 10.0*BlobNHit;
+      }
+    }
+
+    const bool fUse;
 
   };
 
