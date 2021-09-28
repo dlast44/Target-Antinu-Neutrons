@@ -208,7 +208,7 @@ void LoopAndFillData( PlotUtils::ChainWrapper* data,
     for (auto universe : data_band) {
       universe->SetEntry(i);
       if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::flush;
-      NeutronEvent myevent;
+      NeutronEvent myevent(universe->GetNeutCands());
  
       if (!michelcuts.isDataSelected(*universe, myevent).all()) continue;
 
