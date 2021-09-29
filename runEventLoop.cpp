@@ -409,10 +409,10 @@ int main(const int argc, const char** argv)
   PlotUtils::Cutter<CVUniverse, NeutronEvent>::reco_t sidebands, preCuts;
   PlotUtils::Cutter<CVUniverse, NeutronEvent>::truth_t signalDefinition, phaseSpace;
 
-  //const double minZ = 5980, maxZ = 8422, apothem = 850; //All in mm
-  //preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>("Tracker", minZ, maxZ));
-  const double minZ = 4470, maxZ = 5980, apothem = 850; //All in mm
-  preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>("Targets", minZ, maxZ));
+  const double minZ = 5980, maxZ = 8422, apothem = 850; //All in mm
+  preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>("Tracker", minZ, maxZ));
+  //const double minZ = 4470, maxZ = 5980, apothem = 850; //All in mm
+  //preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>("Targets", minZ, maxZ));
   preCuts.emplace_back(new reco::Apothem<CVUniverse, NeutronEvent>(apothem));
   preCuts.emplace_back(new reco::MaxMuonAngle<CVUniverse, NeutronEvent>(20.));
   preCuts.emplace_back(new reco::HasMINOSMatch<CVUniverse, NeutronEvent>());
