@@ -15,11 +15,16 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
 {
   private:
     typedef PlotUtils::HistWrapper<CVUniverse> Hist;
+    typedef std::function<double(const CVUniverse&)> PointerToCVUniverseFunction;
   public:
     template <class ...ARGS>
     Variable(ARGS... args): PlotUtils::VariableBase<CVUniverse>(args...)
     {
     }
+
+    //Additional Getter to return Variable Reco Function. Not sure I want to add to MAT writ-large. Would need to discuss first.
+    PointerToCVUniverseFunction GetRecoFunc() { return m_pointer_to_GetRecoValue; }
+    PointerToCVUniverseFunction GetTrueFunc() { return m_pointer_to_GetTrueValue; }
 
     //TODO: It's really silly to have to make 2 sets of error bands just because they point to different trees.
     //      I'd rather the physics of the error bands remain the same and just change which tree they point to.
