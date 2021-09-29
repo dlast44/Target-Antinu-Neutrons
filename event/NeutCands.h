@@ -171,11 +171,12 @@ class NeutronEvent{
   int fIntType;
   int fTgtZ;
   double fEMNBlobs, fEMBlobE, fEMBlobNHits;
+  std::bitset<64> fSideBands;
   NeutronCandidates::NeutCands fNeutCands;
 
  public:
-  NeutronEvent() : fNeutCands(), fIsSignal(false), fIntType(-999), fTgtZ(-999), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0) { }
-  NeutronEvent(NeutronCandidates::NeutCands cands) : fIsSignal(false), fIntType(-999), fTgtZ(-999), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0) { fNeutCands = cands; }
+  NeutronEvent() : fNeutCands(), fIsSignal(false), fIntType(-999), fTgtZ(-999), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0), fSideBands(0) { }
+  NeutronEvent(NeutronCandidates::NeutCands cands) : fIsSignal(false), fIntType(-999), fTgtZ(-999), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0), fSideBands(0) { fNeutCands = cands; }
 
   bool IsSignal() const { return fIsSignal; }
   int GetIntType() const { return fIntType; }
@@ -183,6 +184,7 @@ class NeutronEvent{
   double GetEMNBlobs() const { return fEMNBlobs; }
   double GetEMBlobE() const { return fEMBlobE; }
   double GetEMBlobNHits() const { return fEMBlobNHits; }
+  std::bitset<64> GetSideBandStat() const { return fSideBands; }
 
   NeutronCandidates::NeutCand GetLeadingNeutCand() const { return fNeutCands.GetMaxCandidate(); }
   NeutronCandidates::NeutCands GetNeutCands() const { return fNeutCands; }
@@ -196,6 +198,7 @@ class NeutronEvent{
     fEMBlobE = EMInfo.at(1);
     fEMBlobNHits = EMInfo.at(2);
   }
+  void SetSideBandStat(std::bitset<64> SBStat) { fSideBands = SBStat; }
 
 };
 
