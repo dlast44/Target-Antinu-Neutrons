@@ -114,7 +114,9 @@ void LoopAndFillEventSelection(
     cvUniv->SetEntry(i);
     NeutronEvent cvEvent(cvUniv->GetNeutCands());
     model.SetEntry(*cvUniv, cvEvent);
-    const double cvWeight = model.GetWeight(*cvUniv, cvEvent);
+    //const double cvWeight = model.GetWeight(*cvUniv, cvEvent);
+    //For testing.
+    const double cvWeight = 1.0;
 
     //=========================================
     // Systematics loop(s)
@@ -130,10 +132,16 @@ void LoopAndFillEventSelection(
         // This is where you would Access/create a Michel
         NeutronEvent myevent(universe->GetNeutCands()); // make sure your event is inside the error band loop. 
 
+	myevent.SetEMBlobInfo(universe->GetEMNBlobsTotalEnergyTotalNHits());
+	std::bitset<64> SBStat = michelcuts.isMCSelected(*universe, myevent, cvWeight);
+	myevent.SetSideBandStat(SBStat);
+
+	if (!myevent.GetSideBandStat().all()) continue;
+
         //weight is ignored in isMCSelected() for all but the CV Universe.
-        if (!michelcuts.isMCSelected(*universe, myevent, cvWeight).all()) continue; //all is another function that will later help me with sidebands
-        const double weight = model.GetWeight(*universe, myevent); //Only calculate the per-universe weight for events that will actually use it.
-        //const double weight = 1.0; //Dummy weight for testing/validation pre-weight
+        //if (!michelcuts.isMCSelected(*universe, myevent, cvWeight).all()) continue; //all is another function that will later help me with sidebands
+        //const double weight = model.GetWeight(*universe, myevent); //Only calculate the per-universe weight for events that will actually use it.
+        const double weight = 1.0; //Dummy weight for testing/validation pre-weight
 
         for(auto& var: vars) var->selectedMCReco->FillUniverse(universe, var->GetRecoValue(*universe), weight); //"Fake data" for closure
 
@@ -209,8 +217,14 @@ void LoopAndFillData( PlotUtils::ChainWrapper* data,
       universe->SetEntry(i);
       if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::flush;
       NeutronEvent myevent(universe->GetNeutCands());
- 
-      if (!michelcuts.isDataSelected(*universe, myevent).all()) continue;
+
+      myevent.SetEMBlobInfo(universe->GetEMNBlobsTotalEnergyTotalNHits());
+      std::bitset<64> SBStat = michelcuts.isDataSelected(*universe, myevent);
+      myevent.SetSideBandStat(SBStat);
+
+      if (!myevent.GetSideBandStat().all()) continue;
+
+      //      if (!michelcuts.isDataSelected(*universe, myevent).all()) continue;
 
       //for(auto& study: studies) study->Selected(*universe, myevent, 1); 
 
@@ -388,10 +402,10 @@ int main(const int argc, const char** argv)
   PlotUtils::Cutter<CVUniverse, NeutronEvent>::reco_t sidebands, preCuts;
   PlotUtils::Cutter<CVUniverse, NeutronEvent>::truth_t signalDefinition, phaseSpace;
 
-  const double minZ = 5980, maxZ = 8422, apothem = 850; //All in mm
-  preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>("Tracker", minZ, maxZ));
-  //const double minZ = 4470, maxZ = 5980, apothem = 850; //All in mm
-  //preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>("Targets", minZ, maxZ));
+  //const double minZ = 5980, maxZ = 8422, apothem = 850; //All in mm
+  //preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>("Tracker", minZ, maxZ));
+  const double minZ = 4470, maxZ = 5980, apothem = 850; //All in mm
+  preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>("Targets", minZ, maxZ));
   preCuts.emplace_back(new reco::Apothem<CVUniverse, NeutronEvent>(apothem));
   preCuts.emplace_back(new reco::MaxMuonAngle<CVUniverse, NeutronEvent>(20.));
   preCuts.emplace_back(new reco::HasMINOSMatch<CVUniverse, NeutronEvent>());
@@ -399,7 +413,6 @@ int main(const int argc, const char** argv)
   preCuts.emplace_back(new MyCCQECuts::PMuRange<CVUniverse, NeutronEvent>("1.5 <= Pmu <= 20",1.5,20.0));
   preCuts.emplace_back(new MyCCQECuts::IsAntiNu<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyCCQECuts::IsSingleTrack<CVUniverse, NeutronEvent>());
-  preCuts.emplace_back(new MyCCQECuts::AllEMBlobsCuts<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyCCQECuts::NoMichels<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyCCQECuts::RecoilCut<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyNeutCuts::LeadNeutIs3D<CVUniverse, NeutronEvent>());
@@ -407,6 +420,10 @@ int main(const int argc, const char** argv)
   preCuts.emplace_back(new MyNeutCuts::LeadNeutZDistMin<CVUniverse, NeutronEvent>());
   //preCuts.emplace_back(new MyNeutCuts::LeadNeutInTracker<CVUniverse, NeutronEvent>(maxZ));
   //preCuts.emplace_back(new reco::IsNeutrino<CVUniverse, NeutronEvent>());
+
+  //sidebands.emplace_back(new MyCCQECuts::AllEMBlobsCuts<CVUniverse, NeutronEvent>(true));
+  sidebands.emplace_back(new MyCCQECuts::EMNBlobsCut<CVUniverse, NeutronEvent>(true));
+  sidebands.emplace_back(new MyCCQECuts::EMBlobENHitRatioCut<CVUniverse, NeutronEvent>(true));
   
   //signalDefinition.emplace_back(new truth::IsNeutrino<CVUniverse>());
   signalDefinition.emplace_back(new MySignal::IsAntiNu<CVUniverse>());
