@@ -11,10 +11,10 @@
 class EMSideBands: public Study
 {
   private:
-    std::vector<EventVariable*> fEVars_NBlob;
+    std::vector<EventVariable*> fEVars_NBlobs;
     std::vector<EventVariable*> fEVars_ENHit;
     std::vector<EventVariable*> fEVars_Sel;
-    std::vector<Variable*> fVars_NBlob;
+    std::vector<Variable*> fVars_NBlobs;
     std::vector<Variable*> fVars_ENHit;
 
   public:
@@ -24,7 +24,7 @@ class EMSideBands: public Study
 		     std::vector<CVUniverse*>& data_error_bands): Study()
     {
       for (auto& var : vars){
-	fVars_NBlob.push_back(new Variable((var->GetName()+"_NBlobSB").c_str(), var->GetAxisLabel(), var->GetBinVec(),var->GetRecoFunc(),var->GetTrueFunc()));
+	fVars_NBlobs.push_back(new Variable((var->GetName()+"_NBlobsSB").c_str(), var->GetAxisLabel(), var->GetBinVec(),var->GetRecoFunc(),var->GetTrueFunc()));
 	fVars_ENHit.push_back(new Variable((var->GetName()+"_ENHitSB").c_str(), var->GetAxisLabel(), var->GetBinVec(),var->GetRecoFunc(),var->GetTrueFunc()));
       }
 
@@ -51,7 +51,7 @@ class EMSideBands: public Study
 	new EventVariable("EMBlobENHitRatio","E/No. [MeV]", myBlobERatBins, &NeutronEvent::GetEMBlobENHitRatio),
       };
 
-      fEVars_NBlob = {
+      fEVars_NBlobs = {
 	new EventVariable("EMnBlobs_NBlobsSB","No.", myBlobNBins, &NeutronEvent::GetEMNBlobs),
 	new EventVariable("EMBlobE_NBlobsSB","E [MeV]", myBlobEBins, &NeutronEvent::GetEMBlobE),
 	new EventVariable("EMBlobNHit_NBlobsSB","No.", myBlobNHitBins, &NeutronEvent::GetEMBlobNHits),
@@ -65,11 +65,11 @@ class EMSideBands: public Study
 	new EventVariable("EMBlobENHitRatio_ENHitSB","E/No. [MeV]", myBlobERatBins, &NeutronEvent::GetEMBlobENHitRatio),
       };
 
-      for(auto& var: fVars_NBlob) var->InitializeMCHists(mc_error_bands, truth_error_bands);
-      for(auto& var: fVars_NBlob) var->InitializeDATAHists(data_error_bands);
+      for(auto& var: fVars_NBlobs) var->InitializeMCHists(mc_error_bands, truth_error_bands);
+      for(auto& var: fVars_NBlobs) var->InitializeDATAHists(data_error_bands);
 
-      for(auto& var: fEVars_NBlob) var->InitializeMCHists(mc_error_bands, truth_error_bands);
-      for(auto& var: fEVars_NBlob) var->InitializeDATAHists(data_error_bands);
+      for(auto& var: fEVars_NBlobs) var->InitializeMCHists(mc_error_bands, truth_error_bands);
+      for(auto& var: fEVars_NBlobs) var->InitializeDATAHists(data_error_bands);
 
       for(auto& var: fVars_ENHit) var->InitializeMCHists(mc_error_bands, truth_error_bands);
       for(auto& var: fVars_ENHit) var->InitializeDATAHists(data_error_bands);
@@ -87,18 +87,18 @@ class EMSideBands: public Study
 
     void SaveOrDrawMC(TFile& outFile)
     {
-      for (auto& var : fVars_NBlob) var->WriteMC(outFile);
+      for (auto& var : fVars_NBlobs) var->WriteMC(outFile);
       for (auto& var : fVars_ENHit) var->WriteMC(outFile);
-      for (auto& var : fEVars_NBlob) var->WriteMC(outFile);
+      for (auto& var : fEVars_NBlobs) var->WriteMC(outFile);
       for (auto& var : fEVars_ENHit) var->WriteMC(outFile);
       for (auto& var : fEVars_Sel) var->WriteMC(outFile);
     }
 
     void SaveOrDrawData(TFile& outFile)
     {
-      for (auto& var : fVars_NBlob) var->WriteData(outFile);
+      for (auto& var : fVars_NBlobs) var->WriteData(outFile);
       for (auto& var : fVars_ENHit) var->WriteData(outFile);
-      for (auto& var : fEVars_NBlob) var->WriteData(outFile);
+      for (auto& var : fEVars_NBlobs) var->WriteData(outFile);
       for (auto& var : fEVars_ENHit) var->WriteData(outFile);
       for (auto& var : fEVars_Sel) var->WriteData(outFile);
     }
@@ -115,7 +115,7 @@ class EMSideBands: public Study
       if (evt.IsMC()){
 	if (evt.IsSignal()){
 	  if (SBStat[0] == 0){
-	    for (auto& var: fVars_NBlob){
+	    for (auto& var: fVars_NBlobs){
 	      var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(univ), weight); //"Fake data" for closure                                                                          
 	      var->selectedSignalReco->FillUniverse(&univ, var->GetRecoValue(univ), weight);
 	      (*var->m_SigIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(univ), weight);
@@ -123,7 +123,7 @@ class EMSideBands: public Study
 	      (*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(univ), weight);
 	    }
 
-	    for (auto& var: fEVars_NBlob){
+	    for (auto& var: fEVars_NBlobs){
 	      var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(evt), weight); //"Fake data" for closure                                                                          
 	      var->selectedSignalReco->FillUniverse(&univ, var->GetRecoValue(evt), weight);	      
 	      (*var->m_SigIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(evt), weight);
@@ -167,7 +167,7 @@ class EMSideBands: public Study
 	  else bkgd_ID=1;
 	  
 	  if (SBStat[0] == 0){
-	    for(auto& var: fVars_NBlob){
+	    for(auto& var: fVars_NBlobs){
 	      var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(univ), weight); //"Fake data" for closure                                                                          
 	      (*var->m_backgroundHists)[bkgd_ID].FillUniverse(&univ, var->GetRecoValue(univ), weight);
 	    //Various breakdowns of selected backgrounds
@@ -176,7 +176,7 @@ class EMSideBands: public Study
 	      (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(univ), weight);
 	    }
 
-	    for(auto& var: fEVars_NBlob){
+	    for(auto& var: fEVars_NBlobs){
 	      var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(evt), weight); //"Fake data" for closure                                                                          
 	      (*var->m_backgroundHists)[bkgd_ID].FillUniverse(&univ, var->GetRecoValue(evt), weight);
 	    //Various breakdowns of selected backgrounds
@@ -221,11 +221,11 @@ class EMSideBands: public Study
 
       else{
 	if (SBStat[0] == 0){
-	  for (auto& var : fVars_NBlob){
+	  for (auto& var : fVars_NBlobs){
 	    var->dataHist->FillUniverse(&univ, var->GetRecoValue(univ), 1);
 	  }
 
-	  for (auto& var : fEVars_NBlob){
+	  for (auto& var : fEVars_NBlobs){
 	    var->dataHist->FillUniverse(&univ, var->GetRecoValue(evt), 1);
 	  }
 	}
