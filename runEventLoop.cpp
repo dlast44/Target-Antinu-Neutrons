@@ -110,7 +110,7 @@ void LoopAndFillEventSelection(
   const int nEntries = chain->GetEntries();
   for (int i=0; i<nEntries; ++i)
   {
-    if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::flush;
+    if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::endl;
 
     cvUniv->SetEntry(i);
     NeutronEvent cvEvent(cvUniv->GetNeutCands());
@@ -218,7 +218,7 @@ void LoopAndFillData( PlotUtils::ChainWrapper* data,
   for (int i=0; i<data->GetEntries(); ++i) {
     for (auto universe : data_band) {
       universe->SetEntry(i);
-      if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::flush;
+      if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::endl;
       NeutronEvent myevent(universe->GetNeutCands());
 
       myevent.SetEMBlobInfo(universe->GetEMNBlobsTotalEnergyTotalNHits());
@@ -263,7 +263,7 @@ void LoopAndFillEffDenom( PlotUtils::ChainWrapper* truth,
   const int nEntries = truth->GetEntries();
   for (int i=0; i<nEntries; ++i)
   {
-    if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::flush;
+    if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::endl;
 
     NeutronEvent cvEvent;
     cvUniv->SetEntry(i);
