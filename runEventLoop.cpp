@@ -115,9 +115,9 @@ void LoopAndFillEventSelection(
     cvUniv->SetEntry(i);
     NeutronEvent cvEvent(cvUniv->GetNeutCands());
     model.SetEntry(*cvUniv, cvEvent);
-    //const double cvWeight = model.GetWeight(*cvUniv, cvEvent);
+    const double cvWeight = model.GetWeight(*cvUniv, cvEvent);
     //For testing.
-    const double cvWeight = 1.0;
+    //const double cvWeight = 1.0;
 
     //=========================================
     // Systematics loop(s)
@@ -142,8 +142,8 @@ void LoopAndFillEventSelection(
 
         //weight is ignored in isMCSelected() for all but the CV Universe.
         //if (!michelcuts.isMCSelected(*universe, myevent, cvWeight).all()) continue; //all is another function that will later help me with sidebands
-        //const double weight = model.GetWeight(*universe, myevent); //Only calculate the per-universe weight for events that will actually use it.
-        const double weight = 1.0; //Dummy weight for testing/validation pre-weight
+        const double weight = model.GetWeight(*universe, myevent); //Only calculate the per-universe weight for events that will actually use it.
+        //const double weight = 1.0; //Dummy weight for testing/validation pre-weight
         const bool isSignal = michelcuts.isSignal(*universe, weight);
 	int intType = universe->GetInteractionType();
 	int tgtType = universe->GetTargetZ();
