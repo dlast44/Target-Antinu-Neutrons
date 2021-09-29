@@ -62,6 +62,7 @@ enum ErrorCodes
 #include "cuts/q3RecoCut.h"
 #include "studies/Study.h"
 #include "studies/NeutronVariables.h"
+#include "studies/EMSideBands.h"
 //#include "Binning.h" //TODO: Fix me
 
 //PlotUtils includes
@@ -131,20 +132,18 @@ void LoopAndFillEventSelection(
         
         // This is where you would Access/create a Michel
         NeutronEvent myevent(universe->GetNeutCands()); // make sure your event is inside the error band loop. 
+	myevent.SetIsMC();
 
 	myevent.SetEMBlobInfo(universe->GetEMNBlobsTotalEnergyTotalNHits());
 	std::bitset<64> SBStat = michelcuts.isMCSelected(*universe, myevent, cvWeight);
 	myevent.SetSideBandStat(SBStat);
 
-	if (!myevent.GetSideBandStat().all()) continue;
+	if (SBStat.none()) continue;
 
         //weight is ignored in isMCSelected() for all but the CV Universe.
         //if (!michelcuts.isMCSelected(*universe, myevent, cvWeight).all()) continue; //all is another function that will later help me with sidebands
         //const double weight = model.GetWeight(*universe, myevent); //Only calculate the per-universe weight for events that will actually use it.
         const double weight = 1.0; //Dummy weight for testing/validation pre-weight
-
-        for(auto& var: vars) var->selectedMCReco->FillUniverse(universe, var->GetRecoValue(*universe), weight); //"Fake data" for closure
-
         const bool isSignal = michelcuts.isSignal(*universe, weight);
 	int intType = universe->GetInteractionType();
 	int tgtType = universe->GetTargetZ();
@@ -156,6 +155,10 @@ void LoopAndFillEventSelection(
 	int leadBlobType = myevent.GetLeadingNeutCand().GetPDGBin();
 
 	for(auto& study: studies) study->Selected(*universe, myevent, weight);
+
+	if (!SBStat.all()) continue;
+
+        for(auto& var: vars) var->selectedMCReco->FillUniverse(universe, var->GetRecoValue(*universe), weight); //"Fake data" for closure
 
         if(isSignal)
         {
@@ -222,11 +225,15 @@ void LoopAndFillData( PlotUtils::ChainWrapper* data,
       std::bitset<64> SBStat = michelcuts.isDataSelected(*universe, myevent);
       myevent.SetSideBandStat(SBStat);
 
-      if (!myevent.GetSideBandStat().all()) continue;
+      if (SBStat.none()) continue;
+
+      for(auto& study: studies) study->Selected(*universe, myevent, 1); 
+
+      if (!SBStat.all()) continue;
 
       //      if (!michelcuts.isDataSelected(*universe, myevent).all()) continue;
 
-      //for(auto& study: studies) study->Selected(*universe, myevent, 1); 
+      
 
       for(auto& var: vars)
       {
@@ -527,7 +534,8 @@ int main(const int argc, const char** argv)
   std::vector<Study*> data_studies;
 
   std::vector<Study*> studies = {
-    new NeutronVariables(maxZ, minZ, error_bands, truth_bands, data_band),
+    new EMSideBands(vars, error_bands, truth_bands, data_band),
+    //new NeutronVariables(maxZ, minZ, error_bands, truth_bands, data_band),
   };
 
   for(auto& var: vars) var->InitializeMCHists(error_bands, truth_bands);
@@ -548,7 +556,7 @@ int main(const int argc, const char** argv)
     mycuts.resetStats();
 
     CVUniverse::SetTruth(false);
-    LoopAndFillData(options.m_data, data_band, vars, vars2D, data_studies, mycuts);
+    LoopAndFillData(options.m_data, data_band, vars, vars2D, studies, mycuts);
     std::cout << "Data cut summary:\n" << mycuts << "\n";
 
     std::cout << "Writing MC Output File." << std::endl;
@@ -595,6 +603,7 @@ int main(const int argc, const char** argv)
       return badOutputFile;
     }
 
+    for(auto& study: studies) study->SaveOrDrawData(*dataOutDir);
     for(auto& var: vars) var->WriteData(*dataOutDir);
 
     //Protons On Target
