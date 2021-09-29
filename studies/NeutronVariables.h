@@ -7,6 +7,8 @@
 #include "util/Variable.h"
 #include "event/CVUniverse.h"
 
+//TODO: ONLY FILL THESE VARIABLES WHEN THE EVENT IS SELECTED?
+
 class NeutronVariables: public Study
 {
   private:
