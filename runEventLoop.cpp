@@ -391,7 +391,8 @@ int main(const int argc, const char** argv)
     return badInputFile;
   }
 
-  const bool doCCQENuValidation = (reco_tree_name == "CCQENu"); //Enables extra histograms and might influence which systematics I use.
+  //const bool doCCQENuValidation = (reco_tree_name == "CCQENu"); //Enables extra histograms and might influence which systematics I use.
+  const bool doCCQENuValidation = false;
 
   const bool is_grid = false;
   PlotUtils::MacroUtil options(reco_tree_name, mc_file_list, data_file_list, "minervame1A", true, is_grid);
