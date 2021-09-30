@@ -22,11 +22,13 @@ namespace NeutronCandidates{
 
   intBranchMap GetBranchIntMap(){
     //return {{"SetID",{"MasterAnaDev_BlobID"}},{"SetIs3D",{"MasterAnaDev_BlobIs3D"}},{"SetMCPID",{"MasterAnaDev_BlobMCPID"}},{"SetTopMCPID",{"MasterAnaDev_BlobTopMCPID"}},{"SetMCParentTrackID",{"MasterAnaDev_BlobMCParentTrackID"}},{"SetMCParentPID",{"MasterAnaDev_BlobMCParentPID"}},};
-    return {{"SetID",{"MasterAnaDev_BlobID"}},{"SetIs3D",{"MasterAnaDev_BlobIs3D"}},{"SetMCPID",{"MasterAnaDev_BlobMCPID"}},{"SetTopMCPID",{"MasterAnaDev_BlobTopMCPID"}},{"SetMCParentTrackID",{"MasterAnaDev_BlobMCParentTrackID"}},};
+    //return {{"SetID",{"MasterAnaDev_BlobID"}},{"SetIs3D",{"MasterAnaDev_BlobIs3D"}},{"SetMCPID",{"MasterAnaDev_BlobMCPID"}},{"SetTopMCPID",{"MasterAnaDev_BlobTopMCPID"}},{"SetMCParentTrackID",{"MasterAnaDev_BlobMCParentTrackID"}},};
+    return {{"SetID",{"_BlobID"}},{"SetIs3D",{"_BlobIs3D"}},{"SetMCPID",{"_BlobMCPID"}},{"SetTopMCPID",{"_BlobTopMCPID"}},{"SetMCParentTrackID",{"_BlobMCParentTrackID"}},};
   }
 
   doubleBranchMap GetBranchDoubleMap(){
-    return {{"SetTotE",{"MasterAnaDev_BlobTotalE"}},{"SetBegPos",{"MasterAnaDev_BlobBegX","MasterAnaDev_BlobBegY","MasterAnaDev_BlobBegZ"}},{"SetEndPos",{"MasterAnaDev_BlobEndX","MasterAnaDev_BlobEndY","MasterAnaDev_BlobEndZ"}}, };
+    //return {{"SetTotE",{"MasterAnaDev_BlobTotalE"}},{"SetBegPos",{"MasterAnaDev_BlobBegX","MasterAnaDev_BlobBegY","MasterAnaDev_BlobBegZ"}},{"SetEndPos",{"MasterAnaDev_BlobEndX","MasterAnaDev_BlobEndY","MasterAnaDev_BlobEndZ"}}, };
+    return {{"SetTotE",{"_BlobTotalE"}},{"SetBegPos",{"_BlobBegX","_BlobBegY","_BlobBegZ"}},{"SetEndPos",{"_BlobEndX","_BlobEndY","_BlobEndZ"}}, };
   }
 
   NeutCand::NeutCand(){

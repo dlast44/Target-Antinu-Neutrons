@@ -15,8 +15,8 @@
 #include <bitset>
 
 namespace NeutronCandidates{
-  typedef std::map<std::string, std::vector<const char*>> intBranchMap;
-  typedef std::map<std::string, std::vector<const char*>> doubleBranchMap;
+  typedef std::map<std::string, std::vector<std::string>> intBranchMap;
+  typedef std::map<std::string, std::vector<std::string>> doubleBranchMap;
   typedef std::map<std::string, std::vector<int>> intCandData;
   typedef std::map<std::string, std::vector<double>> doubleCandData;
 

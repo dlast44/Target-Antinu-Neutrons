@@ -309,16 +309,17 @@ class CVUniverse : public PlotUtils::MinervaUniverse {
     EvtVtx.SetXYZ(vtx.at(0),vtx.at(1),vtx.at(2));
     NeutronCandidates::intCandData intData;
     NeutronCandidates::doubleCandData doubleData;
+    std::string toolName = GetAnaToolName();
     for (const auto& intMember: NeutronCandidates::GetBranchIntMap()){
       intData[intMember.first]={};
       for (const auto& branchName: intMember.second){
-	intData[intMember.first].push_back(GetVecElemInt(branchName,index));
+	intData[intMember.first].push_back(GetVecElemInt((toolName+branchName).c_str(),index));
       }
     }
     for (const auto& doubleMember: NeutronCandidates::GetBranchDoubleMap()){
       doubleData[doubleMember.first]={};
       for (const auto& branchName: doubleMember.second){
-	doubleData[doubleMember.first].push_back(GetVecElem(branchName,index));
+	doubleData[doubleMember.first].push_back(GetVecElem((toolName+branchName).c_str(),index));
       }
     }
     return NeutronCandidates::NeutCand(intData,doubleData,EvtVtx);
