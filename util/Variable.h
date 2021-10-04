@@ -32,8 +32,9 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
                            std::map<std::string, std::vector<CVUniverse*>>& truth_error_bands)
     {
 
-      std::map<int, std::string> BKGLabels = {{0, "NC"},
-					       {1, "Wrong_Sign"}};
+      std::map<int, std::string> BKGLabels = {{1, "1chargePi"},
+                                              {2, "1neutPi"},
+                                              {3, "NPi"}};
 
       //Various breakdowns for signal and background. TODO: Get the mapping correct
       std::map<int, std::string> IntTypeLabels = {{1, "QE"},

@@ -6,6 +6,7 @@
 #include "util/NeutronVariable.h"
 #include "util/EventVariable.h"
 #include "util/Variable.h"
+#include "util/GetBackgroundID.h"
 #include "event/CVUniverse.h"
 
 class EMSideBands: public Study
@@ -162,10 +163,9 @@ class EMSideBands: public Study
 	}
 
 	else{
-	  int bkgd_ID = -1;
-	  if (univ.GetCurrent()==2)bkgd_ID=0;
-	  else bkgd_ID=1;
-	  
+	  int bkgd_ID = -1;	  
+	  bkgd_ID = util::GetBackgroundID(univ);
+
 	  if (SBStat[0] == 0){
 	    for(auto& var: fVars_NBlobs){
 	      var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(univ), weight); //"Fake data" for closure                                                                          
