@@ -58,6 +58,7 @@ enum ErrorCodes
 #include "util/Variable2D.h"
 #include "util/GetFluxIntegral.h"
 #include "util/GetPlaylist.h"
+#include "util/GetBackgroundID.h"
 #include "cuts/SignalDefinition.h"
 #include "cuts/q3RecoCut.h"
 #include "studies/Study.h"
@@ -185,8 +186,7 @@ void LoopAndFillEventSelection(
         else
         {
           int bkgd_ID = -1;
-          if (universe->GetCurrent()==2)bkgd_ID=0;
-          else bkgd_ID=1;
+	  bkgd_ID = util::GetBackgroundID(*universe);
 
           //for(auto& study: studies) study->SelectedSignal(*universe, myevent, weight);
 
