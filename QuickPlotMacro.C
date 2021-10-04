@@ -47,46 +47,42 @@ TCanvas* DrawStack(TString name, TFile* inFile, MnvH1D* h_data, double scale){
 
   TCanvas* c1 = new TCanvas("c1","c1",1200,800);
   c1->cd();
+  gStyle->SetOptStat(0);
 
   MnvH1D* h_sig = (MnvH1D*)inFile->Get(name+"_selected_signal_reco");
   h_sig->SetLineColor(TColor::GetColor("#999933"));
   h_sig->SetFillColor(TColor::GetColor("#999933"));
   h_sig->Scale(scale);
 
-  MnvH1D* h_QE_Bkg = (MnvH1D*)inFile->Get(name+"_bkg_IntType_QE");
-  h_QE_Bkg->SetLineColor(TColor::GetColor("#88CCEE"));
-  h_QE_Bkg->SetFillColor(TColor::GetColor("#88CCEE"));
-  h_QE_Bkg->Scale(scale);
+  MnvH1D* h_1PiC_Bkg = (MnvH1D*)inFile->Get(name+"_background_1chargePi");
+  h_1PiC_Bkg->SetLineColor(TColor::GetColor("#88CCEE"));
+  h_1PiC_Bkg->SetFillColor(TColor::GetColor("#88CCEE"));
+  h_1PiC_Bkg->Scale(scale);
 
-  MnvH1D* h_RES_Bkg = (MnvH1D*)inFile->Get((TString)name+"_bkg_IntType_RES");
-  h_RES_Bkg->SetLineColor(TColor::GetColor("#117733"));
-  h_RES_Bkg->SetFillColor(TColor::GetColor("#117733"));
-  h_RES_Bkg->Scale(scale);
+  MnvH1D* h_1Pi0_Bkg = (MnvH1D*)inFile->Get((TString)name+"_background_1neutPi");
+  h_1Pi0_Bkg->SetLineColor(TColor::GetColor("#117733"));
+  h_1Pi0_Bkg->SetFillColor(TColor::GetColor("#117733"));
+  h_1Pi0_Bkg->Scale(scale);
 
-  MnvH1D* h_DIS_Bkg = (MnvH1D*)inFile->Get((TString)name+"_bkg_IntType_DIS");
-  h_DIS_Bkg->SetLineColor(TColor::GetColor("#CC6677"));
-  h_DIS_Bkg->SetFillColor(TColor::GetColor("#CC6677"));
-  h_DIS_Bkg->Scale(scale);
+  MnvH1D* h_NPi_Bkg = (MnvH1D*)inFile->Get((TString)name+"_background_NPi");
+  h_NPi_Bkg->SetLineColor(TColor::GetColor("#CC6677"));
+  h_NPi_Bkg->SetFillColor(TColor::GetColor("#CC6677"));
+  h_NPi_Bkg->Scale(scale);
 
-  MnvH1D* h_2p2h_Bkg = (MnvH1D*)inFile->Get((TString)name+"_bkg_IntType_2p2h");
-  h_2p2h_Bkg->SetLineColor(TColor::GetColor("#44AA99"));
-  h_2p2h_Bkg->SetFillColor(TColor::GetColor("#44AA99"));
-  h_2p2h_Bkg->Scale(scale);
-
-  MnvH1D* h_Other_Bkg = (MnvH1D*)inFile->Get((TString)name+"_bkg_IntType_Other");
+  MnvH1D* h_Other_Bkg = (MnvH1D*)inFile->Get((TString)name+"_background_Other");
   h_Other_Bkg->SetLineColor(TColor::GetColor("#882255"));
   h_Other_Bkg->SetFillColor(TColor::GetColor("#882255"));
   h_Other_Bkg->Scale(scale);
 
   THStack* h = new THStack();
   h->Add(h_Other_Bkg);
-  h->Add(h_2p2h_Bkg);
-  h->Add(h_DIS_Bkg);
-  h->Add(h_RES_Bkg);
-  h->Add(h_QE_Bkg);
+  h->Add(h_NPi_Bkg);
+  h->Add(h_1Pi0_Bkg);
+  h->Add(h_1PiC_Bkg);
 
   h->Add(h_sig);
-  h->Draw("hist");
+  h_data->Draw();
+  h->Draw("hist, same");
   h_data->Draw("same");
   c1->Update();
 
@@ -94,11 +90,10 @@ TCanvas* DrawStack(TString name, TFile* inFile, MnvH1D* h_data, double scale){
 
   leg->AddEntry(h_data, "DATA");
   leg->AddEntry(h_sig,"Signal");
-  leg->AddEntry(h_QE_Bkg,"Bkg. + QE");
-  leg->AddEntry(h_RES_Bkg,"Bkg. + RES");
-  leg->AddEntry(h_DIS_Bkg,"Bkg. + DIS");
-  leg->AddEntry(h_2p2h_Bkg,"Bkg. + 2p2h");
-  leg->AddEntry(h_Other_Bkg,"Bkg. + Other");
+  leg->AddEntry(h_1PiC_Bkg,"single #pi^{+/-}");
+  leg->AddEntry(h_1Pi0_Bkg,"single #pi^{0}");
+  leg->AddEntry(h_NPi_Bkg,"N#pi");
+  leg->AddEntry(h_Other_Bkg,"Other");
 
   leg->Draw();
   c1->Update();
@@ -107,9 +102,9 @@ TCanvas* DrawStack(TString name, TFile* inFile, MnvH1D* h_data, double scale){
 
 void QuickPlotMacro() {
 
-  TString fileName="/minerva/data/users/dlast/TargetNeutronsAna/NewStructure/EMSideBandsTrackerMnvTune1_CCQENuplaylist_6A/runEventLoopMC.root";
-  TString dataName="/minerva/data/users/dlast/TargetNeutronsAna/NewStructure/EMSideBandsTrackerMnvTune1_CCQENuplaylist_6A/runEventLoopData.root";
-  TString outDir="/minerva/data/users/dlast/TargetNeutronsAna/NewStructure/EMSideBandsTrackerMnvTune1_CCQENuplaylist_6A/testPlots/";
+  TString fileName="/minerva/data/users/dlast/TargetNeutronsAna/testNewStructure/testCCQENuTuples/runEventLoopMC.root";
+  TString dataName="/minerva/data/users/dlast/TargetNeutronsAna/testNewStructure/testCCQENuTuples/runEventLoopData.root";
+  TString outDir="/minerva/data/users/dlast/TargetNeutronsAna/testNewStructure/testCCQENuTuples/testPlots/";
 
   TFile* inFile = new TFile(fileName,"READ");
   TFile* dataFile = new TFile(dataName,"READ");
