@@ -51,26 +51,32 @@ TCanvas* DrawStack(TString name, TFile* inFile, MnvH1D* h_data, double scale){
   MnvH1D* h_sig = (MnvH1D*)inFile->Get(name+"_selected_signal_reco");
   h_sig->SetLineColor(TColor::GetColor("#999933"));
   h_sig->SetFillColor(TColor::GetColor("#999933"));
+  h_sig->Scale(scale);
 
   MnvH1D* h_QE_Bkg = (MnvH1D*)inFile->Get(name+"_bkg_IntType_QE");
   h_QE_Bkg->SetLineColor(TColor::GetColor("#88CCEE"));
   h_QE_Bkg->SetFillColor(TColor::GetColor("#88CCEE"));
+  h_QE_Bkg->Scale(scale);
 
   MnvH1D* h_RES_Bkg = (MnvH1D*)inFile->Get((TString)name+"_bkg_IntType_RES");
   h_RES_Bkg->SetLineColor(TColor::GetColor("#117733"));
   h_RES_Bkg->SetFillColor(TColor::GetColor("#117733"));
+  h_RES_Bkg->Scale(scale);
 
   MnvH1D* h_DIS_Bkg = (MnvH1D*)inFile->Get((TString)name+"_bkg_IntType_DIS");
   h_DIS_Bkg->SetLineColor(TColor::GetColor("#CC6677"));
   h_DIS_Bkg->SetFillColor(TColor::GetColor("#CC6677"));
+  h_DIS_Bkg->Scale(scale);
 
   MnvH1D* h_2p2h_Bkg = (MnvH1D*)inFile->Get((TString)name+"_bkg_IntType_2p2h");
   h_2p2h_Bkg->SetLineColor(TColor::GetColor("#44AA99"));
   h_2p2h_Bkg->SetFillColor(TColor::GetColor("#44AA99"));
+  h_2p2h_Bkg->Scale(scale);
 
   MnvH1D* h_Other_Bkg = (MnvH1D*)inFile->Get((TString)name+"_bkg_IntType_Other");
   h_Other_Bkg->SetLineColor(TColor::GetColor("#882255"));
   h_Other_Bkg->SetFillColor(TColor::GetColor("#882255"));
+  h_Other_Bkg->Scale(scale);
 
   THStack* h = new THStack();
   h->Add(h_Other_Bkg);
@@ -114,7 +120,7 @@ void QuickPlotMacro() {
   TParameter<double>* dataPOT = (TParameter<double>*)dataFile->Get("POTUsed");
   TParameter<double>* mcPOT = (TParameter<double>*)inFile->Get("POTUsed");
 
-  double scale = dataPOT->GetVal()/dataMC->GetVal();
+  double scale = dataPOT->GetVal()/mcPOT->GetVal();
 
   cout << scale << endl;
 
