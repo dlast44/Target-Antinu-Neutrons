@@ -102,9 +102,9 @@ TCanvas* DrawStack(TString name, TFile* inFile, MnvH1D* h_data, double scale){
 
 void QuickPlotMacro() {
 
-  TString fileName="/minerva/data/users/dlast/TargetNeutronsAna/testNewStructure/testCCQENuTuples/runEventLoopMC.root";
-  TString dataName="/minerva/data/users/dlast/TargetNeutronsAna/testNewStructure/testCCQENuTuples/runEventLoopData.root";
-  TString outDir="/minerva/data/users/dlast/TargetNeutronsAna/testNewStructure/testCCQENuTuples/testPlots/";
+  TString fileName="/minerva/data/users/dlast/TargetNeutronsAna/NewStructure/EMSideBandsTrackerMnvTune1_STDplaylist_6A/runEventLoopMC.root";
+  TString dataName="/minerva/data/users/dlast/TargetNeutronsAna/NewStructure/EMSideBandsTrackerMnvTune1_STDplaylist_6A/runEventLoopData.root";
+  TString outDir="/minerva/data/users/dlast/TargetNeutronsAna/NewStructure/EMSideBandsTrackerMnvTune1_STDplaylist_6A/testPlots/";
 
   TFile* inFile = new TFile(fileName,"READ");
   TFile* dataFile = new TFile(dataName,"READ");
