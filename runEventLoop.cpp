@@ -114,7 +114,7 @@ void LoopAndFillEventSelection(
     if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::endl;
 
     cvUniv->SetEntry(i);
-    NeutronEvent cvEvent(cvUniv->GetNeutCands());
+    NeutronEvent cvEvent(cvUniv->GetLeadNeutCandOnly());
     model.SetEntry(*cvUniv, cvEvent);
     const double cvWeight = model.GetWeight(*cvUniv, cvEvent);
     //For testing.
@@ -132,7 +132,7 @@ void LoopAndFillEventSelection(
         universe->SetEntry(i);
         
         // This is where you would Access/create a Michel
-        NeutronEvent myevent(universe->GetNeutCands()); // make sure your event is inside the error band loop. 
+        NeutronEvent myevent(universe->GetLeadNeutCandOnly()); // make sure your event is inside the error band loop. 
 	myevent.SetIsMC();
 
 	myevent.SetEMBlobInfo(universe->GetEMNBlobsTotalEnergyTotalNHits());
@@ -220,7 +220,7 @@ void LoopAndFillData( PlotUtils::ChainWrapper* data,
     for (auto universe : data_band) {
       universe->SetEntry(i);
       if(i%1000==0) std::cout << i << " / " << nEntries << "\r" << std::endl;
-      NeutronEvent myevent(universe->GetNeutCands());
+      NeutronEvent myevent(universe->GetLeadNeutCandOnly());
 
       myevent.SetEMBlobInfo(universe->GetEMNBlobsTotalEnergyTotalNHits());
       std::bitset<64> SBStat = michelcuts.isDataSelected(*universe, myevent);
