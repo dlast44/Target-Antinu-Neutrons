@@ -307,11 +307,16 @@ class CVUniverse : public PlotUtils::MinervaUniverse {
 
   //returns a NeutCands object of just the lead candidate in the interest of verifying that this doesn't affect cuts based around the event object. Further restructuring will likely just get the single neut cand into the event an allow for filling of one or the other. I could also more intelligently make the NeutCands obejct generally, but it's what it is for now. This is a short term solution to check that the code can be better optimized to not take so long by not filling more than one blob per event.
   virtual NeutronCandidates::NeutCands GetLeadNeutCandOnly(){
-    std::vector<double> Es = GetNeutCandEs();
-    int leadNeutEIndex = std::max_element(Es.begin(),Es.end()) - Es.begin();
-    std::vector<NeutronCandidates::NeutCand> cands;
+    std::vector<NeutronCandidates::NeutCand> cands = {};
+    int nBlobs = GetNNeutBlobs();
 
-    cands.push_back(GetNeutCand(leadNeutEIndex));
+    if (nBlobs > 0){
+      std::vector<double> Es = GetNeutCandEs();
+      int leadNeutEIndex = std::max_element(Es.begin(),Es.end()) - Es.begin();
+
+      cands.push_back(GetNeutCand(leadNeutEIndex));
+    }
+
     NeutronCandidates::NeutCands EvtCands(cands);
     return EvtCands;
   };
