@@ -3,7 +3,7 @@
 
 #define USAGE \
 "\n*** USAGE ***\n"\
-"runEventLoop <dataPlaylist.txt> <mcPlaylist.txt>\n\n"\
+"runEventLoop <dataPlaylist.txt> <mcPlaylist.txt> <skip_systematics>\n\n"\
 "*** Explanation ***\n"\
 "Reduce MasterAnaDev AnaTuples to event selection histograms to extract a\n"\
 "single-differential inclusive cross section for the 2021 MINERvA 101 tutorial.\n\n"\
@@ -21,7 +21,7 @@
 "Setting up this package appends to PATH and LD_LIBRARY_PATH.  PLOTUTILSROOT,\n"\
 "MPARAMFILESROOT, and MPARAMFILES must be set according to the setup scripts in\n"\
 "those packages for systematics and flux reweighters to function.\n"\
-"If MNV101_SKIP_SYST is defined at all, output histograms will have no error bands.\n"\
+"If the <skip_systematics> argument is nonzero at all, output histograms will have no error bands.\n"\
 "This is useful for debugging the CV and running warping studies.\n\n"\
 "*** Return Codes ***\n"\
 "0 indicates success.  All histograms are valid only in this case.  Any other\n"\
@@ -369,7 +369,7 @@ int main(const int argc, const char** argv)
 
   //Validate input.
   //I expect a data playlist file name and an MC playlist file name which is exactly 2 arguments.
-  const int nArgsExpected = 2;
+  const int nArgsExpected = 3;
   if(argc != nArgsExpected + 1) //argc is the size of argv.  I check for number of arguments + 1 because
                                 //argv[0] is always the path to the executable.
   {
@@ -383,6 +383,8 @@ int main(const int argc, const char** argv)
   //TODO: Look in INSTALL_DIR if files not found?
   const std::string mc_file_list = argv[2],
                     data_file_list = argv[1];
+
+  const int skipSystInt = atoi(argv[3]);
 
   //Check that necessary TTrees exist in the first file of mc_file_list and data_file_list
   std::string reco_tree_name;
@@ -460,9 +462,9 @@ int main(const int argc, const char** argv)
 
   // Make a map of systematic universes
   // Leave out systematics when making validation histograms
-  const bool doSystematics = (getenv("MNV101_SKIP_SYST") == nullptr);
+  const bool doSystematics = (skipSystInt == 0);
   if(!doSystematics){
-    std::cout << "Skipping systematics (except 1 flux universe) because environment variable MNV101_SKIP_SYST is set.\n";
+    std::cout << "Skipping systematics (except 1 flux universe) because <systematics> argument is non-zero.\n";
     PlotUtils::MinervaUniverse::SetNFluxUniverses(2); //Necessary to get Flux integral later...  Doesn't work with just 1 flux universe though because _that_ triggers "spread errors".
   }
 
