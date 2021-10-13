@@ -1,7 +1,7 @@
 //File: signalBKGStack.cxx
 //Info: This is a script to run a loop over all MC breakdown plots in a single histos file and save nice plots from them. Primarily used for validation against older plots.
 //
-//Usage: signalBKGStack <histos_file> <output_directory> <plot_label>
+//Usage: signalBKGStack <mc_file> <data_file> <output_directory> <plot_label>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //C++ includes
@@ -38,6 +38,7 @@
 #include "TLegend.h"
 #include "TMath.h"
 #include "TColor.h"
+#include "TParameter.h"
 
 //PlotUtils includes??? Trying anything at this point...
 #include "PlotUtils/MnvH1D.h"
@@ -49,14 +50,17 @@
 using namespace std;
 using namespace PlotUtils;
 
-TCanvas* DrawIntType(string name_QE, TFile* inFile, TString sample){
+TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sample, double scale){
+
+  TString sampleName = sample;
 
   TCanvas* c1 = new TCanvas("c1","c1",1200,800);
   c1->cd();
 
-  MnvH1D* h_QE_Sig = (MnvH1D*)inFile->Get((TString)name_QE);
+  MnvH1D* h_QE_Sig = (MnvH1D*)mcFile->Get((TString)name_QE);
   h_QE_Sig->SetLineColor(TColor::GetColor("#88CCEE"));
   h_QE_Sig->SetFillColor(TColor::GetColor("#88CCEE"));
+  h_QE_Sig->Scale(scale);
 
   string name_sig = (string)h_QE_Sig->GetName();
   name_sig.erase(name_sig.length()-3,name_sig.length());
@@ -67,8 +71,6 @@ TCanvas* DrawIntType(string name_QE, TFile* inFile, TString sample){
   string title = (string)h_QE_Sig->GetTitle();
   TString Xtitle = h_QE_Sig->GetXaxis()->GetTitle();
   TString Ytitle = h_QE_Sig->GetYaxis()->GetTitle();
-  cout << "X Title: " << Xtitle << endl;
-  cout << "Y Title: " << Ytitle << endl;
   /*
   cout << title << endl;
   title.erase(0, 8);
@@ -76,46 +78,57 @@ TCanvas* DrawIntType(string name_QE, TFile* inFile, TString sample){
   cout << "" << endl;
   */
 
-  MnvH1D* h_RES_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_RES");
+  MnvH1D* h_RES_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_RES");
   h_RES_Sig->SetLineColor(TColor::GetColor("#117733"));
   h_RES_Sig->SetFillColor(TColor::GetColor("#117733"));
+  h_RES_Sig->Scale(scale);
 
-  MnvH1D* h_DIS_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_DIS");
+  MnvH1D* h_DIS_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_DIS");
   h_DIS_Sig->SetLineColor(TColor::GetColor("#CC6677"));
   h_DIS_Sig->SetFillColor(TColor::GetColor("#CC6677"));
+  h_DIS_Sig->Scale(scale);
 
-  MnvH1D* h_2p2h_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_2p2h");
+  MnvH1D* h_2p2h_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_2p2h");
   h_2p2h_Sig->SetLineColor(TColor::GetColor("#44AA99"));
   h_2p2h_Sig->SetFillColor(TColor::GetColor("#44AA99"));
+  h_2p2h_Sig->Scale(scale);
 
-  MnvH1D* h_Other_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_Other");
+  MnvH1D* h_Other_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_Other");
   h_Other_Sig->SetLineColor(TColor::GetColor("#882255"));
   h_Other_Sig->SetFillColor(TColor::GetColor("#882255"));
+  h_Other_Sig->Scale(scale);
 
-  MnvH1D* h_QE_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_IntType_QE");
+  MnvH1D* h_QE_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_IntType_QE");
   h_QE_Bkg->SetLineColor(TColor::GetColor("#88CCEE"));
   h_QE_Bkg->SetFillColor(TColor::GetColor("#88CCEE"));
   h_QE_Bkg->SetFillStyle(3444);
+  h_QE_Bkg->Scale(scale);
 
-  MnvH1D* h_RES_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_IntType_RES");
+  MnvH1D* h_RES_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_IntType_RES");
   h_RES_Bkg->SetLineColor(TColor::GetColor("#117733"));
   h_RES_Bkg->SetFillColor(TColor::GetColor("#117733"));
   h_RES_Bkg->SetFillStyle(3444);
+  h_RES_Bkg->Scale(scale);
 
-  MnvH1D* h_DIS_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_IntType_DIS");
+  MnvH1D* h_DIS_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_IntType_DIS");
   h_DIS_Bkg->SetLineColor(TColor::GetColor("#CC6677"));
   h_DIS_Bkg->SetFillColor(TColor::GetColor("#CC6677"));
   h_DIS_Bkg->SetFillStyle(3444);
+  h_DIS_Bkg->Scale(scale);
 
-  MnvH1D* h_2p2h_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_IntType_2p2h");
+  MnvH1D* h_2p2h_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_IntType_2p2h");
   h_2p2h_Bkg->SetLineColor(TColor::GetColor("#44AA99"));
   h_2p2h_Bkg->SetFillColor(TColor::GetColor("#44AA99"));
   h_2p2h_Bkg->SetFillStyle(3444);
+  h_2p2h_Bkg->Scale(scale);
 
-  MnvH1D* h_Other_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_IntType_Other");
+  MnvH1D* h_Other_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_IntType_Other");
   h_Other_Bkg->SetLineColor(TColor::GetColor("#882255"));
   h_Other_Bkg->SetFillColor(TColor::GetColor("#882255"));
   h_Other_Bkg->SetFillStyle(3444);
+  h_Other_Bkg->Scale(scale);
+
+  MnvH1D* h_data = (MnvH1D*)dataFile->Get((TString)name_bkg+"_data");
 
   THStack* h = new THStack();
   h->Add(h_Other_Bkg);
@@ -133,12 +146,13 @@ TCanvas* DrawIntType(string name_QE, TFile* inFile, TString sample){
   h->Draw("hist");
   c1->Update();
 
-  h->SetTitle(sample);//+" "+title.c_str());
+  h->SetTitle(sampleName);//+" "+title.c_str());
   h->GetXaxis()->SetTitle(Xtitle);
   h->GetXaxis()->SetTitleSize(0.045);
   h->GetYaxis()->SetTitle("Events");
   h->GetYaxis()->SetTitleSize(0.045);
   h->GetYaxis()->SetTitleOffset(1.075);
+  h->SetMaximum((h_data->GetMaximum())*1.05);
   
   size_t pos = 0;
   if ((pos=name_sig.find("_primary_parent")) != string::npos){
@@ -157,20 +171,37 @@ TCanvas* DrawIntType(string name_QE, TFile* inFile, TString sample){
     h->GetXaxis()->SetTitleSize(0.045);
   }
 
+  pos=0;
+  if ((pos=name_sig.find("_ENHitSB")) != string::npos){
+    sampleName = "SideBand B " + sample;
+  }
+
+  pos=0;
+  if ((pos=name_sig.find("_NBlobsSB")) != string::npos){
+    sampleName = "SideBand A " + sample;
+  }
+
   if (Xtitle.Contains("pmu")){
     h->GetXaxis()->SetTitle("p_{#mu} [GeV/c]");
+    h->SetTitle("Muon Momentum "+sampleName);
   }
 
   if (Xtitle.Contains("vtxZ")){
     h->GetXaxis()->SetTitle("vtx. Z [mm]");
+    h->SetTitle("Vertex Z "+sampleName);
   }
 
-  h->Draw("hist");
+  //h->Draw("hist");
+  c1->Update();
+  h_data->Draw("same");
   c1->Update();
 
   TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
 
   leg->SetNColumns(2);
+
+  leg->AddEntry(h_data,"DATA");
+  leg->AddEntry((TObject*)0,"","");
 
   leg->AddEntry(h_QE_Sig,"Sig. + QE");
   leg->AddEntry(h_QE_Bkg,"Bkg. + QE");
@@ -192,14 +223,17 @@ TCanvas* DrawIntType(string name_QE, TFile* inFile, TString sample){
   return c1;
 }
 
-TCanvas* DrawTargetType(string name_C, TFile* inFile, TString sample){
+TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString sample, double scale){
+
+  TString sampleName = sample;
 
   TCanvas* c1 = new TCanvas("c1","c1",1200,800);
   c1->cd();
 
-  MnvH1D* h_C_Sig = (MnvH1D*)inFile->Get((TString)name_C);
+  MnvH1D* h_C_Sig = (MnvH1D*)mcFile->Get((TString)name_C);
   h_C_Sig->SetLineColor(TColor::GetColor("#88CCEE"));
   h_C_Sig->SetFillColor(TColor::GetColor("#88CCEE"));
+  h_C_Sig->Scale(scale);
 
   string name_sig = (string)h_C_Sig->GetName();
   name_sig.erase(name_sig.length()-2,name_sig.length());
@@ -210,9 +244,6 @@ TCanvas* DrawTargetType(string name_C, TFile* inFile, TString sample){
   string title = (string)h_C_Sig->GetTitle();
   TString Xtitle = h_C_Sig->GetXaxis()->GetTitle();
   TString Ytitle = h_C_Sig->GetYaxis()->GetTitle();
-
-  cout << "X Title: " << Xtitle << endl;
-  cout << "Y Title: " << Ytitle << endl;
   /*
   cout << title << endl;
   title.erase(0, 7);
@@ -220,59 +251,72 @@ TCanvas* DrawTargetType(string name_C, TFile* inFile, TString sample){
   cout << "" << endl;
   */
 
-  MnvH1D* h_Fe_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_Fe");
+  MnvH1D* h_Fe_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_Fe");
   h_Fe_Sig->SetLineColor(TColor::GetColor("#882255"));
   h_Fe_Sig->SetFillColor(TColor::GetColor("#882255"));
+  h_Fe_Sig->Scale(scale);
 
-  MnvH1D* h_Pb_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_Pb");
+  MnvH1D* h_Pb_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_Pb");
   h_Pb_Sig->SetLineColor(TColor::GetColor("#117733"));
   h_Pb_Sig->SetFillColor(TColor::GetColor("#117733"));
+  h_Pb_Sig->Scale(scale);
 
-  MnvH1D* h_O_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_O");
+  MnvH1D* h_O_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_O");
   h_O_Sig->SetLineColor(TColor::GetColor("#332288"));
   h_O_Sig->SetFillColor(TColor::GetColor("#332288"));
+  h_O_Sig->Scale(scale);
 
-  MnvH1D* h_H_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_H");
+  MnvH1D* h_H_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_H");
   h_H_Sig->SetLineColor(TColor::GetColor("#DDCC77"));
   h_H_Sig->SetFillColor(TColor::GetColor("#DDCC77"));
+  h_H_Sig->Scale(scale);
 
   //h_Prot_Sig->SetFillColor(TColor::GetColor("#999933"));
 
-  MnvH1D* h_Other_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_Other");
+  MnvH1D* h_Other_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_Other");
   h_Other_Sig->SetLineColor(TColor::GetColor("#CC6677"));
   h_Other_Sig->SetFillColor(TColor::GetColor("#CC6677"));
+  h_Other_Sig->Scale(scale);
 
   //h_None_Sig->SetFillColor(TColor::GetColor("#882255"));
 
-  MnvH1D* h_C_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_TargetType_C");
+  MnvH1D* h_C_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_TargetType_C");
   h_C_Bkg->SetLineColor(TColor::GetColor("#88CCEE"));
   h_C_Bkg->SetFillColor(TColor::GetColor("#88CCEE"));
   h_C_Bkg->SetFillStyle(3444);
+  h_C_Bkg->Scale(scale);
 
-  MnvH1D* h_Fe_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_TargetType_Fe");
+  MnvH1D* h_Fe_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_TargetType_Fe");
   h_Fe_Bkg->SetLineColor(TColor::GetColor("#882255"));
   h_Fe_Bkg->SetFillColor(TColor::GetColor("#882255"));
   h_Fe_Bkg->SetFillStyle(3444);
+  h_Fe_Bkg->Scale(scale);
 
-  MnvH1D* h_Pb_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_TargetType_Pb");
+  MnvH1D* h_Pb_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_TargetType_Pb");
   h_Pb_Bkg->SetLineColor(TColor::GetColor("#117733"));
   h_Pb_Bkg->SetFillColor(TColor::GetColor("#117733"));
   h_Pb_Bkg->SetFillStyle(3444);
+  h_Pb_Bkg->Scale(scale);
 
-  MnvH1D* h_O_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_TargetType_O");
+  MnvH1D* h_O_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_TargetType_O");
   h_O_Bkg->SetLineColor(TColor::GetColor("#332288"));
   h_O_Bkg->SetFillColor(TColor::GetColor("#332288"));
   h_O_Bkg->SetFillStyle(3444);
+  h_O_Bkg->Scale(scale);
 
-  MnvH1D* h_H_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_TargetType_H");
+  MnvH1D* h_H_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_TargetType_H");
   h_H_Bkg->SetLineColor(TColor::GetColor("#DDCC77"));
   h_H_Bkg->SetFillColor(TColor::GetColor("#DDCC77"));
   h_H_Bkg->SetFillStyle(3444);
+  h_H_Bkg->Scale(scale);
 
-  MnvH1D* h_Other_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_TargetType_Other");
+  MnvH1D* h_Other_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_TargetType_Other");
   h_Other_Bkg->SetLineColor(TColor::GetColor("#CC6677"));
   h_Other_Bkg->SetFillColor(TColor::GetColor("#CC6677"));
   h_Other_Bkg->SetFillStyle(3444);
+  h_Other_Bkg->Scale(scale);
+
+  MnvH1D* h_data = (MnvH1D*)dataFile->Get((TString)name_bkg+"_data");
 
   THStack* h = new THStack();
   h->Add(h_Other_Bkg);
@@ -292,12 +336,13 @@ TCanvas* DrawTargetType(string name_C, TFile* inFile, TString sample){
   h->Draw("hist");
   c1->Update();
 
-  h->SetTitle(sample+" Target Type Breakdown");//+title.c_str());
+  h->SetTitle(sampleName);//+" "+title.c_str());
   h->GetXaxis()->SetTitle(Xtitle);
   h->GetXaxis()->SetTitleSize(0.045);
   h->GetYaxis()->SetTitle("Events");
   h->GetYaxis()->SetTitleSize(0.045);
   h->GetYaxis()->SetTitleOffset(1.075);
+  h->SetMaximum((h_data->GetMaximum())*1.05);
   
   size_t pos=0;
   if ((pos=name_sig.find("_primary_parent")) != string::npos){
@@ -317,21 +362,35 @@ TCanvas* DrawTargetType(string name_C, TFile* inFile, TString sample){
   }
 
   pos=0;
-  if ((pos=title.find("pmu")) != string::npos){
-    h->GetXaxis()->SetTitle("p_{#mu} [GeV/c]");
+  if ((pos=name_sig.find("_ENHitSB")) != string::npos){
+    sampleName = "SideBand B " + sample;
   }
 
   pos=0;
-  if ((pos=title.find("vtxZ")) != string::npos){
+  if ((pos=name_sig.find("_NBlobsSB")) != string::npos){
+    sampleName = "SideBand A " + sample;
+  }
+
+  if (Xtitle.Contains("pmu")){
+    h->GetXaxis()->SetTitle("p_{#mu} [GeV/c]");
+    h->SetTitle("Muon Momentum "+sampleName);
+  }
+
+  if (Xtitle.Contains("vtxZ")){
     h->GetXaxis()->SetTitle("vtx. Z [mm]");
+    h->SetTitle("Vertex Z "+sampleName);
   }
 
   h->Draw("hist");
+  h_data->Draw("same");
   c1->Update();
 
   TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
 
   leg->SetNColumns(2);
+
+  leg->AddEntry(h_data,"DATA");
+  leg->AddEntry((TObject*)0,"","");
 
   leg->AddEntry(h_C_Sig,"Sig. + C");
   leg->AddEntry(h_C_Bkg,"Bkg. + C");
@@ -356,14 +415,17 @@ TCanvas* DrawTargetType(string name_C, TFile* inFile, TString sample){
   return c1;
 }
 
-TCanvas* DrawLeadBlobType(string name_Neut, TFile* inFile, TString sample){
+TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TString sample, double scale){
+
+  TString sampleName = sample;
 
   TCanvas* c1 = new TCanvas("c1","c1",1200,800);
   c1->cd();
 
-  MnvH1D* h_Neut_Sig = (MnvH1D*)inFile->Get((TString)name_Neut);
+  MnvH1D* h_Neut_Sig = (MnvH1D*)mcFile->Get((TString)name_Neut);
   h_Neut_Sig->SetLineColor(TColor::GetColor("#88CCEE"));
   h_Neut_Sig->SetFillColor(TColor::GetColor("#88CCEE"));
+  h_Neut_Sig->Scale(scale);
 
   string name_sig = (string)h_Neut_Sig->GetName();
   name_sig.erase(name_sig.length()-5,name_sig.length());
@@ -375,9 +437,6 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* inFile, TString sample){
   TString Xtitle = h_Neut_Sig->GetXaxis()->GetTitle();
   TString Ytitle = h_Neut_Sig->GetYaxis()->GetTitle();
 
-  cout << "X Title: " << Xtitle << endl;
-  cout << "Y Title: " << Ytitle << endl;
-
   /*
   cout << title << endl;
   title.erase(0, 10);
@@ -385,73 +444,90 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* inFile, TString sample){
   cout << "" << endl;
   */
 
-  MnvH1D* h_Mu_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_mu");
+  MnvH1D* h_Mu_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_mu");
   h_Mu_Sig->SetLineColor(TColor::GetColor("#44AA99"));
   h_Mu_Sig->SetFillColor(TColor::GetColor("#44AA99"));
+  h_Mu_Sig->Scale(scale);
 
-  MnvH1D* h_Pi0_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_pi0");
+  MnvH1D* h_Pi0_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_pi0");
   h_Pi0_Sig->SetLineColor(TColor::GetColor("#117733"));
   h_Pi0_Sig->SetFillColor(TColor::GetColor("#117733"));
+  h_Pi0_Sig->Scale(scale);
 
-  MnvH1D* h_PiM_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_pim");
+  MnvH1D* h_PiM_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_pim");
   h_PiM_Sig->SetLineColor(TColor::GetColor("#332288"));
   h_PiM_Sig->SetFillColor(TColor::GetColor("#332288"));
+  h_PiM_Sig->Scale(scale);
 
-  MnvH1D* h_PiP_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_pip");
+  MnvH1D* h_PiP_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_pip");
   h_PiP_Sig->SetLineColor(TColor::GetColor("#DDCC77"));
   h_PiP_Sig->SetFillColor(TColor::GetColor("#DDCC77"));
+  h_PiP_Sig->Scale(scale);
 
-  MnvH1D* h_Prot_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_prot");
+  MnvH1D* h_Prot_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_prot");
   h_Prot_Sig->SetLineColor(TColor::GetColor("#999933"));
   h_Prot_Sig->SetFillColor(TColor::GetColor("#999933"));
+  h_Prot_Sig->Scale(scale);
 
-  MnvH1D* h_Other_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_Other");
+  MnvH1D* h_Other_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_Other");
   h_Other_Sig->SetLineColor(TColor::GetColor("#CC6677"));
   h_Other_Sig->SetFillColor(TColor::GetColor("#CC6677"));
+  h_Other_Sig->Scale(scale);
 
-  MnvH1D* h_None_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_None");
+  MnvH1D* h_None_Sig = (MnvH1D*)mcFile->Get((TString)name_sig+"_None");
   h_None_Sig->SetLineColor(TColor::GetColor("#882255"));
   h_None_Sig->SetFillColor(TColor::GetColor("#882255"));
+  h_None_Sig->Scale(scale);
 
-  MnvH1D* h_Neut_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_LeadBlobType_neut");
+  MnvH1D* h_Neut_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_LeadBlobType_neut");
   h_Neut_Bkg->SetLineColor(TColor::GetColor("#88CCEE"));
   h_Neut_Bkg->SetFillColor(TColor::GetColor("#88CCEE"));
   h_Neut_Bkg->SetFillStyle(3444);
+  h_Neut_Bkg->Scale(scale);
 
-  MnvH1D* h_Mu_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_LeadBlobType_mu");
+  MnvH1D* h_Mu_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_LeadBlobType_mu");
   h_Mu_Bkg->SetLineColor(TColor::GetColor("#44AA99"));
   h_Mu_Bkg->SetFillColor(TColor::GetColor("#44AA99"));
   h_Mu_Bkg->SetFillStyle(3444);
+  h_Mu_Bkg->Scale(scale);
 
-  MnvH1D* h_Pi0_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_LeadBlobType_pi0");
+  MnvH1D* h_Pi0_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_LeadBlobType_pi0");
   h_Pi0_Bkg->SetLineColor(TColor::GetColor("#117733"));
   h_Pi0_Bkg->SetFillColor(TColor::GetColor("#117733"));
   h_Pi0_Bkg->SetFillStyle(3444);
+  h_Pi0_Bkg->Scale(scale);
 
-  MnvH1D* h_PiM_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_LeadBlobType_pim");
+  MnvH1D* h_PiM_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_LeadBlobType_pim");
   h_PiM_Bkg->SetLineColor(TColor::GetColor("#332288"));
   h_PiM_Bkg->SetFillColor(TColor::GetColor("#332288"));
   h_PiM_Bkg->SetFillStyle(3444);
+  h_PiM_Bkg->Scale(scale);
 
-  MnvH1D* h_PiP_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_LeadBlobType_pip");
+  MnvH1D* h_PiP_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_LeadBlobType_pip");
   h_PiP_Bkg->SetLineColor(TColor::GetColor("#DDCC77"));
   h_PiP_Bkg->SetFillColor(TColor::GetColor("#DDCC77"));
   h_PiP_Bkg->SetFillStyle(3444);
+  h_PiP_Bkg->Scale(scale);
 
-  MnvH1D* h_Prot_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_LeadBlobType_prot");
+  MnvH1D* h_Prot_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_LeadBlobType_prot");
   h_Prot_Bkg->SetLineColor(TColor::GetColor("#999933"));
   h_Prot_Bkg->SetFillColor(TColor::GetColor("#999933"));
   h_Prot_Bkg->SetFillStyle(3444);
+  h_Prot_Bkg->Scale(scale);
 
-  MnvH1D* h_Other_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_LeadBlobType_Other");
+  MnvH1D* h_Other_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_LeadBlobType_Other");
   h_Other_Bkg->SetLineColor(TColor::GetColor("#CC6677"));
   h_Other_Bkg->SetFillColor(TColor::GetColor("#CC6677"));
   h_Other_Bkg->SetFillStyle(3444);
+  h_Other_Bkg->Scale(scale);
 
-  MnvH1D* h_None_Bkg = (MnvH1D*)inFile->Get((TString)name_bkg+"_bkg_LeadBlobType_None");
+  MnvH1D* h_None_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_bkg_LeadBlobType_None");
   h_None_Bkg->SetLineColor(TColor::GetColor("#882255"));
   h_None_Bkg->SetFillColor(TColor::GetColor("#882255"));
   h_None_Bkg->SetFillStyle(3444);
+  h_None_Bkg->Scale(scale);
+
+  MnvH1D* h_data = (MnvH1D*)dataFile->Get((TString)name_bkg+"_data");
 
   THStack* h = new THStack();
   h->Add(h_None_Bkg);
@@ -477,12 +553,13 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* inFile, TString sample){
 
   //ToDo: Get the naming of the axes fixed to be what it needs to be/make it easier to automate. This will need to be accompanied by a change to the Variable class to get the labels correct there. Current changes temporary in the interest of making plots for a talk on Oct. 14, 2021 in the exclusives meeting.
 
-  h->SetTitle(sample+" "+title.c_str());
+  h->SetTitle(sampleName);//+" "+title.c_str());
   h->GetXaxis()->SetTitle(Xtitle);
   h->GetXaxis()->SetTitleSize(0.045);
   h->GetYaxis()->SetTitle("Events");
   h->GetYaxis()->SetTitleSize(0.045);
   h->GetYaxis()->SetTitleOffset(1.075);
+  h->SetMaximum((h_data->GetMaximum())*1.05);
   
   size_t pos=0;
   if ((pos=name_sig.find("_primary_parent")) != string::npos){
@@ -502,21 +579,35 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* inFile, TString sample){
   }
 
   pos=0;
-  if ((pos=title.find("pmu")) != string::npos){
-    h->GetXaxis()->SetTitle("p_{#mu} [GeV/c]");
+  if ((pos=name_sig.find("_ENHitSB")) != string::npos){
+    sampleName = "SideBand B " + sample;
   }
 
   pos=0;
-  if ((pos=title.find("vtxZ")) != string::npos){
+  if ((pos=name_sig.find("_NBlobsSB")) != string::npos){
+    sampleName = "SideBand A " + sample;
+  }
+
+  if (Xtitle.Contains("pmu")){
+    h->GetXaxis()->SetTitle("p_{#mu} [GeV/c]");
+    h->SetTitle("Muon Momentum "+sampleName);
+  }
+
+  if (Xtitle.Contains("vtxZ")){
     h->GetXaxis()->SetTitle("vtx. Z [mm]");
+    h->SetTitle("Vertex Z "+sampleName);
   }
 
   h->Draw("hist");
+  h_data->Draw("same");
   c1->Update();
 
   TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
 
   leg->SetNColumns(2);
+
+  leg->AddEntry(h_data,"DATA");
+  leg->AddEntry((TObject*)0,"","");
 
   leg->AddEntry(h_Neut_Sig,"Sig. + n");
   leg->AddEntry(h_Neut_Bkg,"Bkg. + n");
@@ -559,14 +650,15 @@ int main(int argc, char* argv[]) {
   #endif
 
   //Pass an input file name to this script now
-  if (argc != 4) {
+  if (argc != 5) {
     cout << "Check usage..." << endl;
     return 2;
   }
 
-  string fileName=string(argv[1]);
-  string outDir=string(argv[2]);
-  TString label=argv[3];
+  string MCfileName=string(argv[1]);
+  string DATAfileName=string(argv[2]);
+  string outDir=string(argv[3]);
+  TString label=argv[4];
 
   if (PathExists(outDir)){
     cout << "Thank you for choosing a path for output files that exists." << endl;
@@ -579,7 +671,7 @@ int main(int argc, char* argv[]) {
   string rootExt = ".root";
   string slash = "/";
   string token;
-  string fileNameStub = fileName;
+  string fileNameStub = MCfileName;
   size_t pos=0;
 
   //cout << sigNameStub << endl;
@@ -591,15 +683,43 @@ int main(int argc, char* argv[]) {
   }
   //cout << sigNameStub << endl;
   if ((pos=fileNameStub.find(rootExt)) == string::npos){
-    cout << "Input need be .root file." << endl;
+    cout << "MC Input need be .root file." << endl;
     return 4;
   }
 
-  cout << "Input Signal file name parsed to: " << fileNameStub << endl;
+  cout << "Input MC file name parsed to: " << fileNameStub << endl;
 
-  TFile* inFile = new TFile(fileName.c_str(),"READ");
+  rootExt = ".root";
+  slash = "/";
+  token = "";
+  fileNameStub = DATAfileName;
+  pos=0;
 
-  TList* keyList = inFile->GetListOfKeys();
+  //cout << sigNameStub << endl;
+  while ((pos = fileNameStub.find(slash)) != string::npos){
+    //cout << sigNameStub << endl;
+    token = fileNameStub.substr(0, pos);
+    //cout << token << endl;
+    fileNameStub.erase(0, pos+slash.length());
+  }
+  //cout << sigNameStub << endl;
+  if ((pos=fileNameStub.find(rootExt)) == string::npos){
+    cout << "DATA Input need be .root file." << endl;
+    return 5;
+  }
+
+  cout << "Input Data file name parsed to: " << fileNameStub << endl;
+
+  TFile* mcFile = new TFile(MCfileName.c_str(),"READ");
+  TFile* dataFile = new TFile(DATAfileName.c_str(),"READ");
+
+  TParameter<double>* mcPOT = (TParameter<double>*)mcFile->Get("POTUsed");
+  TParameter<double>* dataPOT = (TParameter<double>*)dataFile->Get("POTUsed");
+
+  double scale = dataPOT->GetVal()/mcPOT->GetVal();
+  cout << "POT scale factor: " << scale << endl;
+
+  TList* keyList = mcFile->GetListOfKeys();
   if (!keyList){
     cout << "List of keys failed to get." << endl;
     return 5;
@@ -612,7 +732,7 @@ int main(int argc, char* argv[]) {
     pos=0;
     string name=(string)key->GetName();
     if((pos = name.find("_sig_IntType_QE")) != string::npos){
-      TCanvas* c1 = DrawIntType(name,inFile,label);
+      TCanvas* c1 = DrawIntType(name,mcFile,dataFile,label,scale);
       name.erase(name.length()-15,name.length());
       c1->Print((TString)outDir+(TString)name+"_IntType_stacked_test.pdf");
       c1->Print((TString)outDir+(TString)name+"_IntType_stacked_test.png");
@@ -620,7 +740,7 @@ int main(int argc, char* argv[]) {
       delete c1;
     }
     else if ((pos = name.find("_sig_TargetType_C")) != string::npos){
-      TCanvas* c1 = DrawTargetType(name,inFile,label);
+      TCanvas* c1 = DrawTargetType(name,mcFile,dataFile,label,scale);
       name.erase(name.length()-17,name.length());
       c1->Print((TString)outDir+(TString)name+"_TargetType_stacked_test.pdf");
       c1->Print((TString)outDir+(TString)name+"_TargetType_stacked_test.png");
@@ -628,7 +748,7 @@ int main(int argc, char* argv[]) {
       delete c1;
     }
     else if ((pos = name.find("_sig_LeadBlobType_neut")) != string::npos){
-      TCanvas* c1 = DrawLeadBlobType(name,inFile,label);
+      TCanvas* c1 = DrawLeadBlobType(name,mcFile,dataFile,label,scale);
       name.erase(name.length()-22,name.length());
       c1->Print((TString)outDir+(TString)name+"_LeadBlobType_stacked_test.pdf");
       c1->Print((TString)outDir+(TString)name+"_LeadBlobType_stacked_test.png");
