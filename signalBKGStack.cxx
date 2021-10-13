@@ -67,6 +67,8 @@ TCanvas* DrawIntType(string name_QE, TFile* inFile, TString sample){
   string title = (string)h_QE_Sig->GetTitle();
   TString Xtitle = h_QE_Sig->GetXaxis()->GetTitle();
   TString Ytitle = h_QE_Sig->GetYaxis()->GetTitle();
+  cout << "X Title: " << Xtitle << endl;
+  cout << "Y Title: " << Ytitle << endl;
   /*
   cout << title << endl;
   title.erase(0, 8);
@@ -134,7 +136,7 @@ TCanvas* DrawIntType(string name_QE, TFile* inFile, TString sample){
   h->SetTitle(sample);//+" "+title.c_str());
   h->GetXaxis()->SetTitle(Xtitle);
   h->GetXaxis()->SetTitleSize(0.045);
-  h->GetYaxis()->SetTitle(Ytitle);
+  h->GetYaxis()->SetTitle("Events");
   h->GetYaxis()->SetTitleSize(0.045);
   h->GetYaxis()->SetTitleOffset(1.075);
   
@@ -153,6 +155,14 @@ TCanvas* DrawIntType(string name_QE, TFile* inFile, TString sample){
     h->GetXaxis()->SetLabelSize(0.06);
     h->GetXaxis()->SetTitle("Blob Primary Parent");
     h->GetXaxis()->SetTitleSize(0.045);
+  }
+
+  if (Xtitle.Contains("pmu")){
+    h->GetXaxis()->SetTitle("p_{#mu} [GeV/c]");
+  }
+
+  if (Xtitle.Contains("vtxZ")){
+    h->GetXaxis()->SetTitle("vtx. Z [mm]");
   }
 
   h->Draw("hist");
@@ -200,6 +210,9 @@ TCanvas* DrawTargetType(string name_C, TFile* inFile, TString sample){
   string title = (string)h_C_Sig->GetTitle();
   TString Xtitle = h_C_Sig->GetXaxis()->GetTitle();
   TString Ytitle = h_C_Sig->GetYaxis()->GetTitle();
+
+  cout << "X Title: " << Xtitle << endl;
+  cout << "Y Title: " << Ytitle << endl;
   /*
   cout << title << endl;
   title.erase(0, 7);
@@ -282,7 +295,7 @@ TCanvas* DrawTargetType(string name_C, TFile* inFile, TString sample){
   h->SetTitle(sample+" Target Type Breakdown");//+title.c_str());
   h->GetXaxis()->SetTitle(Xtitle);
   h->GetXaxis()->SetTitleSize(0.045);
-  h->GetYaxis()->SetTitle(Ytitle);
+  h->GetYaxis()->SetTitle("Events");
   h->GetYaxis()->SetTitleSize(0.045);
   h->GetYaxis()->SetTitleOffset(1.075);
   
@@ -301,6 +314,16 @@ TCanvas* DrawTargetType(string name_C, TFile* inFile, TString sample){
     h->GetXaxis()->SetLabelSize(0.06);
     h->GetXaxis()->SetTitle("Blob Primary Parent");
     h->GetXaxis()->SetTitleSize(0.045);
+  }
+
+  pos=0;
+  if ((pos=title.find("pmu")) != string::npos){
+    h->GetXaxis()->SetTitle("p_{#mu} [GeV/c]");
+  }
+
+  pos=0;
+  if ((pos=title.find("vtxZ")) != string::npos){
+    h->GetXaxis()->SetTitle("vtx. Z [mm]");
   }
 
   h->Draw("hist");
@@ -351,10 +374,16 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* inFile, TString sample){
   string title = (string)h_Neut_Sig->GetTitle();
   TString Xtitle = h_Neut_Sig->GetXaxis()->GetTitle();
   TString Ytitle = h_Neut_Sig->GetYaxis()->GetTitle();
+
+  cout << "X Title: " << Xtitle << endl;
+  cout << "Y Title: " << Ytitle << endl;
+
+  /*
   cout << title << endl;
   title.erase(0, 10);
   cout << title << endl;
   cout << "" << endl;
+  */
 
   MnvH1D* h_Mu_Sig = (MnvH1D*)inFile->Get((TString)name_sig+"_mu");
   h_Mu_Sig->SetLineColor(TColor::GetColor("#44AA99"));
@@ -446,10 +475,12 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* inFile, TString sample){
   h->Draw("hist");
   c1->Update();
 
+  //ToDo: Get the naming of the axes fixed to be what it needs to be/make it easier to automate. This will need to be accompanied by a change to the Variable class to get the labels correct there. Current changes temporary in the interest of making plots for a talk on Oct. 14, 2021 in the exclusives meeting.
+
   h->SetTitle(sample+" "+title.c_str());
   h->GetXaxis()->SetTitle(Xtitle);
   h->GetXaxis()->SetTitleSize(0.045);
-  h->GetYaxis()->SetTitle(Ytitle);
+  h->GetYaxis()->SetTitle("Events");
   h->GetYaxis()->SetTitleSize(0.045);
   h->GetYaxis()->SetTitleOffset(1.075);
   
@@ -468,6 +499,16 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* inFile, TString sample){
     h->GetXaxis()->SetLabelSize(0.06);
     h->GetXaxis()->SetTitle("Blob Primary Parent");
     h->GetXaxis()->SetTitleSize(0.045);
+  }
+
+  pos=0;
+  if ((pos=title.find("pmu")) != string::npos){
+    h->GetXaxis()->SetTitle("p_{#mu} [GeV/c]");
+  }
+
+  pos=0;
+  if ((pos=title.find("vtxZ")) != string::npos){
+    h->GetXaxis()->SetTitle("vtx. Z [mm]");
   }
 
   h->Draw("hist");
