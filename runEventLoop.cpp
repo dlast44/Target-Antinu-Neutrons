@@ -80,6 +80,7 @@ enum ErrorCodes
 #include "PlotUtils/FluxAndCVReweighter.h"
 #include "PlotUtils/GENIEReweighter.h"
 #include "PlotUtils/LowRecoil2p2hReweighter.h"
+#include "PlotUtils/LowQ2PiReweighter.h"
 #include "PlotUtils/RPAReweighter.h"
 #include "PlotUtils/MINOSEfficiencyReweighter.h"
 #include "PlotUtils/TargetUtils.h"
@@ -457,6 +458,7 @@ int main(const int argc, const char** argv)
   MnvTunev1.emplace_back(new PlotUtils::LowRecoil2p2hReweighter<CVUniverse, NeutronEvent>());
   MnvTunev1.emplace_back(new PlotUtils::MINOSEfficiencyReweighter<CVUniverse, NeutronEvent>());
   MnvTunev1.emplace_back(new PlotUtils::RPAReweighter<CVUniverse, NeutronEvent>());
+  MnvTunev1.emplace_back(new PlotUtils::LowQ2PiReweighter<CVUniverse, NeutronEvent>("JOINT"));
 
   PlotUtils::Model<CVUniverse, NeutronEvent> model(std::move(MnvTunev1));
 
