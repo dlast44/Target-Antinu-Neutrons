@@ -3,7 +3,7 @@
 
 #define USAGE \
 "\n*** USAGE ***\n"\
-"runEventLoop <dataPlaylist.txt> <mcPlaylist.txt> <skip_systematics> <MnvTune_v> <FV> optional: <fileName_tag>\n\n"\
+"runEventLoop <dataPlaylist.txt> <mcPlaylist.txt> <skip_systematics> <MnvTune_v> <FV> optional: <fileName_tag> <doNeutronCuts>\n\n"\
 "*** Explanation ***\n"\
 "Reduce MasterAnaDev AnaTuples to event selection histograms to extract a\n"\
 "single-differential inclusive cross section for the 2021 MINERvA 101 tutorial.\n\n"\
@@ -17,15 +17,18 @@
 "all histograms needed for the ExtractCrossSection program also built by this\n"\
 "package.  You'll need a .rootlogon.C that loads ROOT object definitions from\n"\
 "PlotUtils to access systematics information from these files.\n\n"\
-"*** Environment Variables and Inputs***\n"\
+"*** Environment Variables and Inputs ***\n"\
 "Setting up this package appends to PATH and LD_LIBRARY_PATH.  PLOTUTILSROOT,\n"\
 "MPARAMFILESROOT, and MPARAMFILES must be set according to the setup scripts in\n"\
 "those packages for systematics and flux reweighters to function.\n"\
-"<MnvTune_v> has to be 1 or 2 and is the only current input control for the arguments to the function.\n"\
 "If the <skip_systematics> argument is nonzero at all, output histograms will have no error bands.\n"\
 "This is useful for debugging the CV and running warping studies.\n"\
+"<MnvTune_v> has to be 1 or 2 and is the only current input control for the arguments to the function.\n"\
 "<FV> parameter needs to be set to Tracker or Targets to select vtx location.\n"\
 "This parameter also controls the plotting range of the vtxZ variable.\n\n"\
+"*** Optional Inputs ***\n"\
+"<fileName_tag> lives as a naming tag used for extra identification of file contents if desired.\n"\
+"<doNeutronCuts> If 0, skips neutron cuts for deliverables that may not use them.\n\n"\
 "*** Return Codes ***\n"\
 "0 indicates success.  All histograms are valid only in this case.  Any other\n"\
 "return code indicates that histograms should not be used.  Error messages\n"\
@@ -373,7 +376,7 @@ int main(const int argc, const char** argv)
 
   //Validate input.
   const int nArgsMandatory = 5;
-  const int nArgsOptional = 1;
+  const int nArgsOptional = 2;
   const int nArgsTotal = nArgsMandatory + nArgsOptional;
   if(argc < nArgsMandatory + 1 || argc > nArgsTotal + 1) //argc is the size of argv.  I check for number of arguments + 1 because
                                 //argv[0] is always the path to the executable.
@@ -397,8 +400,17 @@ int main(const int argc, const char** argv)
 
   TString nameExt = ".root";
 
-  if (argc == nArgsTotal + 1) nameExt = "_"+(TString)(argv[nArgsTotal])+nameExt;
+  bool doNeutronCuts = true;
 
+  if (argc > nArgsMandatory + 1){
+    if ((TString)(argv[nArgsMandatory+1]) != "") nameExt = "_"+(TString)(argv[nArgsMandatory+1])+nameExt;
+    if (argc == nArgsTotal + 1){
+      doNeutronCuts = (atoi(argv[nArgsTotal]) != 0);
+    }
+  }
+
+  if (doNeutronCuts) nameExt = "_wNeutCuts"+nameExt;
+ 
   if (tuneVer != "1" && tuneVer != "2"){
     std::cerr << "Must choose between 1 and 2 for the <MnvTune_v> argument. Check usage printed below. \n" << USAGE << "\n";
     return badCmdLine;
@@ -463,9 +475,11 @@ int main(const int argc, const char** argv)
   preCuts.emplace_back(new MyCCQECuts::IsSingleTrack<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyCCQECuts::NoMichels<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyCCQECuts::RecoilCut<CVUniverse, NeutronEvent>());
-  preCuts.emplace_back(new MyNeutCuts::LeadNeutIs3D<CVUniverse, NeutronEvent>());
-  preCuts.emplace_back(new MyNeutCuts::LeadNeutIsFarFromMuon<CVUniverse, NeutronEvent>());
-  preCuts.emplace_back(new MyNeutCuts::LeadNeutZDistMin<CVUniverse, NeutronEvent>());
+  if (doNeutronCuts){
+    preCuts.emplace_back(new MyNeutCuts::LeadNeutIs3D<CVUniverse, NeutronEvent>());
+    preCuts.emplace_back(new MyNeutCuts::LeadNeutIsFarFromMuon<CVUniverse, NeutronEvent>());
+    preCuts.emplace_back(new MyNeutCuts::LeadNeutZDistMin<CVUniverse, NeutronEvent>());
+  }
   //preCuts.emplace_back(new MyNeutCuts::LeadNeutInTracker<CVUniverse, NeutronEvent>(maxZ));
   //preCuts.emplace_back(new reco::IsNeutrino<CVUniverse, NeutronEvent>());
 
