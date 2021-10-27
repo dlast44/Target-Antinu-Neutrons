@@ -3,7 +3,7 @@
 
 #define USAGE \
 "\n*** USAGE ***\n"\
-"runEventLoop <dataPlaylist.txt> <mcPlaylist.txt> <skip_systematics> <FV> optional: <fileName_tag>\n\n"\
+"runEventLoop <dataPlaylist.txt> <mcPlaylist.txt> <skip_systematics> <MnvTune_v> <FV> optional: <fileName_tag>\n\n"\
 "*** Explanation ***\n"\
 "Reduce MasterAnaDev AnaTuples to event selection histograms to extract a\n"\
 "single-differential inclusive cross section for the 2021 MINERvA 101 tutorial.\n\n"\
@@ -17,10 +17,11 @@
 "all histograms needed for the ExtractCrossSection program also built by this\n"\
 "package.  You'll need a .rootlogon.C that loads ROOT object definitions from\n"\
 "PlotUtils to access systematics information from these files.\n\n"\
-"*** Environment Variables ***\n"\
+"*** Environment Variables and Inputs***\n"\
 "Setting up this package appends to PATH and LD_LIBRARY_PATH.  PLOTUTILSROOT,\n"\
 "MPARAMFILESROOT, and MPARAMFILES must be set according to the setup scripts in\n"\
 "those packages for systematics and flux reweighters to function.\n"\
+"<MnvTune_v> has to be 1 or 2 and is the only current input control for the arguments to the function.\n"\
 "If the <skip_systematics> argument is nonzero at all, output histograms will have no error bands.\n"\
 "This is useful for debugging the CV and running warping studies.\n"\
 "<FV> parameter needs to be set to Tracker or Targets to select vtx location.\n"\
@@ -371,8 +372,7 @@ int main(const int argc, const char** argv)
   TH1::AddDirectory(false);
 
   //Validate input.
-  //I expect a data playlist file name and an MC playlist file name which is exactly 2 arguments.
-  const int nArgsMandatory = 4;
+  const int nArgsMandatory = 5;
   const int nArgsOptional = 1;
   const int nArgsTotal = nArgsMandatory + nArgsOptional;
   if(argc < nArgsMandatory + 1 || argc > nArgsTotal + 1) //argc is the size of argv.  I check for number of arguments + 1 because
@@ -385,25 +385,31 @@ int main(const int argc, const char** argv)
   //One playlist must contain only MC files, and the other must contain only data files.
   //Only checking the first file in each playlist because opening each file an extra time
   //remotely (e.g. through xrootd) can get expensive.
-  //TODO: Look in INSTALL_DIR if files not found?
-  const std::string FVregion = argv[4],
+  const std::string FVregion = argv[5],
                     mc_file_list = argv[2],
                     data_file_list = argv[1];
 
   const int skipSystInt = atoi(argv[3]);
 
+  const TString tuneVer = (TString)(argv[4]);
+  
   const TString FVregionName = (TString)FVregion;
 
   TString nameExt = ".root";
 
   if (argc == nArgsTotal + 1) nameExt = "_"+(TString)(argv[nArgsTotal])+nameExt;
 
+  if (tuneVer != "1" && tuneVer != "2"){
+    std::cerr << "Must choose between 1 and 2 for the <MnvTune_v> argument. Check usage printed below. \n" << USAGE << "\n";
+    return badCmdLine;
+  }
+
   if (FVregionName != "Tracker" && FVregionName != "Targets"){
     std::cerr << "<FV> argument invalid. Check usage printed below. \n" << USAGE << "\n";
     return badCmdLine;
   }
 
-  nameExt = "_FVregion_"+FVregionName+nameExt;
+  nameExt = "_MnvTuneV"+tuneVer+"_FVregion_"+FVregionName+nameExt;
 
   //Check that necessary TTrees exist in the first file of mc_file_list and data_file_list
   std::string reco_tree_name;
@@ -482,15 +488,15 @@ int main(const int argc, const char** argv)
 
   PlotUtils::Cutter<CVUniverse, NeutronEvent> mycuts(std::move(preCuts), std::move(sidebands) , std::move(signalDefinition),std::move(phaseSpace));
 
-  std::vector<std::unique_ptr<PlotUtils::Reweighter<CVUniverse, NeutronEvent>>> MnvTunev1;
-  MnvTunev1.emplace_back(new PlotUtils::FluxAndCVReweighter<CVUniverse, NeutronEvent>());
-  MnvTunev1.emplace_back(new PlotUtils::GENIEReweighter<CVUniverse, NeutronEvent>(true, false));
-  MnvTunev1.emplace_back(new PlotUtils::LowRecoil2p2hReweighter<CVUniverse, NeutronEvent>());
-  MnvTunev1.emplace_back(new PlotUtils::MINOSEfficiencyReweighter<CVUniverse, NeutronEvent>());
-  MnvTunev1.emplace_back(new PlotUtils::RPAReweighter<CVUniverse, NeutronEvent>());
-  MnvTunev1.emplace_back(new PlotUtils::LowQ2PiReweighter<CVUniverse, NeutronEvent>("JOINT"));
+  std::vector<std::unique_ptr<PlotUtils::Reweighter<CVUniverse, NeutronEvent>>> MnvTune;
+  MnvTune.emplace_back(new PlotUtils::FluxAndCVReweighter<CVUniverse, NeutronEvent>());
+  MnvTune.emplace_back(new PlotUtils::GENIEReweighter<CVUniverse, NeutronEvent>(true, false));
+  MnvTune.emplace_back(new PlotUtils::LowRecoil2p2hReweighter<CVUniverse, NeutronEvent>());
+  MnvTune.emplace_back(new PlotUtils::MINOSEfficiencyReweighter<CVUniverse, NeutronEvent>());
+  MnvTune.emplace_back(new PlotUtils::RPAReweighter<CVUniverse, NeutronEvent>());
+  if (tuneVer == "2") MnvTune.emplace_back(new PlotUtils::LowQ2PiReweighter<CVUniverse, NeutronEvent>("JOINT"));
 
-  PlotUtils::Model<CVUniverse, NeutronEvent> model(std::move(MnvTunev1));
+  PlotUtils::Model<CVUniverse, NeutronEvent> model(std::move(MnvTune));
 
   // Make a map of systematic universes
   // Leave out systematics when making validation histograms
