@@ -3,7 +3,7 @@
 
 #define USAGE \
 "\n*** USAGE ***\n"\
-"runEventLoop <dataPlaylist.txt> <mcPlaylist.txt> <skip_systematics> <FV>\n\n"\
+"runEventLoop <dataPlaylist.txt> <mcPlaylist.txt> <skip_systematics> <FV> optional: <fileName_tag>\n\n"\
 "*** Explanation ***\n"\
 "Reduce MasterAnaDev AnaTuples to event selection histograms to extract a\n"\
 "single-differential inclusive cross section for the 2021 MINERvA 101 tutorial.\n\n"\
@@ -372,11 +372,13 @@ int main(const int argc, const char** argv)
 
   //Validate input.
   //I expect a data playlist file name and an MC playlist file name which is exactly 2 arguments.
-  const int nArgsExpected = 4;
-  if(argc != nArgsExpected + 1) //argc is the size of argv.  I check for number of arguments + 1 because
+  const int nArgsMandatory = 4;
+  const int nArgsOptional = 1;
+  const int nArgsTotal = nArgsMandatory + nArgsOptional;
+  if(argc < nArgsMandatory + 1 || argc > nArgsTotal + 1) //argc is the size of argv.  I check for number of arguments + 1 because
                                 //argv[0] is always the path to the executable.
   {
-    std::cerr << "Expected " << nArgsExpected << " arguments, but got " << argc - 1 << "\n" << USAGE << "\n";
+    std::cerr << "Expected at least " << nArgsMandatory << " and no more than " << nArgsTotal << " arguments, but got " << argc - 1 << "\n" << USAGE << "\n";
     return badCmdLine;
   }
 
@@ -392,10 +394,16 @@ int main(const int argc, const char** argv)
 
   const TString FVregionName = (TString)FVregion;
 
+  TString nameExt = ".root";
+
+  if (argc == nArgsTotal + 1) nameExt = "_"+(TString)(argv[nArgsTotal])+nameExt;
+
   if (FVregionName != "Tracker" && FVregionName != "Targets"){
     std::cerr << "<FV> argument invalid. Check usage printed below. \n" << USAGE << "\n";
     return badCmdLine;
   }
+
+  nameExt = "_FVregion_"+FVregionName+nameExt;
 
   //Check that necessary TTrees exist in the first file of mc_file_list and data_file_list
   std::string reco_tree_name;
@@ -488,9 +496,13 @@ int main(const int argc, const char** argv)
   // Leave out systematics when making validation histograms
   const bool doSystematics = (skipSystInt == 0);
   if(!doSystematics){
+    nameExt = "_SkippedSyst"+nameExt;
     std::cout << "Skipping systematics (except 1 flux universe) because <systematics> argument is non-zero.\n";
     PlotUtils::MinervaUniverse::SetNFluxUniverses(2); //Necessary to get Flux integral later...  Doesn't work with just 1 flux universe though because _that_ triggers "spread errors".
   }
+
+  //Line to help check the new naming control. Remove once tested.
+  std::cout << nameExt << std::endl;
 
   std::map< std::string, std::vector<CVUniverse*> > error_bands;
   if(doSystematics) error_bands = GetStandardSystematics(options.m_mc);
@@ -591,10 +603,10 @@ int main(const int argc, const char** argv)
     std::cout << "Writing MC Output File." << std::endl;
 
     //Write MC results
-    TFile* mcOutDir = TFile::Open((TString)(MC_OUT_FILE_NAME)+"_FVregion_"+FVregionName+".root", "RECREATE");
+    TFile* mcOutDir = TFile::Open((TString)(MC_OUT_FILE_NAME)+nameExt, "RECREATE");
     if(!mcOutDir)
     {
-      std::cerr << "Failed to open a file named " << MC_OUT_FILE_NAME << "_FVregion_" << FVregionName << ".root in the current directory for writing histograms.\n";
+      std::cerr << "Failed to open a file named " << MC_OUT_FILE_NAME << nameExt << " in the current directory for writing histograms.\n";
       return badOutputFile;
     }
 
@@ -625,10 +637,10 @@ int main(const int argc, const char** argv)
     std::cout << "Writing Data Output File" << std::endl;
 
     //Write data results
-    TFile* dataOutDir = TFile::Open((TString)(DATA_OUT_FILE_NAME)+"_FVregion_"+FVregionName+".root", "RECREATE");
+    TFile* dataOutDir = TFile::Open((TString)(DATA_OUT_FILE_NAME)+nameExt, "RECREATE");
     if(!dataOutDir)
     {
-      std::cerr << "Failed to open a file named " << DATA_OUT_FILE_NAME << "_FVregion_" << FVregionName << ".root in the current directory for writing histograms.\n";
+      std::cerr << "Failed to open a file named " << DATA_OUT_FILE_NAME << nameExt << " in the current directory for writing histograms.\n";
       return badOutputFile;
     }
 
