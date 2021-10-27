@@ -1,9 +1,9 @@
-#define MC_OUT_FILE_NAME "runEventLoopMC.root"
-#define DATA_OUT_FILE_NAME "runEventLoopData.root"
+#define MC_OUT_FILE_NAME "runEventLoopMC"
+#define DATA_OUT_FILE_NAME "runEventLoopData"
 
 #define USAGE \
 "\n*** USAGE ***\n"\
-"runEventLoop <dataPlaylist.txt> <mcPlaylist.txt> <skip_systematics>\n\n"\
+"runEventLoop <dataPlaylist.txt> <mcPlaylist.txt> <skip_systematics> <FV>\n\n"\
 "*** Explanation ***\n"\
 "Reduce MasterAnaDev AnaTuples to event selection histograms to extract a\n"\
 "single-differential inclusive cross section for the 2021 MINERvA 101 tutorial.\n\n"\
@@ -13,7 +13,7 @@
 "entries will be treated like data, and the second playlist's entries must\n"\
 "have the \"Truth\" tree to use for calculating the efficiency denominator.\n\n"\
 "*** Output ***\n"\
-"Produces a two files, " MC_OUT_FILE_NAME " and " DATA_OUT_FILE_NAME ", with\n"\
+"Produces a two files starting with names, " MC_OUT_FILE_NAME " and " DATA_OUT_FILE_NAME ", with\n"\
 "all histograms needed for the ExtractCrossSection program also built by this\n"\
 "package.  You'll need a .rootlogon.C that loads ROOT object definitions from\n"\
 "PlotUtils to access systematics information from these files.\n\n"\
@@ -22,7 +22,9 @@
 "MPARAMFILESROOT, and MPARAMFILES must be set according to the setup scripts in\n"\
 "those packages for systematics and flux reweighters to function.\n"\
 "If the <skip_systematics> argument is nonzero at all, output histograms will have no error bands.\n"\
-"This is useful for debugging the CV and running warping studies.\n\n"\
+"This is useful for debugging the CV and running warping studies.\n"\
+"<FV> parameter needs to be set to Tracker or Targets to select vtx location.\n"\
+"This parameter also controls the plotting range of the vtxZ variable.\n\n"\
 "*** Return Codes ***\n"\
 "0 indicates success.  All histograms are valid only in this case.  Any other\n"\
 "return code indicates that histograms should not be used.  Error messages\n"\
@@ -370,7 +372,7 @@ int main(const int argc, const char** argv)
 
   //Validate input.
   //I expect a data playlist file name and an MC playlist file name which is exactly 2 arguments.
-  const int nArgsExpected = 3;
+  const int nArgsExpected = 4;
   if(argc != nArgsExpected + 1) //argc is the size of argv.  I check for number of arguments + 1 because
                                 //argv[0] is always the path to the executable.
   {
@@ -382,10 +384,18 @@ int main(const int argc, const char** argv)
   //Only checking the first file in each playlist because opening each file an extra time
   //remotely (e.g. through xrootd) can get expensive.
   //TODO: Look in INSTALL_DIR if files not found?
-  const std::string mc_file_list = argv[2],
+  const std::string FVregion = argv[4],
+                    mc_file_list = argv[2],
                     data_file_list = argv[1];
 
   const int skipSystInt = atoi(argv[3]);
+
+  const TString FVregionName = (TString)FVregion;
+
+  if (FVregionName != "Tracker" && FVregionName != "Targets"){
+    std::cerr << "<FV> argument invalid. Check usage printed below. \n" << USAGE << "\n";
+    return badCmdLine;
+  }
 
   //Check that necessary TTrees exist in the first file of mc_file_list and data_file_list
   std::string reco_tree_name;
@@ -414,10 +424,22 @@ int main(const int argc, const char** argv)
   PlotUtils::Cutter<CVUniverse, NeutronEvent>::reco_t sidebands, preCuts;
   PlotUtils::Cutter<CVUniverse, NeutronEvent>::truth_t signalDefinition, phaseSpace;
 
-  const double minZ = 5980, maxZ = 8422, apothem = 850; //All in mm
-  preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>("Tracker", minZ, maxZ));
-  //const double minZ = 4470, maxZ = 5980, apothem = 850; //All in mm
-  //preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>("Targets", minZ, maxZ));
+  double minZtmp=-1, maxZtmp=-1;
+  if (FVregionName == "Tracker"){
+    minZtmp = 5980;
+    maxZtmp = 8422;
+  }
+  else if (FVregionName == "Targets"){
+    minZtmp = 4470;
+    maxZtmp = 5980;
+  }
+  else{
+    std::cerr << "<FV> argument invalid, but passed initial check. Check usage printed below, and try and understand why the checks aren't consistent. \n" << USAGE << "\n";
+    return badCmdLine;
+  }
+
+  const double minZ = minZtmp, maxZ = maxZtmp, apothem = 850; //All in mm
+  preCuts.emplace_back(new reco::ZRange<CVUniverse, NeutronEvent>(FVregion, minZ, maxZ));
   preCuts.emplace_back(new reco::Apothem<CVUniverse, NeutronEvent>(apothem));
   preCuts.emplace_back(new reco::MaxMuonAngle<CVUniverse, NeutronEvent>(20.));
   preCuts.emplace_back(new reco::HasMINOSMatch<CVUniverse, NeutronEvent>());
@@ -507,8 +529,9 @@ int main(const int argc, const char** argv)
 
   const double myVtxZBinWidth = 10.;
   //const double myVtxZBase = 5800.; //Tracker for plot testing
-  const double myVtxZBase = 4470.; //Targets for later!!!
-  for(int whichBin = 0; whichBin < 152; ++whichBin) myVtxZBins.push_back(myVtxZBinWidth * whichBin + myVtxZBase);
+  const double myVtxZBase = minZ; //Targets for later!!!
+  const int nVtxZBins = ceil((maxZ-minZ)/myVtxZBinWidth);
+  for(int whichBin = 0; whichBin < nVtxZBins; ++whichBin) myVtxZBins.push_back(myVtxZBinWidth * whichBin + myVtxZBase);
 
   //const double myBlobEBinWdith = 3.;
   //for(int whichBin = 0; whichBin < 51; ++whichBin) myBlobEBins.push_back(myBlobEBinWidth * whichBin);
@@ -568,10 +591,10 @@ int main(const int argc, const char** argv)
     std::cout << "Writing MC Output File." << std::endl;
 
     //Write MC results
-    TFile* mcOutDir = TFile::Open(MC_OUT_FILE_NAME, "RECREATE");
+    TFile* mcOutDir = TFile::Open((TString)(MC_OUT_FILE_NAME)+"_FVregion_"+FVregionName+".root", "RECREATE");
     if(!mcOutDir)
     {
-      std::cerr << "Failed to open a file named " << MC_OUT_FILE_NAME << " in the current directory for writing histograms.\n";
+      std::cerr << "Failed to open a file named " << MC_OUT_FILE_NAME << "_FVregion_" << FVregionName << ".root in the current directory for writing histograms.\n";
       return badOutputFile;
     }
 
@@ -602,10 +625,10 @@ int main(const int argc, const char** argv)
     std::cout << "Writing Data Output File" << std::endl;
 
     //Write data results
-    TFile* dataOutDir = TFile::Open(DATA_OUT_FILE_NAME, "RECREATE");
+    TFile* dataOutDir = TFile::Open((TString)(DATA_OUT_FILE_NAME)+"_FVregion_"+FVregionName+".root", "RECREATE");
     if(!dataOutDir)
     {
-      std::cerr << "Failed to open a file named " << DATA_OUT_FILE_NAME << " in the current directory for writing histograms.\n";
+      std::cerr << "Failed to open a file named " << DATA_OUT_FILE_NAME << "_FVregion_" << FVregionName << ".root in the current directory for writing histograms.\n";
       return badOutputFile;
     }
 
