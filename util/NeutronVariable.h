@@ -52,39 +52,39 @@ class NeutronVariable: public PlotUtils::VariableBase<NeutronCandidates::NeutCan
 						       {1, "None"}};
 
       m_backgroundHists = new util::Categorized<Hist, int>((GetName() + "_background").c_str(),
-							   GetName().c_str(), BKGLabels,
+							   (GetName()+";"+GetAxisLabel()).c_str(), BKGLabels,
 							   GetBinVec(), mc_error_bands);
 
       //Hists for the aforementioned various breakdowns.
       m_SigIntTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig_IntType").c_str(),
-							   GetName().c_str(), IntTypeLabels,
+							   (GetName()+";"+GetAxisLabel()).c_str(), IntTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
       m_SigTargetTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig_TargetType").c_str(),
-							   GetName().c_str(), TargetTypeLabels,
+							   (GetName()+";"+GetAxisLabel()).c_str(), TargetTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
       m_SigLeadBlobTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig_LeadBlobType").c_str(),
-							   GetName().c_str(), LeadBlobTypeLabels,
+							   (GetName()+";"+GetAxisLabel()).c_str(), LeadBlobTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
       m_BkgIntTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg_IntType").c_str(),
-							   GetName().c_str(), IntTypeLabels,
+							   (GetName()+";"+GetAxisLabel()).c_str(), IntTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
       m_BkgTargetTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg_TargetType").c_str(),
-							   GetName().c_str(), TargetTypeLabels,
+							   (GetName()+";"+GetAxisLabel()).c_str(), TargetTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
       m_BkgLeadBlobTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg_LeadBlobType").c_str(),
-							   GetName().c_str(), LeadBlobTypeLabels,
+							   (GetName()+";"+GetAxisLabel()).c_str(), LeadBlobTypeLabels,
 							   GetBinVec(), mc_error_bands);
       
-      efficiencyNumerator = new Hist((GetName() + "_efficiency_numerator").c_str(), GetName().c_str(), GetBinVec(), mc_error_bands);
-      efficiencyDenominator = new Hist((GetName() + "_efficiency_denominator").c_str(), GetName().c_str(), GetBinVec(), truth_error_bands);
-      selectedSignalReco = new Hist((GetName() + "_selected_signal_reco").c_str(), GetName().c_str(), GetBinVec(), mc_error_bands);
-      selectedMCReco = new Hist((GetName() + "_selected_mc_reco").c_str(), GetName().c_str(), GetBinVec(), mc_error_bands);
-      migration = new PlotUtils::Hist2DWrapper<CVUniverse>((GetName() + "_migration").c_str(), GetName().c_str(), GetBinVec(), GetBinVec(), mc_error_bands);
+      efficiencyNumerator = new Hist((GetName() + "_efficiency_numerator").c_str(), (GetName()+";"+GetAxisLabel()).c_str(), GetBinVec(), mc_error_bands);
+      efficiencyDenominator = new Hist((GetName() + "_efficiency_denominator").c_str(), (GetName()+";"+GetAxisLabel()).c_str(), GetBinVec(), truth_error_bands);
+      selectedSignalReco = new Hist((GetName() + "_selected_signal_reco").c_str(), (GetName()+";"+GetAxisLabel()).c_str(), GetBinVec(), mc_error_bands);
+      selectedMCReco = new Hist((GetName() + "_selected_mc_reco").c_str(), (GetName()+";"+GetAxisLabel()).c_str(), GetBinVec(), mc_error_bands);
+      migration = new PlotUtils::Hist2DWrapper<CVUniverse>((GetName() + "_migration").c_str(), (GetName()+";"+GetAxisLabel()).c_str(), GetBinVec(), GetBinVec(), mc_error_bands);
     }
 
     //Histograms to be filled
@@ -106,7 +106,7 @@ class NeutronVariable: public PlotUtils::VariableBase<NeutronCandidates::NeutCan
 
     void InitializeDATAHists(std::vector<CVUniverse*>& data_error_bands)
     {
-      dataHist = new Hist((GetName() + "_data").c_str(), GetName().c_str(), GetBinVec(), data_error_bands);
+      dataHist = new Hist((GetName() + "_data").c_str(), (GetName()+";"+GetAxisLabel()).c_str(), GetBinVec(), data_error_bands);
     }
 
     void WriteData(TFile& file)
