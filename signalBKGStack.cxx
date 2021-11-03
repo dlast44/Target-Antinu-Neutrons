@@ -92,13 +92,14 @@ TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sampl
   h_Other_Bkg->Scale(scale);
 
   MnvH1D* h_data = (MnvH1D*)dataFile->Get((TString)name_bkg+"_data");
+  TH1D* dataHist = (TH1D*)h_data->GetCVHistoWithError().Clone();
 
   THStack* h = new THStack();
-  h->Add(h_Other_Bkg);
-  h->Add(h_NPi_Bkg);
-  h->Add(h_1Pi0_Bkg);
-  h->Add(h_1PiC_Bkg);
-  h->Add(h_Sig);
+  h->Add((TH1D*)h_Other_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_NPi_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_1Pi0_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_1PiC_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Sig->GetCVHistoWithError().Clone());
 
   h->Draw("hist");
   c1->Update();
@@ -109,7 +110,7 @@ TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sampl
   h->GetYaxis()->SetTitle("Events");
   h->GetYaxis()->SetTitleSize(0.045);
   h->GetYaxis()->SetTitleOffset(1.075);
-  h->SetMaximum((h_data->GetMaximum())*1.05);
+  h->SetMaximum((dataHist->GetMaximum())*1.05);
 
   size_t pos = 0;
   if ((pos=name.find("_primary_parent")) != string::npos){
@@ -150,12 +151,18 @@ TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sampl
 
   //h->Draw("hist");
   c1->Update();
-  h_data->Draw("same");
+  /* This is useful for debugging whether systematics actuall changed.
+  TH1D* h_Tot = (TH1D*)h->GetStack()->Last()->Clone();
+  h_Tot->SetLineColor(kRed);
+  h_Tot->SetFillColorAlpha(kPink + 1, 0.4);
+  h_Tot->Draw("E2 SAME");
+  */
+  dataHist->Draw("same");
   c1->Update();
 
   TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
 
-  leg->AddEntry(h_data,"DATA");
+  leg->AddEntry(dataHist,"DATA");
   leg->AddEntry(h_Sig,"Signal");
   leg->AddEntry(h_1PiC_Bkg,"single #pi^{#pm}");
   leg->AddEntry(h_1Pi0_Bkg,"single #pi^{0}");
@@ -246,19 +253,20 @@ TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sam
   h_Other_Bkg->Scale(scale);
 
   MnvH1D* h_data = (MnvH1D*)dataFile->Get((TString)name_bkg+"_data");
+  TH1D* dataHist = (TH1D*)h_data->GetCVHistoWithError().Clone();
 
   THStack* h = new THStack();
-  h->Add(h_Other_Bkg);
-  h->Add(h_2p2h_Bkg);
-  h->Add(h_DIS_Bkg);
-  h->Add(h_RES_Bkg);
-  h->Add(h_QE_Bkg);
+  h->Add((TH1D*)h_Other_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_2p2h_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_DIS_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_RES_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_QE_Bkg->GetCVHistoWithError().Clone());
 
-  h->Add(h_Other_Sig);
-  h->Add(h_2p2h_Sig);
-  h->Add(h_DIS_Sig);
-  h->Add(h_RES_Sig);
-  h->Add(h_QE_Sig);
+  h->Add((TH1D*)h_Other_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_2p2h_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_DIS_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_RES_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_QE_Sig->GetCVHistoWithError().Clone());
 
   h->Draw("hist");
   c1->Update();
@@ -269,7 +277,7 @@ TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sam
   h->GetYaxis()->SetTitle("Events");
   h->GetYaxis()->SetTitleSize(0.045);
   h->GetYaxis()->SetTitleOffset(1.075);
-  h->SetMaximum((h_data->GetMaximum())*1.05);
+  h->SetMaximum((dataHist->GetMaximum())*1.05);
   
   size_t pos = 0;
   if ((pos=name_sig.find("_primary_parent")) != string::npos){
@@ -310,14 +318,20 @@ TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sam
 
   //h->Draw("hist");
   c1->Update();
-  h_data->Draw("same");
+  /* This is useful for debugging whether systematics actuall changed.
+  TH1D* h_Tot = (TH1D*)h->GetStack()->Last()->Clone();
+  h_Tot->SetLineColor(kRed);
+  h_Tot->SetFillColorAlpha(kPink + 1, 0.4);
+  h_Tot->Draw("E2 SAME");
+  */
+  dataHist->Draw("same");
   c1->Update();
 
   TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
 
   leg->SetNColumns(2);
 
-  leg->AddEntry(h_data,"DATA");
+  leg->AddEntry(dataHist,"DATA");
   leg->AddEntry((TObject*)0,"","");
 
   leg->AddEntry(h_QE_Sig,"Sig. + QE");
@@ -434,21 +448,22 @@ TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString s
   h_Other_Bkg->Scale(scale);
 
   MnvH1D* h_data = (MnvH1D*)dataFile->Get((TString)name_bkg+"_data");
+  TH1D* dataHist = (TH1D*)h_data->GetCVHistoWithError().Clone();
 
   THStack* h = new THStack();
-  h->Add(h_Other_Bkg);
-  h->Add(h_H_Bkg);
-  h->Add(h_O_Bkg);
-  h->Add(h_Pb_Bkg);
-  h->Add(h_Fe_Bkg);
-  h->Add(h_C_Bkg);
+  h->Add((TH1D*)h_Other_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_H_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_O_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Pb_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Fe_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_C_Bkg->GetCVHistoWithError().Clone());
 
-  h->Add(h_Other_Sig);
-  h->Add(h_H_Sig);
-  h->Add(h_O_Sig);
-  h->Add(h_Pb_Sig);
-  h->Add(h_Fe_Sig);
-  h->Add(h_C_Sig);
+  h->Add((TH1D*)h_Other_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_H_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_O_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Pb_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Fe_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_C_Sig->GetCVHistoWithError().Clone());
 
   h->Draw("hist");
   c1->Update();
@@ -459,7 +474,7 @@ TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString s
   h->GetYaxis()->SetTitle("Events");
   h->GetYaxis()->SetTitleSize(0.045);
   h->GetYaxis()->SetTitleOffset(1.075);
-  h->SetMaximum((h_data->GetMaximum())*1.05);
+  h->SetMaximum((dataHist->GetMaximum())*1.05);
   
   size_t pos=0;
   if ((pos=name_sig.find("_primary_parent")) != string::npos){
@@ -499,14 +514,20 @@ TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString s
   }
 
   h->Draw("hist");
-  h_data->Draw("same");
+  /* This is useful for debugging whether systematics actuall changed.
+  TH1D* h_Tot = (TH1D*)h->GetStack()->Last()->Clone();
+  h_Tot->SetLineColor(kRed);
+  h_Tot->SetFillColorAlpha(kPink + 1, 0.4);
+  h_Tot->Draw("E2 SAME");
+  */
+  dataHist->Draw("same");
   c1->Update();
 
   TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
 
   leg->SetNColumns(2);
 
-  leg->AddEntry(h_data,"DATA");
+  leg->AddEntry(dataHist,"DATA");
   leg->AddEntry((TObject*)0,"","");
 
   leg->AddEntry(h_C_Sig,"Sig. + C");
@@ -645,25 +666,26 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TStr
   h_None_Bkg->Scale(scale);
 
   MnvH1D* h_data = (MnvH1D*)dataFile->Get((TString)name_bkg+"_data");
+  TH1D* dataHist = (TH1D*)h_data->GetCVHistoWithError().Clone();
 
   THStack* h = new THStack();
-  h->Add(h_None_Bkg);
-  h->Add(h_Other_Bkg);
-  h->Add(h_Prot_Bkg);
-  h->Add(h_PiP_Bkg);
-  h->Add(h_PiM_Bkg);
-  h->Add(h_Pi0_Bkg);
-  h->Add(h_Mu_Bkg);
-  h->Add(h_Neut_Bkg);
+  h->Add((TH1D*)h_None_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Other_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Prot_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_PiP_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_PiM_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Pi0_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Mu_Bkg->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Neut_Bkg->GetCVHistoWithError().Clone());
 
-  h->Add(h_None_Sig);
-  h->Add(h_Other_Sig);
-  h->Add(h_Prot_Sig);
-  h->Add(h_PiP_Sig);
-  h->Add(h_PiM_Sig);
-  h->Add(h_Pi0_Sig);
-  h->Add(h_Mu_Sig);
-  h->Add(h_Neut_Sig);
+  h->Add((TH1D*)h_None_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Other_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Prot_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_PiP_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_PiM_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Pi0_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Mu_Sig->GetCVHistoWithError().Clone());
+  h->Add((TH1D*)h_Neut_Sig->GetCVHistoWithError().Clone());
 
   h->Draw("hist");
   c1->Update();
@@ -676,7 +698,7 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TStr
   h->GetYaxis()->SetTitle("Events");
   h->GetYaxis()->SetTitleSize(0.045);
   h->GetYaxis()->SetTitleOffset(1.075);
-  h->SetMaximum((h_data->GetMaximum())*1.05);
+  h->SetMaximum((dataHist->GetMaximum())*1.05);
   
   size_t pos=0;
   if ((pos=name_sig.find("_primary_parent")) != string::npos){
@@ -716,14 +738,20 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TStr
   }
 
   h->Draw("hist");
-  h_data->Draw("same");
+  /* This is useful for debugging whether systematics actuall changed.
+  TH1D* h_Tot = (TH1D*)h->GetStack()->Last()->Clone();
+  h_Tot->SetLineColor(kRed);
+  h_Tot->SetFillColorAlpha(kPink + 1, 0.4);
+  h_Tot->Draw("E2 SAME");
+  */
+  dataHist->Draw("same");
   c1->Update();
 
   TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
 
   leg->SetNColumns(2);
 
-  leg->AddEntry(h_data,"DATA");
+  leg->AddEntry(dataHist,"DATA");
   leg->AddEntry((TObject*)0,"","");
 
   leg->AddEntry(h_Neut_Sig,"Sig. + n");
