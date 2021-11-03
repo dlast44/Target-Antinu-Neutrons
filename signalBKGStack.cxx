@@ -50,6 +50,123 @@
 using namespace std;
 using namespace PlotUtils;
 
+TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sample, double scale){
+
+  TString sampleName = sample;
+
+  TCanvas* c1 = new TCanvas("c1","c1",1200,800);
+  c1->cd();
+  gStyle->SetOptStat(0);
+
+  MnvH1D* h_Sig = (MnvH1D*)mcFile->Get((TString)name);
+  h_Sig->SetLineColor(TColor::GetColor("#999933"));
+  h_Sig->SetFillColor(TColor::GetColor("#999933"));
+  h_Sig->Scale(scale);
+
+  cout << "Handling: " << name << endl;
+  string title = (string)h_Sig->GetTitle();
+  TString Xtitle = h_Sig->GetXaxis()->GetTitle();
+  TString Ytitle = h_Sig->GetYaxis()->GetTitle();
+
+  string name_bkg = name;
+  name_bkg.erase(name_bkg.length()-21,name_bkg.length());
+
+  MnvH1D* h_1PiC_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_background_1chargePi");
+  h_1PiC_Bkg->SetLineColor(TColor::GetColor("#88CCEE"));
+  h_1PiC_Bkg->SetFillColor(TColor::GetColor("#88CCEE"));
+  h_1PiC_Bkg->Scale(scale);
+
+  MnvH1D* h_1Pi0_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_background_1neutPi");
+  h_1Pi0_Bkg->SetLineColor(TColor::GetColor("#117733"));
+  h_1Pi0_Bkg->SetFillColor(TColor::GetColor("#117733"));
+  h_1Pi0_Bkg->Scale(scale);
+
+  MnvH1D* h_NPi_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_background_NPi");
+  h_NPi_Bkg->SetLineColor(TColor::GetColor("#CC6677"));
+  h_NPi_Bkg->SetFillColor(TColor::GetColor("#CC6677"));
+  h_NPi_Bkg->Scale(scale);
+
+  MnvH1D* h_Other_Bkg = (MnvH1D*)mcFile->Get((TString)name_bkg+"_background_Other");
+  h_Other_Bkg->SetLineColor(TColor::GetColor("#882255"));
+  h_Other_Bkg->SetFillColor(TColor::GetColor("#882255"));
+  h_Other_Bkg->Scale(scale);
+
+  MnvH1D* h_data = (MnvH1D*)dataFile->Get((TString)name_bkg+"_data");
+
+  THStack* h = new THStack();
+  h->Add(h_Other_Bkg);
+  h->Add(h_NPi_Bkg);
+  h->Add(h_1Pi0_Bkg);
+  h->Add(h_1PiC_Bkg);
+  h->Add(h_Sig);
+
+  h->Draw("hist");
+  c1->Update();
+
+  h->SetTitle(sampleName);//+" "+title.c_str());
+  h->GetXaxis()->SetTitle(Xtitle);
+  h->GetXaxis()->SetTitleSize(0.045);
+  h->GetYaxis()->SetTitle("Events");
+  h->GetYaxis()->SetTitleSize(0.045);
+  h->GetYaxis()->SetTitleOffset(1.075);
+  h->SetMaximum((h_data->GetMaximum())*1.05);
+
+  size_t pos = 0;
+  if ((pos=name.find("_primary_parent")) != string::npos){
+    h->GetXaxis()->SetBinLabel(1,"Other");
+    h->GetXaxis()->SetBinLabel(2,"");
+    h->GetXaxis()->SetBinLabel(3,"n");
+    h->GetXaxis()->SetBinLabel(4,"p");
+    h->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+    h->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+    h->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+    h->GetXaxis()->SetBinLabel(8,"#gamma");
+    h->GetXaxis()->SetBinLabel(9,"e");
+    h->GetXaxis()->SetBinLabel(10,"#mu");
+    h->GetXaxis()->SetLabelSize(0.06);
+    h->GetXaxis()->SetTitle("Blob Primary Parent");
+    h->GetXaxis()->SetTitleSize(0.045);
+  }
+
+  pos=0;
+  if ((pos=name.find("_ENHitSB")) != string::npos){
+    sampleName = "SideBand B " + sample;
+  }
+
+  pos=0;
+  if ((pos=name.find("_NBlobsSB")) != string::npos){
+    sampleName = "SideBand A " + sample;
+  }
+
+  if (Xtitle.Contains("pmu")){
+    h->GetXaxis()->SetTitle("p_{#mu} [GeV/c]");
+    h->SetTitle("Muon Momentum "+sampleName);
+  }
+
+  if (Xtitle.Contains("vtxZ")){
+    h->GetXaxis()->SetTitle("vtx. Z [mm]");
+    h->SetTitle("Vertex Z "+sampleName);
+  }
+
+  //h->Draw("hist");
+  c1->Update();
+  h_data->Draw("same");
+  c1->Update();
+
+  TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
+
+  leg->AddEntry(h_data,"DATA");
+  leg->AddEntry(h_Sig,"Signal");
+  leg->AddEntry(h_1PiC_Bkg,"single #pi^{#pm}");
+  leg->AddEntry(h_1Pi0_Bkg,"single #pi^{0}");
+  leg->AddEntry(h_NPi_Bkg,"N#pi");
+  leg->AddEntry(h_Other_Bkg,"Other");
+
+  leg->Draw();
+  c1->Update();
+  return c1;
+}
+
 TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sample, double scale){
 
   TString sampleName = sample;
@@ -734,24 +851,37 @@ int main(int argc, char* argv[]) {
     if((pos = name.find("_sig_IntType_QE")) != string::npos){
       TCanvas* c1 = DrawIntType(name,mcFile,dataFile,label,scale);
       name.erase(name.length()-15,name.length());
-      c1->Print((TString)outDir+(TString)name+"_IntType_stacked_test.pdf");
-      c1->Print((TString)outDir+(TString)name+"_IntType_stacked_test.png");
+      c1->Print((TString)outDir+(TString)name+"_IntType_stacked.pdf");
+      c1->Print((TString)outDir+(TString)name+"_IntType_stacked.png");
       cout << "" << endl;
       delete c1;
     }
     else if ((pos = name.find("_sig_TargetType_C")) != string::npos){
       TCanvas* c1 = DrawTargetType(name,mcFile,dataFile,label,scale);
       name.erase(name.length()-17,name.length());
-      c1->Print((TString)outDir+(TString)name+"_TargetType_stacked_test.pdf");
-      c1->Print((TString)outDir+(TString)name+"_TargetType_stacked_test.png");
+      c1->Print((TString)outDir+(TString)name+"_TargetType_stacked.pdf");
+      c1->Print((TString)outDir+(TString)name+"_TargetType_stacked.png");
       cout << "" << endl;
       delete c1;
     }
     else if ((pos = name.find("_sig_LeadBlobType_neut")) != string::npos){
       TCanvas* c1 = DrawLeadBlobType(name,mcFile,dataFile,label,scale);
       name.erase(name.length()-22,name.length());
-      c1->Print((TString)outDir+(TString)name+"_LeadBlobType_stacked_test.pdf");
-      c1->Print((TString)outDir+(TString)name+"_LeadBlobType_stacked_test.png");
+      c1->Print((TString)outDir+(TString)name+"_LeadBlobType_stacked.pdf");
+      c1->Print((TString)outDir+(TString)name+"_LeadBlobType_stacked.png");
+      cout << "" << endl;
+      delete c1;
+    }
+    else if ((pos = name.find("_selected_signal_reco")) != string::npos){
+      pos = 0;
+      if ((pos = name.find("EMnBlobs_")) != string::npos) continue;
+      else if ((pos = name.find("EMBlobE_")) != string::npos) continue;
+      else if ((pos = name.find("EMBlobNHit_")) != string::npos) continue;
+      else if ((pos = name.find("EMBlobENHitRatio_")) != string::npos) continue;
+      TCanvas* c1 = DrawBKGCateg(name,mcFile,dataFile,label,scale);
+      name.erase(name.length()-21,name.length());
+      c1->Print((TString)outDir+(TString)name+"_BKG_stacked.pdf");
+      c1->Print((TString)outDir+(TString)name+"_BKG_stacked.png");
       cout << "" << endl;
       delete c1;
     }
