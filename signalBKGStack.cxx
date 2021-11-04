@@ -433,7 +433,7 @@ TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sam
   ratio->GetYaxis()->SetTitleSize(0.045);
   ratio->GetYaxis()->SetTitleOffset(1.075);
   ratio->SetMinimum(0.5);
-  ratio->SetMinimum(1.5);
+  ratio->SetMaximum(1.5);
   ratio->Draw();
 
   mcRatio->SetLineColor(kRed);
@@ -684,7 +684,7 @@ TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString s
   ratio->GetYaxis()->SetTitleSize(0.045);
   ratio->GetYaxis()->SetTitleOffset(1.075);
   ratio->SetMinimum(0.5);
-  ratio->SetMinimum(1.5);
+  ratio->SetMaximum(1.5);
   ratio->Draw();
 
   mcRatio->SetLineColor(kRed);
@@ -970,7 +970,7 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TStr
   ratio->GetYaxis()->SetTitleSize(0.045);
   ratio->GetYaxis()->SetTitleOffset(1.075);
   ratio->SetMinimum(0.5);
-  ratio->SetMinimum(1.5);
+  ratio->SetMaximum(1.5);
   ratio->Draw();
 
   mcRatio->SetLineColor(kRed);
