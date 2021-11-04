@@ -4,6 +4,8 @@
 //Usage: signalBKGStack <mc_file> <data_file> <output_directory> <plot_label>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
+//TODO: FIX SEGFAULT ISSUE AT END OF EXECUTION... UNCLEAR WHY THAT'S HAPPENING AND IT DOESN'T SEEM TO AFFECT ANYTHING... MAYBE NEED TO CLOSE FILES? Cloning maybe tries to add keys to the file and it doesn't close well when that's the case?
+
 //C++ includes
 #include <iostream>
 #include <iomanip>
