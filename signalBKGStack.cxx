@@ -63,7 +63,6 @@ TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sampl
   h_Sig->SetLineColor(TColor::GetColor("#999933"));
   h_Sig->SetFillColor(TColor::GetColor("#999933"));
 
-
   cout << "Handling: " << name << endl;
   string title = (string)h_Sig->GetTitle();
   TString Xtitle = h_Sig->GetXaxis()->GetTitle();
@@ -115,15 +114,22 @@ TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sampl
   bottom->Draw();
   top->cd();
 
+  double bottomArea = bottom->GetWNDC()*bottom->GetHNDC();
+  double topArea = top->GetWNDC()*top->GetHNDC();
+
+  double areaScale = topArea/bottomArea;
+
+  cout << "areaScale: " << areaScale << endl;
+
   h->Draw("hist");
   c1->Update();
 
   h->SetTitle(sampleName);//+" "+title.c_str());
   h->GetXaxis()->SetTitle(Xtitle);
-  h->GetXaxis()->SetTitleSize(0.045);
+  h->GetXaxis()->SetTitleSize(0.04);
   h->GetYaxis()->SetTitle("Events");
-  h->GetYaxis()->SetTitleSize(0.045);
-  h->GetYaxis()->SetTitleOffset(1.075);
+  h->GetYaxis()->SetTitleSize(0.05);
+  h->GetYaxis()->SetTitleOffset(0.75);
   h->SetMaximum((dataHist->GetMaximum())*1.05);
 
   size_t pos = 0;
@@ -140,19 +146,22 @@ TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sampl
     h->GetXaxis()->SetBinLabel(10,"#mu");
     h->GetXaxis()->SetLabelSize(0.06);
     h->GetXaxis()->SetTitle("Blob Primary Parent");
-    h->GetXaxis()->SetTitleSize(0.045);
+    h->GetXaxis()->SetTitleSize(0.04);
   }
 
   pos=0;
   if ((pos=name.find("_ENHitSB")) != string::npos){
     sampleName = "SideBand B " + sample;
+    h->SetTitle(sampleName);
   }
 
   pos=0;
   if ((pos=name.find("_NBlobsSB")) != string::npos){
     sampleName = "SideBand A " + sample;
+    h->SetTitle(sampleName);
   }
 
+  /*
   if (Xtitle.Contains("pmu")){
     h->GetXaxis()->SetTitle("p_{#mu} [GeV/c]");
     h->SetTitle("Muon Momentum "+sampleName);
@@ -162,6 +171,7 @@ TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sampl
     h->GetXaxis()->SetTitle("vtx. Z [mm]");
     h->SetTitle("Vertex Z "+sampleName);
   }
+  */
 
   //h->Draw("hist");
   c1->Update();
@@ -187,7 +197,7 @@ TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sampl
   c1->Update();
 
   bottom->cd();
-  bottom->SetTopMargin(0);
+  bottom->SetTopMargin(0.05);
   bottom->SetBottomMargin(0.3);
 
   MnvH1D* ratio = (MnvH1D*)h_data->Clone();
@@ -201,10 +211,15 @@ TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sampl
 
   ratio->SetLineColor(kBlack);
   ratio->SetLineWidth(3);
-  ratio->SetTitleSize(0);
+  ratio->SetTitle("");
+  //ratio->SetTitleSize(0);
   ratio->GetYaxis()->SetTitle("Data / MC");
-  ratio->GetYaxis()->SetTitleSize(0.045);
-  ratio->GetYaxis()->SetTitleOffset(1.075);
+  ratio->GetYaxis()->SetTitleSize(0.05*areaScale);
+  ratio->GetYaxis()->SetTitleOffset(0.75/areaScale);
+  ratio->GetYaxis()->SetLabelSize(ratio->GetYaxis()->GetLabelSize()*areaScale);
+
+  ratio->GetXaxis()->SetLabelSize(ratio->GetXaxis()->GetLabelSize()*areaScale);
+  ratio->GetXaxis()->SetTitleSize(0.04*areaScale);
   ratio->SetMinimum(0.5);
   ratio->SetMaximum(1.5);
   ratio->Draw();
@@ -332,15 +347,20 @@ TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sam
   bottom->Draw();
   top->cd();
 
+  double bottomArea = bottom->GetWNDC()*bottom->GetHNDC();
+  double topArea = top->GetWNDC()*top->GetHNDC();
+
+  double areaScale = topArea/bottomArea;
+
   h->Draw("hist");
   c1->Update();
 
   h->SetTitle(sampleName);//+" "+title.c_str());
   h->GetXaxis()->SetTitle(Xtitle);
-  h->GetXaxis()->SetTitleSize(0.045);
+  h->GetXaxis()->SetTitleSize(0.04);
   h->GetYaxis()->SetTitle("Events");
-  h->GetYaxis()->SetTitleSize(0.045);
-  h->GetYaxis()->SetTitleOffset(1.075);
+  h->GetYaxis()->SetTitleSize(0.05);
+  h->GetYaxis()->SetTitleOffset(0.75);
   h->SetMaximum((dataHist->GetMaximum())*1.05);
   
   size_t pos = 0;
@@ -357,19 +377,22 @@ TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sam
     h->GetXaxis()->SetBinLabel(10,"#mu");
     h->GetXaxis()->SetLabelSize(0.06);
     h->GetXaxis()->SetTitle("Blob Primary Parent");
-    h->GetXaxis()->SetTitleSize(0.045);
+    h->GetXaxis()->SetTitleSize(0.04);
   }
 
   pos=0;
   if ((pos=name_sig.find("_ENHitSB")) != string::npos){
     sampleName = "SideBand B " + sample;
+    h->SetTitle(sampleName);
   }
 
   pos=0;
   if ((pos=name_sig.find("_NBlobsSB")) != string::npos){
     sampleName = "SideBand A " + sample;
+    h->SetTitle(sampleName);
   }
 
+  /*
   if (Xtitle.Contains("pmu")){
     h->GetXaxis()->SetTitle("p_{#mu} [GeV/c]");
     h->SetTitle("Muon Momentum "+sampleName);
@@ -379,6 +402,7 @@ TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sam
     h->GetXaxis()->SetTitle("vtx. Z [mm]");
     h->SetTitle("Vertex Z "+sampleName);
   }
+  */
 
   //h->Draw("hist");
   c1->Update();
@@ -417,7 +441,7 @@ TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sam
   c1->Update();
 
   bottom->cd();
-  bottom->SetTopMargin(0);
+  bottom->SetTopMargin(0.05);
   bottom->SetBottomMargin(0.3);
 
   MnvH1D* ratio = (MnvH1D*)h_data->Clone();
@@ -431,10 +455,15 @@ TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sam
 
   ratio->SetLineColor(kBlack);
   ratio->SetLineWidth(3);
-  ratio->SetTitleSize(0);
+  ratio->SetTitle("");
+  //ratio->SetTitleSize(0);
   ratio->GetYaxis()->SetTitle("Data / MC");
-  ratio->GetYaxis()->SetTitleSize(0.045);
-  ratio->GetYaxis()->SetTitleOffset(1.075);
+  ratio->GetYaxis()->SetTitleSize(0.05*areaScale);
+  ratio->GetYaxis()->SetTitleOffset(0.75/areaScale);
+  ratio->GetYaxis()->SetLabelSize(ratio->GetYaxis()->GetLabelSize()*areaScale);
+
+  ratio->GetXaxis()->SetLabelSize(ratio->GetXaxis()->GetLabelSize()*areaScale);
+  ratio->GetXaxis()->SetTitleSize(0.04*areaScale);
   ratio->SetMinimum(0.5);
   ratio->SetMaximum(1.5);
   ratio->Draw();
@@ -580,15 +609,20 @@ TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString s
   bottom->Draw();
   top->cd();
 
+  double bottomArea = bottom->GetWNDC()*bottom->GetHNDC();
+  double topArea = top->GetWNDC()*top->GetHNDC();
+
+  double areaScale = topArea/bottomArea;
+
   h->Draw("hist");
   c1->Update();
 
   h->SetTitle(sampleName);//+" "+title.c_str());
   h->GetXaxis()->SetTitle(Xtitle);
-  h->GetXaxis()->SetTitleSize(0.045);
+  h->GetXaxis()->SetTitleSize(0.04);
   h->GetYaxis()->SetTitle("Events");
-  h->GetYaxis()->SetTitleSize(0.045);
-  h->GetYaxis()->SetTitleOffset(1.075);
+  h->GetYaxis()->SetTitleSize(0.05);
+  h->GetYaxis()->SetTitleOffset(0.75);
   h->SetMaximum((dataHist->GetMaximum())*1.05);
   
   size_t pos=0;
@@ -605,19 +639,22 @@ TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString s
     h->GetXaxis()->SetBinLabel(10,"#mu");
     h->GetXaxis()->SetLabelSize(0.06);
     h->GetXaxis()->SetTitle("Blob Primary Parent");
-    h->GetXaxis()->SetTitleSize(0.045);
+    h->GetXaxis()->SetTitleSize(0.04);
   }
 
   pos=0;
   if ((pos=name_sig.find("_ENHitSB")) != string::npos){
     sampleName = "SideBand B " + sample;
+    h->SetTitle(sampleName);
   }
 
   pos=0;
   if ((pos=name_sig.find("_NBlobsSB")) != string::npos){
     sampleName = "SideBand A " + sample;
+    h->SetTitle(sampleName);
   }
 
+  /*
   if (Xtitle.Contains("pmu")){
     h->GetXaxis()->SetTitle("p_{#mu} [GeV/c]");
     h->SetTitle("Muon Momentum "+sampleName);
@@ -627,6 +664,7 @@ TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString s
     h->GetXaxis()->SetTitle("vtx. Z [mm]");
     h->SetTitle("Vertex Z "+sampleName);
   }
+  */
 
   //h->Draw("hist");
   c1->Update();
@@ -668,7 +706,7 @@ TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString s
   c1->Update();
 
   bottom->cd();
-  bottom->SetTopMargin(0);
+  bottom->SetTopMargin(0.05);
   bottom->SetBottomMargin(0.3);
 
   MnvH1D* ratio = (MnvH1D*)h_data->Clone();
@@ -682,10 +720,15 @@ TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString s
 
   ratio->SetLineColor(kBlack);
   ratio->SetLineWidth(3);
-  ratio->SetTitleSize(0);
+  ratio->SetTitle("");
+  //ratio->SetTitleSize(0);
   ratio->GetYaxis()->SetTitle("Data / MC");
-  ratio->GetYaxis()->SetTitleSize(0.045);
-  ratio->GetYaxis()->SetTitleOffset(1.075);
+  ratio->GetYaxis()->SetTitleSize(0.05*areaScale);
+  ratio->GetYaxis()->SetTitleOffset(0.75/areaScale);
+  ratio->GetYaxis()->SetLabelSize(ratio->GetYaxis()->GetLabelSize()*areaScale);
+
+  ratio->GetXaxis()->SetLabelSize(ratio->GetXaxis()->GetLabelSize()*areaScale);  
+  ratio->GetXaxis()->SetTitleSize(0.04*areaScale);
   ratio->SetMinimum(0.5);
   ratio->SetMaximum(1.5);
   ratio->Draw();
@@ -858,6 +901,11 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TStr
   bottom->Draw();
   top->cd();
 
+  double bottomArea = bottom->GetWNDC()*bottom->GetHNDC();
+  double topArea = top->GetWNDC()*top->GetHNDC();
+
+  double areaScale = topArea/bottomArea;
+
   h->Draw("hist");
   c1->Update();
 
@@ -865,10 +913,10 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TStr
 
   h->SetTitle(sampleName);//+" "+title.c_str());
   h->GetXaxis()->SetTitle(Xtitle);
-  h->GetXaxis()->SetTitleSize(0.045);
+  h->GetXaxis()->SetTitleSize(0.04);
   h->GetYaxis()->SetTitle("Events");
-  h->GetYaxis()->SetTitleSize(0.045);
-  h->GetYaxis()->SetTitleOffset(1.075);
+  h->GetYaxis()->SetTitleSize(0.05);
+  h->GetYaxis()->SetTitleOffset(0.75);
   h->SetMaximum((dataHist->GetMaximum())*1.05);
   
   size_t pos=0;
@@ -885,19 +933,22 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TStr
     h->GetXaxis()->SetBinLabel(10,"#mu");
     h->GetXaxis()->SetLabelSize(0.06);
     h->GetXaxis()->SetTitle("Blob Primary Parent");
-    h->GetXaxis()->SetTitleSize(0.045);
+    h->GetXaxis()->SetTitleSize(0.04);
   }
 
   pos=0;
   if ((pos=name_sig.find("_ENHitSB")) != string::npos){
     sampleName = "SideBand B " + sample;
+    h->SetTitle(sampleName);
   }
 
   pos=0;
   if ((pos=name_sig.find("_NBlobsSB")) != string::npos){
     sampleName = "SideBand A " + sample;
+    h->SetTitle(sampleName);
   }
 
+  /*
   if (Xtitle.Contains("pmu")){
     h->GetXaxis()->SetTitle("p_{#mu} [GeV/c]");
     h->SetTitle("Muon Momentum "+sampleName);
@@ -907,6 +958,7 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TStr
     h->GetXaxis()->SetTitle("vtx. Z [mm]");
     h->SetTitle("Vertex Z "+sampleName);
   }
+  */
 
   //  h->Draw("hist");
   c1->Update();
@@ -954,7 +1006,7 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TStr
   c1->Update();
 
   bottom->cd();
-  bottom->SetTopMargin(0);
+  bottom->SetTopMargin(0.05);
   bottom->SetBottomMargin(0.3);
 
   MnvH1D* ratio = (MnvH1D*)h_data->Clone();
@@ -968,10 +1020,15 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TStr
 
   ratio->SetLineColor(kBlack);
   ratio->SetLineWidth(3);
-  ratio->SetTitleSize(0);
+  ratio->SetTitle("");
+  //ratio->SetTitleSize(0);
   ratio->GetYaxis()->SetTitle("Data / MC");
-  ratio->GetYaxis()->SetTitleSize(0.045);
-  ratio->GetYaxis()->SetTitleOffset(1.075);
+  ratio->GetYaxis()->SetTitleSize(0.05*areaScale);
+  ratio->GetYaxis()->SetTitleOffset(0.75/areaScale);
+  ratio->GetYaxis()->SetLabelSize(ratio->GetYaxis()->GetLabelSize()*areaScale);
+
+  ratio->GetXaxis()->SetLabelSize(ratio->GetXaxis()->GetLabelSize()*areaScale);
+  ratio->GetXaxis()->SetTitleSize(0.04*areaScale);
   ratio->SetMinimum(0.5);
   ratio->SetMaximum(1.5);
   ratio->Draw();
@@ -995,6 +1052,8 @@ bool PathExists(string path){
 }
 
 int main(int argc, char* argv[]) {
+
+  gStyle->SetOptStat(0);
 
   #ifndef NCINTEX
   ROOT::Cintex::Cintex::Enable();
