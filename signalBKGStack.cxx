@@ -1061,8 +1061,8 @@ int main(int argc, char* argv[]) {
 
   cout << "Input Data file name parsed to: " << fileNameStub << endl;
 
-  cout << "Setting up MnvPlotter" << endl;
-  MnvPlotter* plotter = new MnvPlotter(kCCQEAntiNuStyle);
+  //cout << "Setting up MnvPlotter" << endl;
+  //MnvPlotter* plotter = new MnvPlotter(kCCQEAntiNuStyle);
 
   TFile* mcFile = new TFile(MCfileName.c_str(),"READ");
   TFile* dataFile = new TFile(DATAfileName.c_str(),"READ");
@@ -1122,6 +1122,7 @@ int main(int argc, char* argv[]) {
       cout << "" << endl;
       delete c1;
     }
+    /*
     else if ((pos = name.find("_data")) != string::npos){
       pos = 0;
       if ((pos=name.find("SB")) != string::npos) continue;
@@ -1135,10 +1136,11 @@ int main(int argc, char* argv[]) {
       cout << "" << endl;
       delete c1;
     }
+    */
   }
 
-  cout << "Deleting the MnvPlotter." << endl;
-  delete plotter;
+  //cout << "Deleting the MnvPlotter." << endl;
+  //delete plotter;
 
   cout << "Closing Files... Does this solve the issue of seg fault." << endl;
   mcFile->Close();
