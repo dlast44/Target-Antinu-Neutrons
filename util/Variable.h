@@ -58,32 +58,32 @@ class Variable: public PlotUtils::VariableBase<CVUniverse>
 						       {1, "None"}};
 
       m_backgroundHists = new util::Categorized<Hist, int>((GetName() + "_background").c_str(),
-							   (GetName()+";"+GetAxisLabel()).c_str(), BKGLabels,
+							   (GetAxisLabel()).c_str(), BKGLabels,
 							   GetBinVec(), mc_error_bands);
 
       //Hists for the aforementioned various breakdowns.
       m_SigIntTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig_IntType").c_str(),
-							   (GetName()+";"+GetAxisLabel()).c_str(), IntTypeLabels,
+							   (GetAxisLabel()).c_str(), IntTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
       m_SigTargetTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig_TargetType").c_str(),
-							   (GetName()+";"+GetAxisLabel()).c_str(), TargetTypeLabels,
+							   (GetAxisLabel()).c_str(), TargetTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
       m_SigLeadBlobTypeHists = new util::Categorized<Hist, int>((GetName() + "_sig_LeadBlobType").c_str(),
-							   (GetName()+";"+GetAxisLabel()).c_str(), LeadBlobTypeLabels,
+							   (GetAxisLabel()).c_str(), LeadBlobTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
       m_BkgIntTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg_IntType").c_str(),
-							   (GetName()+";"+GetAxisLabel()).c_str(), IntTypeLabels,
+							   (GetAxisLabel()).c_str(), IntTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
       m_BkgTargetTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg_TargetType").c_str(),
-							   (GetName()+";"+GetAxisLabel()).c_str(), TargetTypeLabels,
+							   (GetAxisLabel()).c_str(), TargetTypeLabels,
 							   GetBinVec(), mc_error_bands);
 
       m_BkgLeadBlobTypeHists = new util::Categorized<Hist, int>((GetName() + "_bkg_LeadBlobType").c_str(),
-							   (GetName()+";"+GetAxisLabel()).c_str(), LeadBlobTypeLabels,
+							   (GetAxisLabel()).c_str(), LeadBlobTypeLabels,
 							   GetBinVec(), mc_error_bands);
       
       efficiencyNumerator = new Hist((GetName() + "_efficiency_numerator").c_str(), (GetName()+";"+GetAxisLabel()).c_str(), GetBinVec(), mc_error_bands);
