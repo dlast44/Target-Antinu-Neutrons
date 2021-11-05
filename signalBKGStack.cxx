@@ -44,6 +44,7 @@
 
 //PlotUtils includes??? Trying anything at this point...
 #include "PlotUtils/MnvH1D.h"
+#include "PlotUtils/MnvPlotter.h"
 
 #ifndef NCINTEX
 #include "Cintex/Cintex.h"
@@ -1060,6 +1061,9 @@ int main(int argc, char* argv[]) {
 
   cout << "Input Data file name parsed to: " << fileNameStub << endl;
 
+  cout << "Setting up MnvPlotter" << endl;
+  MnvPlotter* plotter = new MnvPlotter(kCCQEAntiNuStyle);
+
   TFile* mcFile = new TFile(MCfileName.c_str(),"READ");
   TFile* dataFile = new TFile(DATAfileName.c_str(),"READ");
 
@@ -1118,7 +1122,27 @@ int main(int argc, char* argv[]) {
       cout << "" << endl;
       delete c1;
     }
+    else if ((pos = name.find("_data")) != string::npos){
+      pos = 0;
+      if ((pos=name.find("SB")) != string::npos) continue;
+      cout << "Plotting error summary for: " << name << endl;
+      TCanvas* c1 = new TCanvas("c1","c1",1200,800);
+      MnvH1D* h_mc_data = (MnvH1D*)mcFile->Get((TString)name);
+      name.erase(name.length()-5,name.length());
+      plotter->DrawErrorSummary(h_mc_data);
+      c1->Print((TString)outDir+(TString)name+"_err_summary.pdf");
+      c1->Print((TString)outDir+(TString)name+"_err_summary.png");
+      cout << "" << endl;
+      delete c1;
+    }
   }
+
+  cout << "Deleting the MnvPlotter." << endl;
+  delete plotter;
+
+  cout << "Closing Files... Does this solve the issue of seg fault." << endl;
+  mcFile->Close();
+  dataFile->Close();
 
   cout << "HEY YOU DID IT!!!" << endl;
   return 0;
