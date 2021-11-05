@@ -491,7 +491,7 @@ int main(const int argc, const char** argv)
   //signalDefinition.emplace_back(new truth::IsNeutrino<CVUniverse>());
   signalDefinition.emplace_back(new MySignal::IsAntiNu<CVUniverse>());
   signalDefinition.emplace_back(new truth::IsCC<CVUniverse>());
-  signalDefinition.emplace_back(new MySignal::IsCorrectFS<CVUniverse>());
+  signalDefinition.emplace_back(new MySignal::IsCorrectFS<CVUniverse>(doNeutronCuts));
 
   //REMOVED FOR DIAGNOSTIC PURPOSES TO CHECK OLD SIGNAL DEFINITION
   /*

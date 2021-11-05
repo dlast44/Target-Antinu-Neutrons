@@ -26,7 +26,7 @@ namespace MySignal{
   class IsCorrectFS: public PlotUtils::SignalConstraint<UNIVERSE>
   {
   public:
-    IsCorrectFS(): PlotUtils::SignalConstraint<UNIVERSE>("CCQE 1+ neutron FS") {}
+  IsCorrectFS(bool doNeut): PlotUtils::SignalConstraint<UNIVERSE>("CCQE 1+ neutron FS"), fDoNeut(doNeut) {}
 
   private:
     bool checkConstraint(const UNIVERSE& univ) const //override
@@ -54,7 +54,7 @@ namespace MySignal{
 	else if ( pdg == 3112 || pdg == 3122 || pdg == 3212 || pdg == 3222 || pdg == 4112 || pdg == 4122 || pdg == 4222 || pdg == 411 || pdg == 421 || pdg == 111){
 	  genie_n_heavy_baryons_plus_pi0s++;
 	}
-	else if ( pdg == 2212 && energy > proton_E ) genie_n_protons++;
+	else if ( pdg == 2212 && energy > proton_E) genie_n_protons++;
 	else if ( pdg == 2112 && energy > neutron_E) genie_n_neutrons++;
       }
 
@@ -63,8 +63,10 @@ namespace MySignal{
 	genie_n_heavy_baryons_plus_pi0s == 0 &&
 	genie_n_photons == 0 &&
 	genie_n_protons == 0 &&
-	genie_n_neutrons > 0;
+	(genie_n_neutrons > 0 || !fDoNeut);
     }
+
+    bool fDoNeut;
   };
 
 }
