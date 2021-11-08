@@ -494,7 +494,7 @@ int main(const int argc, const char** argv)
   signalDefinition.emplace_back(new MySignal::IsCorrectFS<CVUniverse>(doNeutronCuts));
 
   //REMOVED FOR DIAGNOSTIC PURPOSES TO CHECK OLD SIGNAL DEFINITION
-  phaseSpace.emplace_back(new truth::ZRange<CVUniverse>(FVRegion, minZ, maxZ));
+  phaseSpace.emplace_back(new truth::ZRange<CVUniverse>(FVregion, minZ, maxZ));
   phaseSpace.emplace_back(new truth::Apothem<CVUniverse>(apothem));
   phaseSpace.emplace_back(new truth::MuonAngle<CVUniverse>(20.));
   phaseSpace.emplace_back(new MySignal::TrueMuonPRange<CVUniverse>(1.5,20.));
@@ -534,7 +534,8 @@ int main(const int argc, const char** argv)
   std::map< std::string, std::vector<CVUniverse*> > truth_bands;
   if(doSystematics) truth_bands = GetStandardSystematics(options.m_truth);
   truth_bands["cv"] = {new CVUniverse(options.m_truth)};
-
+  
+  //Same as Amit's seemingly. Bin normalized these are smoother.
   std::vector<double> dansPTBins = {0, 0.075, 0.15, 0.25, 0.325, 0.4, 0.475, 0.55, 0.7, 0.85, 1, 1.25, 1.5, 2.5, 4.5},
                       myPTBins = {0, 0.075, 0.15, 0.25, 0.325, 0.4, 0.475, 0.55, 0.625, 0.7, 0.775, 0.85, 0.925, 1, 1.125, 1.25, 1.5, 2.5, 4.5},
                       dansPzBins = {1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 8, 9, 10, 15, 20, 40, 60},
@@ -570,8 +571,8 @@ int main(const int argc, const char** argv)
   //for(int whichBin = 0; whichBin < 51; ++whichBin) myBlobEBins.push_back(myBlobEBinWidth * whichBin);
 
   std::vector<Variable*> vars = {
-    new Variable("pTmu_DANBins", "p_{T, #mu} [GeV/c]", dansPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
-    new Variable("pTmu", "p_{T, #mu} [GeV/c]", myPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
+    new Variable("pTmu", "p_{T, #mu} [GeV/c]", dansPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
+    new Variable("pTmu_MYBins", "p_{T, #mu} [GeV/c]", myPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
     new Variable("nBlobs", "No.", nBlobsBins, &CVUniverse::GetNNeutBlobs),//Don't need GetDummyTrue perhaps...
     new Variable("My_recoilE", "Recoil E [GeV]", myRecoilBins, &CVUniverse::GetDANRecoilEnergyGeV),//Don't need GetDummyTrue perhaps...
     new Variable("pmu", "p_{#mu} [GeV/c]", myPmuBins, &CVUniverse::GetMuonP, &CVUniverse::GetMuonPTrue),//Don't need GetDummyTrue perhaps...
