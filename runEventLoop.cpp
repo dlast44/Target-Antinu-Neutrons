@@ -494,12 +494,10 @@ int main(const int argc, const char** argv)
   signalDefinition.emplace_back(new MySignal::IsCorrectFS<CVUniverse>(doNeutronCuts));
 
   //REMOVED FOR DIAGNOSTIC PURPOSES TO CHECK OLD SIGNAL DEFINITION
-  /*
-  phaseSpace.emplace_back(new truth::ZRange<CVUniverse>("Tracker", minZ, maxZ));
+  phaseSpace.emplace_back(new truth::ZRange<CVUniverse>(FVRegion, minZ, maxZ));
   phaseSpace.emplace_back(new truth::Apothem<CVUniverse>(apothem));
   phaseSpace.emplace_back(new truth::MuonAngle<CVUniverse>(20.));
-  phaseSpace.emplace_back(new truth::PZMuMin<CVUniverse>(1500.));
-  */
+  phaseSpace.emplace_back(new MySignal::TrueMuonPRange<CVUniverse>(1.5,20.));
 
   PlotUtils::Cutter<CVUniverse, NeutronEvent> mycuts(std::move(preCuts), std::move(sidebands) , std::move(signalDefinition),std::move(phaseSpace));
 
@@ -576,7 +574,7 @@ int main(const int argc, const char** argv)
     new Variable("pTmu", "p_{T, #mu} [GeV/c]", myPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
     new Variable("nBlobs", "No.", nBlobsBins, &CVUniverse::GetNNeutBlobs),//Don't need GetDummyTrue perhaps...
     new Variable("My_recoilE", "Recoil E [GeV]", myRecoilBins, &CVUniverse::GetDANRecoilEnergyGeV),//Don't need GetDummyTrue perhaps...
-    new Variable("pmu", "p_{#mu} [GeV/c]", myPmuBins, &CVUniverse::GetMuonP),//Don't need GetDummyTrue perhaps...
+    new Variable("pmu", "p_{#mu} [GeV/c]", myPmuBins, &CVUniverse::GetMuonP, &CVUniverse::GetMuonPTrue),//Don't need GetDummyTrue perhaps...
     new Variable("vtxZ", "Z [mm]", myVtxZBins, &CVUniverse::GetVtxZ),//Don't need GetDummyTrue perhaps...
     //new Variable("leadBlobE", "E [MeV]", myBlobEBins, &NeutronCandidates::NeutCand::GetTotalE, &CVUniverse::GetDummyTrue),
   };

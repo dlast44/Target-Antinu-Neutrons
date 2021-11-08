@@ -69,5 +69,22 @@ namespace MySignal{
     bool fDoNeut;
   };
 
+  template <class UNIVERSE>
+  class TrueMuonPRange: public PlotUtils::SignalConstraint<UNIVERSE>
+  {
+  public:
+  TrueMuonPRange(double minP, double maxP): PlotUtils::SignalConstraint<UNIVERSE>("CCQELike FS"), fMin(minP), fMax(maxP) {}
+
+  private:
+    bool checkConstraint(const UNIVERSE& univ) const //override
+    {
+      double muonP = univ.GetMuonPTrue();
+      return (muonP > fMin && muonP < fMax);
+    }
+
+    double fMin;
+    double fMax;
+  };
+
 }
 #endif //David_CCQESigDef_H
