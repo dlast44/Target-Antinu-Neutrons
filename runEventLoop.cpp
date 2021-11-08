@@ -538,11 +538,13 @@ int main(const int argc, const char** argv)
   //Same as Amit's seemingly. Bin normalized these are smoother.
   std::vector<double> dansPTBins = {0, 0.075, 0.15, 0.25, 0.325, 0.4, 0.475, 0.55, 0.7, 0.85, 1, 1.25, 1.5, 2.5, 4.5},
                       myPTBins = {0, 0.075, 0.15, 0.25, 0.325, 0.4, 0.475, 0.55, 0.625, 0.7, 0.775, 0.85, 0.925, 1, 1.125, 1.25, 1.5, 2.5, 4.5},
+		      myQ2QEBins = {0,0.00625,0.0125,0.025,0.0375,0.05,0.1,0.15,0.2,0.3,0.4,0.6,0.8,1.0,1.2,2.0},
                       dansPzBins = {1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 8, 9, 10, 15, 20, 40, 60},
                       robsEmuBins = {0,1,2,3,4,5,7,9,12,15,18,22,36,50,75,100,120},
 		      tejinPmuBins = {1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8, 9, 10, 15, 20}, //include 0, can probably handle with plotting...
 		      robsRecoilBins,
 		      nBlobsBins,
+		      n5Bins,
 		      myRecoilBins,
 		      myPmuBins,
 		      myVtxZBins//,
@@ -555,7 +557,10 @@ int main(const int argc, const char** argv)
   const double nBlobsBinWidth = 1;
   for(int whichBin = 0; whichBin < 21; ++whichBin) nBlobsBins.push_back(nBlobsBinWidth * whichBin);
 
-  const double myRecoilBinWidth = 1.5/50.;
+  const double n5BinWidth = 1;
+  for(int whichBin = 0; whichBin < 6; ++whichBin) n5Bins.push_back(n5BinWidth * whichBin);
+
+  const double myRecoilBinWidth = 1.0/50.;
   for(int whichBin = 0; whichBin < 51; ++whichBin) myRecoilBins.push_back(myRecoilBinWidth * whichBin);
 
   const double myPmuBinWidth = 0.5;
@@ -574,13 +579,17 @@ int main(const int argc, const char** argv)
     new Variable("pTmu", "p_{T, #mu} [GeV/c]", dansPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
     new Variable("pTmu_MYBins", "p_{T, #mu} [GeV/c]", myPTBins, &CVUniverse::GetMuonPT, &CVUniverse::GetMuonPTTrue),
     new Variable("nBlobs", "No.", nBlobsBins, &CVUniverse::GetNNeutBlobs),//Don't need GetDummyTrue perhaps...
-    new Variable("My_recoilE", "Recoil E [GeV]", myRecoilBins, &CVUniverse::GetDANRecoilEnergyGeV),//Don't need GetDummyTrue perhaps...
+    new Variable("recoilE", "Recoil E [GeV]", myRecoilBins, &CVUniverse::GetDANRecoilEnergyGeV),//Don't need GetDummyTrue perhaps...
+    new Variable("Q2QE", "Q^{2}_{QE} [GeV^{2}]", myQ2QEBins, &CVUniverse::GetQ2QEPickledGeV),
+    new Variable("nMichel","No.", n5Bins, &CVUniverse::GetNImprovedMichel),
+    new Variable("nTrack","No.", n5Bins, &CVUniverse::GetNTracks),
     new Variable("pmu", "p_{#mu} [GeV/c]", myPmuBins, &CVUniverse::GetMuonP, &CVUniverse::GetMuonPTrue),//Don't need GetDummyTrue perhaps...
     new Variable("vtxZ", "Z [mm]", myVtxZBins, &CVUniverse::GetVtxZ),//Don't need GetDummyTrue perhaps...
-    //new Variable("leadBlobE", "E [MeV]", myBlobEBins, &NeutronCandidates::NeutCand::GetTotalE, &CVUniverse::GetDummyTrue),
   };
 
-  std::vector<Variable2D*> vars2D;
+  std::vector<Variable2D*> vars2D{
+    new Variable2D(*vars[3],*vars[4]),//recoil v. Q2
+  };
   if(doCCQENuValidation)
   {
     std::cerr << "Detected that tree name is CCQENu.  Making validation histograms.\n";
