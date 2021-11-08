@@ -91,6 +91,11 @@ class CVUniverse : public PlotUtils::MinervaUniverse {
     return GetPlepTrue()/1000. * cos(GetThetalepTrue());
   }
 
+  double GetMuonPTrue() const //GeV/c
+  {
+    return GetPlepTrue()/1000.;
+  }
+
   double GetEmuGeV() const //GeV
   {
     return GetEmu()/1000.;
