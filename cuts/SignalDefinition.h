@@ -26,7 +26,7 @@ namespace MySignal{
   class IsCorrectFS: public PlotUtils::SignalConstraint<UNIVERSE>
   {
   public:
-  IsCorrectFS(bool doNeut): PlotUtils::SignalConstraint<UNIVERSE>("Correct FS"), fDoNeut(doNeut) {}
+  IsCorrectFS(bool doNeut, double neutKE): PlotUtils::SignalConstraint<UNIVERSE>("Correct FS"), fDoNeut(doNeut), fNeutKE(neutKE) {}
 
   private:
     bool checkConstraint(const UNIVERSE& univ) const //override
@@ -45,7 +45,7 @@ namespace MySignal{
 	int pdg = PDGs.at(i);
 	double energy = Es.at(i);
 	double proton_E = 1058.272;
-	double neutron_E = 949.57;
+	double neutron_E = 939.57+fNeutKE;
 	if (abs(pdg) == 13) genie_n_muons++;
 	else if ( pdg == 22  && energy > 10) genie_n_photons++;
 	else if ( abs(pdg) == 211 || abs(pdg) == 321 || abs(pdg) == 323 || pdg == 111 || pdg == 130 || pdg == 310 || pdg == 311 || pdg == 313 ){
@@ -67,6 +67,7 @@ namespace MySignal{
     }
 
     bool fDoNeut;
+    double fNeutKE;
   };
 
   template <class UNIVERSE>

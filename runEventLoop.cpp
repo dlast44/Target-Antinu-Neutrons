@@ -3,7 +3,7 @@
 
 #define USAGE \
 "\n*** USAGE ***\n"\
-"runEventLoop <dataPlaylist.txt> <mcPlaylist.txt> <skip_systematics> <MnvTune_v> <FV> optional: <fileName_tag> <doNeutronCuts>\n\n"\
+"runEventLoop <dataPlaylist.txt> <mcPlaylist.txt> <skip_systematics> <MnvTune_v> <FV> optional: <fileName_tag> <NeutKE>\n\n"\
 "*** Explanation ***\n"\
 "Reduce MasterAnaDev AnaTuples to event selection histograms to extract a\n"\
 "single-differential inclusive cross section for the 2021 MINERvA 101 tutorial.\n\n"\
@@ -28,7 +28,8 @@
 "This parameter also controls the plotting range of the vtxZ variable.\n\n"\
 "*** Optional Inputs ***\n"\
 "<fileName_tag> lives as a naming tag used for extra identification of file contents if desired.\n"\
-"<doNeutronCuts> If 0, skips neutron cuts for deliverables that may not use them.\n\n"\
+"<NeutKE> If <=0, skips neutron cuts for deliverables that may not use them.\n"\
+"If >0, then this is the requirement in MeV for a signal neutron.\n\n"\
 "*** Return Codes ***\n"\
 "0 indicates success.  All histograms are valid only in this case.  Any other\n"\
 "return code indicates that histograms should not be used.  Error messages\n"\
@@ -402,15 +403,17 @@ int main(const int argc, const char** argv)
   TString nameExt = ".root";
 
   bool doNeutronCuts = true;
+  double neutKESig = 10.0;
 
   if (argc > nArgsMandatory + 1){
     if ((TString)(argv[nArgsMandatory+1]) != "") nameExt = "_"+(TString)(argv[nArgsMandatory+1])+nameExt;
     if (argc == nArgsTotal + 1){
-      doNeutronCuts = (atoi(argv[nArgsTotal]) != 0);
+      neutKESig = atof(argv[nArgsTotal]);
+      doNeutronCuts = (neutKESig > 0);
     }
   }
 
-  if (doNeutronCuts) nameExt = "_wNeutCuts"+nameExt;
+  if (doNeutronCuts) nameExt = "_wNeutCuts_neutKE_"+std::to_string(neutKESig)+nameExt;
  
   if (tuneVer != "1" && tuneVer != "2"){
     std::cerr << "Must choose between 1 and 2 for the <MnvTune_v> argument. Check usage printed below. \n" << USAGE << "\n";
@@ -491,7 +494,7 @@ int main(const int argc, const char** argv)
   //signalDefinition.emplace_back(new truth::IsNeutrino<CVUniverse>());
   signalDefinition.emplace_back(new MySignal::IsAntiNu<CVUniverse>());
   signalDefinition.emplace_back(new truth::IsCC<CVUniverse>());
-  signalDefinition.emplace_back(new MySignal::IsCorrectFS<CVUniverse>(doNeutronCuts));
+  signalDefinition.emplace_back(new MySignal::IsCorrectFS<CVUniverse>(doNeutronCuts,neutKESig));
 
   //REMOVED FOR DIAGNOSTIC PURPOSES TO CHECK OLD SIGNAL DEFINITION
   phaseSpace.emplace_back(new truth::ZRange<CVUniverse>(FVregion, minZ, maxZ));
