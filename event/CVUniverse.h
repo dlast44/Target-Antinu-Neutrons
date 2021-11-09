@@ -251,6 +251,17 @@ class CVUniverse : public PlotUtils::MinervaUniverse {
 
   virtual std::vector<double> GetFSPartPz() const { return GetVec<double>("mc_FSPartPz"); }
 
+  virtual double GetMaxFSNeutronKE() const {
+    double max_KE = -999.;
+    std::vector<int> PDGs = GetFSPartPDG();
+    std::vector<double> Es = GetFSPartE();
+    for (int iFS=0; iFS < PDGs.size(); ++iFS){
+      double KE = Es.at(iFS)-M_n;
+      if (PDGs.at(iFS) == 2112 && KE > max_KE) max_KE = KE;
+    }
+    return max_KE;
+  }
+
   virtual int GetNImprovedMichel() const { return GetInt("improved_michel_vertex_type_sz"); }
 
   virtual int GetNuHelicity() const { return GetInt((GetAnaToolName()+"_nuHelicity").c_str()); }

@@ -50,6 +50,7 @@ class EMSideBands: public Study
 	new EventVariable("EMBlobE","E [MeV]", myBlobEBins, &NeutronEvent::GetEMBlobE),
 	new EventVariable("EMBlobNHit","No.", myBlobNHitBins, &NeutronEvent::GetEMBlobNHits),
 	new EventVariable("EMBlobENHitRatio","E/No. [MeV]", myBlobERatBins, &NeutronEvent::GetEMBlobENHitRatio),
+	new EventVariable("MaxEFSNeutKE","KE [MeV]", myBlobEBins, &NeutronEvent::GetMaxFSNeutronKE),
       };
 
       fEVars_NBlobs = {
@@ -57,6 +58,7 @@ class EMSideBands: public Study
 	new EventVariable("EMBlobE_NBlobsSB","E [MeV]", myBlobEBins, &NeutronEvent::GetEMBlobE),
 	new EventVariable("EMBlobNHit_NBlobsSB","No.", myBlobNHitBins, &NeutronEvent::GetEMBlobNHits),
 	new EventVariable("EMBlobENHitRatio_NBlobsSB","E/No. [MeV]", myBlobERatBins, &NeutronEvent::GetEMBlobENHitRatio),
+	new EventVariable("MaxEFSNeutKE_NBlobsSB","KE [MeV]", myBlobEBins, &NeutronEvent::GetMaxFSNeutronKE),
       };
 
       fEVars_ENHit = {
@@ -64,6 +66,7 @@ class EMSideBands: public Study
 	new EventVariable("EMBlobE_ENHitSB","E [MeV]", myBlobEBins, &NeutronEvent::GetEMBlobE),
 	new EventVariable("EMBlobNHit_ENHitSB","No.", myBlobNHitBins, &NeutronEvent::GetEMBlobNHits),
 	new EventVariable("EMBlobENHitRatio_ENHitSB","E/No. [MeV]", myBlobERatBins, &NeutronEvent::GetEMBlobENHitRatio),
+	new EventVariable("MaxEFSNeutKE_ENHitSB","KE [MeV]", myBlobEBins, &NeutronEvent::GetMaxFSNeutronKE),
       };
 
       for(auto& var: fVars_NBlobs) var->InitializeMCHists(mc_error_bands, truth_error_bands);

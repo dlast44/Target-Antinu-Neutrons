@@ -161,6 +161,8 @@ void LoopAndFillEventSelection(
         myevent.SetSignal(isSignal);
 	myevent.SetIntType(intType);
 	myevent.SetTgtZ(tgtType);
+
+	myevent.SetMaxFSNeutronKE(universe->GetMaxFSNeutronKE());
 	//myevent.SetBKGID(bkgd_ID); Maybe add later...
 
 	int leadBlobType = myevent.GetLeadingNeutCand().GetPDGBin();

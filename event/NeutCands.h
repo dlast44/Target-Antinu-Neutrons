@@ -172,12 +172,13 @@ class NeutronEvent{
   int fIntType;
   int fTgtZ;
   double fEMNBlobs, fEMBlobE, fEMBlobNHits;
+  double fMaxFSNeutronKE;
   std::bitset<64> fSideBands;
   NeutronCandidates::NeutCands fNeutCands;
 
  public:
-  NeutronEvent() : fNeutCands(), fIsSignal(false), fIsMC(false), fIntType(-999), fTgtZ(-999), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0), fSideBands(0) { }
-  NeutronEvent(NeutronCandidates::NeutCands cands) : fIsSignal(false), fIsMC(false), fIntType(-999), fTgtZ(-999), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0), fSideBands(0) { fNeutCands = cands; }
+  NeutronEvent() : fNeutCands(), fIsSignal(false), fIsMC(false), fIntType(-999), fTgtZ(-999), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0), fMaxFSNeutronKE(-999.0), fSideBands(0) { }
+  NeutronEvent(NeutronCandidates::NeutCands cands) : fIsSignal(false), fIsMC(false), fIntType(-999), fTgtZ(-999), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0), fMaxFSNeutronKE(-999.0), fSideBands(0) { fNeutCands = cands; }
 
   //Use in Variable-like classes
   double GetDummyVar() const { return -999.; }
@@ -194,6 +195,7 @@ class NeutronEvent{
     if (fEMBlobNHits > 0.0) return fEMBlobE/fEMBlobNHits;
     else return -999.0;
   }
+  double GetMaxFSNeutronKE() const { return fMaxFSNeutronKE; }
   std::bitset<64> GetSideBandStat() const { return fSideBands; }
 
   NeutronCandidates::NeutCand GetLeadingNeutCand() const { return fNeutCands.GetMaxCandidate(); }
@@ -209,6 +211,7 @@ class NeutronEvent{
     fEMBlobE = EMInfo.at(1);
     fEMBlobNHits = EMInfo.at(2);
   }
+  void SetMaxFSNeutronKE(double KE) { fMaxFSNeutronKE = KE; }
   void SetSideBandStat(std::bitset<64> SBStat) { fSideBands = SBStat; }
 
 };
