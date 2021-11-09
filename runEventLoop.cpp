@@ -587,8 +587,8 @@ int main(const int argc, const char** argv)
     new Variable("vtxZ", "Z [mm]", myVtxZBins, &CVUniverse::GetVtxZ),//Don't need GetDummyTrue perhaps...
   };
 
-  std::vector<Variable2D*> vars2D{
-    new Variable2D(*vars[3],*vars[4]),//recoil v. Q2
+  std::vector<Variable2D*> vars2D = {
+  //new Variable2D(*vars[3],*vars[4]),//recoil v. Q2
   };
   if(doCCQENuValidation)
   {
