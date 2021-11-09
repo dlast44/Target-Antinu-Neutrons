@@ -26,7 +26,7 @@ namespace MySignal{
   class IsCorrectFS: public PlotUtils::SignalConstraint<UNIVERSE>
   {
   public:
-  IsCorrectFS(bool doNeut): PlotUtils::SignalConstraint<UNIVERSE>("CCQE 1+ neutron FS"), fDoNeut(doNeut) {}
+  IsCorrectFS(bool doNeut): PlotUtils::SignalConstraint<UNIVERSE>("Correct FS"), fDoNeut(doNeut) {}
 
   private:
     bool checkConstraint(const UNIVERSE& univ) const //override
@@ -73,7 +73,7 @@ namespace MySignal{
   class TrueMuonPRange: public PlotUtils::SignalConstraint<UNIVERSE>
   {
   public:
-  TrueMuonPRange(double minP, double maxP): PlotUtils::SignalConstraint<UNIVERSE>("CCQELike FS"), fMin(minP), fMax(maxP) {}
+  TrueMuonPRange(double minP, double maxP): PlotUtils::SignalConstraint<UNIVERSE>("Muon p Range"), fMin(minP), fMax(maxP) {}
 
   private:
     bool checkConstraint(const UNIVERSE& univ) const //override
