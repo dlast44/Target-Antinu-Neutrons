@@ -408,7 +408,7 @@ int main(const int argc, const char** argv)
   double neutKESig = 10.0;
 
   if (argc > nArgsMandatory + 1){
-    if ((TString)(argv[nArgsMandatory+1]) != "") nameExt = "_"+(TString)(argv[nArgsMandatory+1])+nameExt;
+    if ((TString)(argv[nArgsMandatory+1]) != "" && (TString)(argv[nArgsMandatory+1]) != "NONE") nameExt = "_"+(TString)(argv[nArgsMandatory+1])+nameExt;
     if (argc == nArgsTotal + 1){
       neutKESig = atof(argv[nArgsTotal]);
       doNeutronCuts = (neutKESig > 0);
