@@ -151,13 +151,19 @@ TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sampl
 
   pos=0;
   if ((pos=name.find("_ENHitSB")) != string::npos){
-    sampleName = "SideBand B " + sample;
+    sampleName = "EM Blob E/NHit SideBand " + sample;
     h->SetTitle(sampleName);
   }
 
   pos=0;
   if ((pos=name.find("_NBlobsSB")) != string::npos){
-    sampleName = "SideBand A " + sample;
+    sampleName = "N EM Blob SideBand " + sample;
+    h->SetTitle(sampleName);
+  }
+
+  pos=0;
+  if ((pos=name.find("_MichelSB")) != string::npos){
+    sampleName = "Michel SideBand " + sample;
     h->SetTitle(sampleName);
   }
 
@@ -382,13 +388,19 @@ TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sam
 
   pos=0;
   if ((pos=name_sig.find("_ENHitSB")) != string::npos){
-    sampleName = "SideBand B " + sample;
+    sampleName = "EM Blob E/NHit SideBand " + sample;
     h->SetTitle(sampleName);
   }
 
   pos=0;
   if ((pos=name_sig.find("_NBlobsSB")) != string::npos){
-    sampleName = "SideBand A " + sample;
+    sampleName = "N EM Blob SideBand " + sample;
+    h->SetTitle(sampleName);
+  }
+
+  pos=0;
+  if ((pos=name_sig.find("_MichelSB")) != string::npos){
+    sampleName = "Michel SideBand " + sample;
     h->SetTitle(sampleName);
   }
 
@@ -644,13 +656,19 @@ TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString s
 
   pos=0;
   if ((pos=name_sig.find("_ENHitSB")) != string::npos){
-    sampleName = "SideBand B " + sample;
+    sampleName = "EM Blob E/NHit SideBand " + sample;
     h->SetTitle(sampleName);
   }
 
   pos=0;
   if ((pos=name_sig.find("_NBlobsSB")) != string::npos){
-    sampleName = "SideBand A " + sample;
+    sampleName = "N EM Blob SideBand " + sample;
+    h->SetTitle(sampleName);
+  }
+
+  pos=0;
+  if ((pos=name_sig.find("_MichelSB")) != string::npos){
+    sampleName = "Michel SideBand " + sample;
     h->SetTitle(sampleName);
   }
 
@@ -938,13 +956,19 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TStr
 
   pos=0;
   if ((pos=name_sig.find("_ENHitSB")) != string::npos){
-    sampleName = "SideBand B " + sample;
+    sampleName = "EM Blob E/NHit SideBand " + sample;
     h->SetTitle(sampleName);
   }
 
   pos=0;
   if ((pos=name_sig.find("_NBlobsSB")) != string::npos){
-    sampleName = "SideBand A " + sample;
+    sampleName = "N EM Blob SideBand " + sample;
+    h->SetTitle(sampleName);
+  }
+
+  pos=0;
+  if ((pos=name_sig.find("_MichelSB")) != string::npos){
+    sampleName = "Michel SideBand " + sample;
     h->SetTitle(sampleName);
   }
 
