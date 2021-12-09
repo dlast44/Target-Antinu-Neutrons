@@ -71,6 +71,7 @@ enum ErrorCodes
 #include "studies/Study.h"
 #include "studies/NeutronVariables.h"
 #include "studies/EMSideBands.h"
+#include "studies/MichelAndNBlobSB.h"
 //#include "Binning.h" //TODO: Fix me
 
 //PlotUtils includes
@@ -492,7 +493,6 @@ int main(const int argc, const char** argv)
   preCuts.emplace_back(new MyCCQECuts::PMuRange<CVUniverse, NeutronEvent>("1.5 <= Pmu <= 20",1.5,20.0));
   preCuts.emplace_back(new MyCCQECuts::IsAntiNu<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyCCQECuts::IsSingleTrack<CVUniverse, NeutronEvent>());
-  preCuts.emplace_back(new MyCCQECuts::NoMichels<CVUniverse, NeutronEvent>());
   preCuts.emplace_back(new MyCCQECuts::RecoilCut<CVUniverse, NeutronEvent>());
   if (doNeutronCuts){
     preCuts.emplace_back(new MyNeutCuts::LeadNeutIs3D<CVUniverse, NeutronEvent>());
@@ -503,8 +503,9 @@ int main(const int argc, const char** argv)
   //preCuts.emplace_back(new reco::IsNeutrino<CVUniverse, NeutronEvent>());
 
   //sidebands.emplace_back(new MyCCQECuts::AllEMBlobsCuts<CVUniverse, NeutronEvent>(true));
+  sidebands.emplace_back(new MyCCQECuts::NoMichels<CVUniverse, NeutronEvent>());
   sidebands.emplace_back(new MyCCQECuts::EMNBlobsCut<CVUniverse, NeutronEvent>(true));
-  sidebands.emplace_back(new MyCCQECuts::EMBlobENHitRatioCut<CVUniverse, NeutronEvent>(true));
+  //sidebands.emplace_back(new MyCCQECuts::EMBlobENHitRatioCut<CVUniverse, NeutronEvent>(true));
   
   //signalDefinition.emplace_back(new truth::IsNeutrino<CVUniverse>());
   signalDefinition.emplace_back(new MySignal::IsAntiNu<CVUniverse>());
@@ -625,7 +626,8 @@ int main(const int argc, const char** argv)
   std::vector<Study*> data_studies;
 
   std::vector<Study*> studies = {
-    new EMSideBands(vars, error_bands, truth_bands, data_band),
+    //new EMSideBands(vars, error_bands, truth_bands, data_band),
+    new MichelAndNBlobSB(vars, error_bands, truth_bands, data_band),
     //new NeutronVariables(maxZ, minZ, error_bands, truth_bands, data_band),
   };
 
