@@ -165,6 +165,19 @@ void LoopAndFillEventSelection(
 	myevent.SetMaxFSNeutronKE(universe->GetMaxFSNeutronKE());
 	//myevent.SetBKGID(bkgd_ID); Maybe add later...
 
+	/*
+	std::cout << std::setprecision(16);
+
+	if ((TString)(universe->ShortName()) == "cv"){
+	  std::cout << "Event: " << universe->GetDouble("eventID") << " has last bit: " << SBStat[0] << " and second-to-last bit: " << SBStat[1] << std::endl;
+	  std::cout << "Has: " << myevent.GetEMNBlobs() << "EM Blobs" << std::endl;
+	  std::cout << "With a ratio E/NHit of: " << myevent.GetEMBlobENHitRatio() << "EM Blobs" << std::endl;
+	  std::cout << "Int Type: " << intType << std::endl;
+	  if (isSignal) std::cout << "Is Signal with lead true neutron KE: " << myevent.GetMaxFSNeutronKE() << std::endl;
+	  else std::cout << "Is Not Signal." << std::endl;
+	}
+	*/
+
 	int leadBlobType = myevent.GetLeadingNeutCand().GetPDGBin();
 
 	for(auto& study: studies) study->Selected(*universe, myevent, weight);
