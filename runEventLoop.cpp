@@ -166,18 +166,19 @@ void LoopAndFillEventSelection(
 	myevent.SetMaxFSNeutronKE(universe->GetMaxFSNeutronKE());
 	//myevent.SetBKGID(bkgd_ID); Maybe add later...
 
-	/*
+
 	std::cout << std::setprecision(16);
 
 	if ((TString)(universe->ShortName()) == "cv"){
 	  std::cout << "Event: " << universe->GetDouble("eventID") << " has last bit: " << SBStat[0] << " and second-to-last bit: " << SBStat[1] << std::endl;
 	  std::cout << "Has: " << myevent.GetEMNBlobs() << "EM Blobs" << std::endl;
 	  std::cout << "With a ratio E/NHit of: " << myevent.GetEMBlobENHitRatio() << "EM Blobs" << std::endl;
+	  std::cout << "And No. Michel of: " << universe->GetNImprovedMichel() << std::endl;
 	  std::cout << "Int Type: " << intType << std::endl;
 	  if (isSignal) std::cout << "Is Signal with lead true neutron KE: " << myevent.GetMaxFSNeutronKE() << std::endl;
 	  else std::cout << "Is Not Signal." << std::endl;
 	}
-	*/
+	/**/
 
 	int leadBlobType = myevent.GetLeadingNeutCand().GetPDGBin();
 
@@ -503,8 +504,8 @@ int main(const int argc, const char** argv)
   //preCuts.emplace_back(new reco::IsNeutrino<CVUniverse, NeutronEvent>());
 
   //sidebands.emplace_back(new MyCCQECuts::AllEMBlobsCuts<CVUniverse, NeutronEvent>(true));
-  sidebands.emplace_back(new MyCCQECuts::NoMichels<CVUniverse, NeutronEvent>());
-  sidebands.emplace_back(new MyCCQECuts::EMNBlobsCut<CVUniverse, NeutronEvent>(true));
+  //sidebands.emplace_back(new MyCCQECuts::NoMichels<CVUniverse, NeutronEvent>());
+  //sidebands.emplace_back(new MyCCQECuts::EMNBlobsCut<CVUniverse, NeutronEvent>(true));
   //sidebands.emplace_back(new MyCCQECuts::EMBlobENHitRatioCut<CVUniverse, NeutronEvent>(true));
   
   //signalDefinition.emplace_back(new truth::IsNeutrino<CVUniverse>());
@@ -627,8 +628,8 @@ int main(const int argc, const char** argv)
 
   std::vector<Study*> studies = {
     //new EMSideBands(vars, error_bands, truth_bands, data_band),
-    new MichelAndNBlobSB(vars, error_bands, truth_bands, data_band),
-    //new NeutronVariables(maxZ, minZ, error_bands, truth_bands, data_band),
+    //new MichelAndNBlobSB(vars, error_bands, truth_bands, data_band),
+    new NeutronVariables(maxZ, minZ, error_bands, truth_bands, data_band),
   };
 
   for(auto& var: vars) var->InitializeMCHists(error_bands, truth_bands);
