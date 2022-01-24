@@ -5,6 +5,7 @@
 #include "event/NeutCands.h"
 #include "util/NeutronVariable.h"
 #include "util/Variable.h"
+#include "util/GetBackgroundID.h"
 #include "event/CVUniverse.h"
 
 //TODO: ONLY FILL THESE VARIABLES WHEN THE EVENT IS SELECTED?
@@ -129,67 +130,108 @@ class NeutronVariables: public Study
       int tgtType = evt.GetTgtZ();
       int leadBlobType = leadCand.GetPDGBin();
 
-      if (evt.IsSignal()){
-	for (auto& var : fLeadVars){
-	  (*var->m_SigIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
-	  (*var->m_SigTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
-	  (*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
-	}
-	for (auto& cand: neutCands.GetCandidates()){
-	  for (auto& var : fAllVars){
-	    (*var->m_SigIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
-	    (*var->m_SigTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
-	    (*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+      if (evt.IsMC()){
+	if (evt.IsSignal()){
+	  for (auto& var : fLeadVars){
+	    var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
+	    var->selectedSignalReco->FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
+	    (*var->m_SigIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
+	    (*var->m_SigTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
+	    (*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
 	  }
-	  if (cand.second.GetBegPos().Z() <= fBound){
-	    for (auto& var : fTgtVars){
+	  for (auto& cand: neutCands.GetCandidates()){
+	    for (auto& var : fAllVars){
+	      var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	      var->selectedSignalReco->FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
 	      (*var->m_SigIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
 	      (*var->m_SigTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
 	      (*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
 	    }
+	    if (cand.second.GetBegPos().Z() <= fBound){
+	      for (auto& var : fTgtVars){
+		var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		var->selectedSignalReco->FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_SigIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_SigTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	      }
+	    }
+	    else {
+	      for (auto& var : fTrackVars){
+		var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		var->selectedSignalReco->FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_SigIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_SigTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	      }
+	    }
 	  }
-	  else {
-	    for (auto& var : fTrackVars){
-	      (*var->m_SigIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
-	      (*var->m_SigTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
-	      (*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	}
+	
+	else {
+	  int bkgd_ID = -1;
+	  bkgd_ID = util::GetBackgroundID(univ);
+
+	  for (auto& var : fLeadVars){
+	    var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
+	    (*var->m_backgroundHists)[bkgd_ID].FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
+	    (*var->m_BkgIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
+	    (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
+	    (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
+	  }
+	  for (auto& cand: neutCands.GetCandidates()){
+	    for (auto& var : fAllVars){
+	      var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	      (*var->m_backgroundHists)[bkgd_ID].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	      (*var->m_BkgIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	      (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	      (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	    }
+	    if (cand.second.GetBegPos().Z() <= fBound){
+	      for (auto& var : fTgtVars){
+		var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_backgroundHists)[bkgd_ID].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_BkgIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	      }
+	    }
+	    else {
+	      for (auto& var : fTrackVars){
+		var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_backgroundHists)[bkgd_ID].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_BkgIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+		(*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	      }
 	    }
 	  }
 	}
       }
-
-      else {
+      else{
 	for (auto& var : fLeadVars){
-	  (*var->m_BkgIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
-	  (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
-	  (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(leadCand), weight);
+	  var->dataHist->FillUniverse(&univ, var->GetRecoValue(leadCand), 1);
 	}
 	for (auto& cand: neutCands.GetCandidates()){
 	  for (auto& var : fAllVars){
-	    (*var->m_BkgIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
-	    (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
-	    (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	    var->dataHist->FillUniverse(&univ, var->GetRecoValue(cand.second), 1);
 	  }
 	  if (cand.second.GetBegPos().Z() <= fBound){
 	    for (auto& var : fTgtVars){
-	      (*var->m_BkgIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
-	      (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
-	      (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	      var->dataHist->FillUniverse(&univ, var->GetRecoValue(cand.second), 1);	     
 	    }
 	  }
 	  else {
 	    for (auto& var : fTrackVars){
-	      (*var->m_BkgIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
-	      (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
-	      (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(cand.second), weight);
+	      var->dataHist->FillUniverse(&univ, var->GetRecoValue(cand.second), 1);
 	    }
 	  }
 	}
       }
-
+      
       return;
     }
-
+    
     //All of your plots happen here so far.
     void fillSelectedSignal(const CVUniverse& univ, const NeutronEvent& evt, const double weight)
     {
