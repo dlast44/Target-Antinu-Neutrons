@@ -1170,39 +1170,57 @@ int main(int argc, char* argv[]) {
     string name=(string)key->GetName();
     if((pos = name.find("_sig_IntType_QE")) != string::npos){
       TCanvas* c1 = DrawIntType(name,mcFile,dataFile,label,scale);
+      TPad* top = (TPad*)c1->GetPrimitive("Overlay");
       name.erase(name.length()-15,name.length());
       c1->Print((TString)outDir+(TString)name+"_IntType_stacked.pdf");
       c1->Print((TString)outDir+(TString)name+"_IntType_stacked.png");
+      top->SetLogy();
+      c1->Update();
+      c1->Print((TString)outDir+(TString)name+"_IntType_stacked_log.pdf");
+      c1->Print((TString)outDir+(TString)name+"_IntType_stacked_log.png");     
       cout << "" << endl;
       delete c1;
     }
     else if ((pos = name.find("_sig_TargetType_C")) != string::npos){
       TCanvas* c1 = DrawTargetType(name,mcFile,dataFile,label,scale);
+      TPad* top = (TPad*)c1->GetPrimitive("Overlay");
       name.erase(name.length()-17,name.length());
       c1->Print((TString)outDir+(TString)name+"_TargetType_stacked.pdf");
       c1->Print((TString)outDir+(TString)name+"_TargetType_stacked.png");
-      cout << "" << endl;
+      top->SetLogy();
+      c1->Update();
+      c1->Print((TString)outDir+(TString)name+"_TargetType_stacked_log.pdf");
+      c1->Print((TString)outDir+(TString)name+"_TargetType_stacked_log.png");           cout << "" << endl;
       delete c1;
     }
     else if ((pos = name.find("_sig_LeadBlobType_neut")) != string::npos){
       TCanvas* c1 = DrawLeadBlobType(name,mcFile,dataFile,label,scale);
+      TPad* top = (TPad*)c1->GetPrimitive("Overlay");
       name.erase(name.length()-22,name.length());
       c1->Print((TString)outDir+(TString)name+"_LeadBlobType_stacked.pdf");
       c1->Print((TString)outDir+(TString)name+"_LeadBlobType_stacked.png");
-      cout << "" << endl;
+      top->SetLogy();
+      c1->Update();
+      c1->Print((TString)outDir+(TString)name+"_LeadBlobType_stacked_log.pdf");
+      c1->Print((TString)outDir+(TString)name+"_LeadBlobType_stacked_log.png");           cout << "" << endl;
       delete c1;
     }
     else if ((pos = name.find("_selected_signal_reco")) != string::npos){
       pos = 0;
-      if ((pos = name.find("EMnBlobs_")) != string::npos) continue;
-      else if ((pos = name.find("EMBlobE_")) != string::npos) continue;
-      else if ((pos = name.find("EMBlobNHit_")) != string::npos) continue;
-      else if ((pos = name.find("EMBlobENHitRatio_")) != string::npos) continue;
+      //Maybe can remove the following continues...
+      //if ((pos = name.find("EMnBlobs_")) != string::npos) continue;
+      //else if ((pos = name.find("EMBlobE_")) != string::npos) continue;
+      //else if ((pos = name.find("EMBlobNHit_")) != string::npos) continue;
+      //else if ((pos = name.find("EMBlobENHitRatio_")) != string::npos) continue;
       TCanvas* c1 = DrawBKGCateg(name,mcFile,dataFile,label,scale);
+      TPad* top = (TPad*)c1->GetPrimitive("Overlay");
       name.erase(name.length()-21,name.length());
       c1->Print((TString)outDir+(TString)name+"_BKG_stacked.pdf");
       c1->Print((TString)outDir+(TString)name+"_BKG_stacked.png");
-      cout << "" << endl;
+      top->SetLogy();
+      c1->Update();
+      c1->Print((TString)outDir+(TString)name+"_BKG_stacked_log.pdf");
+      c1->Print((TString)outDir+(TString)name+"_BKG_stacked_log.png");           cout << "" << endl;
       delete c1;
     }
     /*
