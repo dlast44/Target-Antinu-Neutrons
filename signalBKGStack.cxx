@@ -55,6 +55,8 @@ using namespace PlotUtils;
 
 TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sample, double scale){
 
+  bool primPar = false;
+
   TString sampleName = sample;
 
   MnvH1D* h_Sig = (MnvH1D*)mcFile->Get((TString)name);
@@ -124,14 +126,6 @@ TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sampl
   h->Draw("hist");
   c1->Update();
 
-  h->SetTitle(sampleName);//+" "+title.c_str());
-  h->GetXaxis()->SetTitle(Xtitle);
-  h->GetXaxis()->SetTitleSize(0.04);
-  h->GetYaxis()->SetTitle("Events");
-  h->GetYaxis()->SetTitleSize(0.05);
-  h->GetYaxis()->SetTitleOffset(0.75);
-  h->SetMaximum((dataHist->GetMaximum())*1.05);
-
   size_t pos = 0;
   if ((pos=name.find("_primary_parent")) != string::npos){
     h->GetXaxis()->SetBinLabel(1,"Other");
@@ -147,7 +141,16 @@ TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sampl
     h->GetXaxis()->SetLabelSize(0.06);
     h->GetXaxis()->SetTitle("Blob Primary Parent");
     h->GetXaxis()->SetTitleSize(0.04);
+    primPar = true;
   }
+
+  h->SetTitle(sampleName);//+" "+title.c_str());
+  h->GetXaxis()->SetTitle(Xtitle);
+  h->GetXaxis()->SetTitleSize(0.04);
+  h->GetYaxis()->SetTitle("Events");
+  h->GetYaxis()->SetTitleSize(0.05);
+  h->GetYaxis()->SetTitleOffset(0.75);
+  if (!primPar)h->SetMaximum((dataHist->GetMaximum())*1.05);
 
   pos=0;
   if ((pos=name.find("_ENHitSB")) != string::npos){
@@ -244,6 +247,8 @@ TCanvas* DrawBKGCateg(string name, TFile* mcFile, TFile* dataFile, TString sampl
 }
 
 TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sample, double scale){
+
+  bool primPar = false;
 
   TString sampleName = sample;
 
@@ -361,14 +366,6 @@ TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sam
   h->Draw("hist");
   c1->Update();
 
-  h->SetTitle(sampleName);//+" "+title.c_str());
-  h->GetXaxis()->SetTitle(Xtitle);
-  h->GetXaxis()->SetTitleSize(0.04);
-  h->GetYaxis()->SetTitle("Events");
-  h->GetYaxis()->SetTitleSize(0.05);
-  h->GetYaxis()->SetTitleOffset(0.75);
-  h->SetMaximum((dataHist->GetMaximum())*1.05);
-  
   size_t pos = 0;
   if ((pos=name_sig.find("_primary_parent")) != string::npos){
     h->GetXaxis()->SetBinLabel(1,"Other");
@@ -384,8 +381,17 @@ TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sam
     h->GetXaxis()->SetLabelSize(0.06);
     h->GetXaxis()->SetTitle("Blob Primary Parent");
     h->GetXaxis()->SetTitleSize(0.04);
+    primPar = true;
   }
 
+  h->SetTitle(sampleName);//+" "+title.c_str());
+  h->GetXaxis()->SetTitle(Xtitle);
+  h->GetXaxis()->SetTitleSize(0.04);
+  h->GetYaxis()->SetTitle("Events");
+  h->GetYaxis()->SetTitleSize(0.05);
+  h->GetYaxis()->SetTitleOffset(0.75);
+  if (!primPar) h->SetMaximum((dataHist->GetMaximum())*1.05);
+  
   pos=0;
   if ((pos=name_sig.find("_ENHitSB")) != string::npos){
     sampleName = "EM Blob E/NHit SideBand " + sample;
@@ -494,6 +500,8 @@ TCanvas* DrawIntType(string name_QE, TFile* mcFile, TFile* dataFile, TString sam
 }
 
 TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString sample, double scale){
+
+  bool primPar = false;
 
   TString sampleName = sample;
 
@@ -629,14 +637,6 @@ TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString s
   h->Draw("hist");
   c1->Update();
 
-  h->SetTitle(sampleName);//+" "+title.c_str());
-  h->GetXaxis()->SetTitle(Xtitle);
-  h->GetXaxis()->SetTitleSize(0.04);
-  h->GetYaxis()->SetTitle("Events");
-  h->GetYaxis()->SetTitleSize(0.05);
-  h->GetYaxis()->SetTitleOffset(0.75);
-  h->SetMaximum((dataHist->GetMaximum())*1.05);
-  
   size_t pos=0;
   if ((pos=name_sig.find("_primary_parent")) != string::npos){
     h->GetXaxis()->SetBinLabel(1,"None");
@@ -652,8 +652,17 @@ TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString s
     h->GetXaxis()->SetLabelSize(0.06);
     h->GetXaxis()->SetTitle("Blob Primary Parent");
     h->GetXaxis()->SetTitleSize(0.04);
+    primPar = true;
   }
 
+  h->SetTitle(sampleName);//+" "+title.c_str());
+  h->GetXaxis()->SetTitle(Xtitle);
+  h->GetXaxis()->SetTitleSize(0.04);
+  h->GetYaxis()->SetTitle("Events");
+  h->GetYaxis()->SetTitleSize(0.05);
+  h->GetYaxis()->SetTitleOffset(0.75);
+  if (!primPar)h->SetMaximum((dataHist->GetMaximum())*1.05);
+  
   pos=0;
   if ((pos=name_sig.find("_ENHitSB")) != string::npos){
     sampleName = "EM Blob E/NHit SideBand " + sample;
@@ -765,6 +774,8 @@ TCanvas* DrawTargetType(string name_C, TFile* mcFile, TFile* dataFile, TString s
 }
 
 TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TString sample, double scale){
+
+  bool primPar = false;
 
   TString sampleName = sample;
 
@@ -929,14 +940,6 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TStr
 
   //ToDo: Get the naming of the axes fixed to be what it needs to be/make it easier to automate. This will need to be accompanied by a change to the Variable class to get the labels correct there. Current changes temporary in the interest of making plots for a talk on Oct. 14, 2021 in the exclusives meeting.
 
-  h->SetTitle(sampleName);//+" "+title.c_str());
-  h->GetXaxis()->SetTitle(Xtitle);
-  h->GetXaxis()->SetTitleSize(0.04);
-  h->GetYaxis()->SetTitle("Events");
-  h->GetYaxis()->SetTitleSize(0.05);
-  h->GetYaxis()->SetTitleOffset(0.75);
-  h->SetMaximum((dataHist->GetMaximum())*1.05);
-  
   size_t pos=0;
   if ((pos=name_sig.find("_primary_parent")) != string::npos){
     h->GetXaxis()->SetBinLabel(1,"None");
@@ -952,8 +955,17 @@ TCanvas* DrawLeadBlobType(string name_Neut, TFile* mcFile, TFile* dataFile, TStr
     h->GetXaxis()->SetLabelSize(0.06);
     h->GetXaxis()->SetTitle("Blob Primary Parent");
     h->GetXaxis()->SetTitleSize(0.04);
+    primPar = true;
   }
 
+  h->SetTitle(sampleName);//+" "+title.c_str());
+  h->GetXaxis()->SetTitle(Xtitle);
+  h->GetXaxis()->SetTitleSize(0.04);
+  h->GetYaxis()->SetTitle("Events");
+  h->GetYaxis()->SetTitleSize(0.05);
+  h->GetYaxis()->SetTitleOffset(0.75);
+  if (!primPar)h->SetMaximum((dataHist->GetMaximum())*1.05);
+  
   pos=0;
   if ((pos=name_sig.find("_ENHitSB")) != string::npos){
     sampleName = "EM Blob E/NHit SideBand " + sample;
