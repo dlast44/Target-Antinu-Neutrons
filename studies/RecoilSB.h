@@ -13,6 +13,7 @@ class RecoilSB: public Study
 {
   private:
     std::vector<Variable*> fVars;
+    std::map<int,Variable*> fRecoilBinned;
 
   public:
     RecoilSB(std::vector<Variable*> vars,
@@ -20,6 +21,22 @@ class RecoilSB: public Study
 		     std::map<std::string, std::vector<CVUniverse*>>& truth_error_bands,
 		     std::vector<CVUniverse*>& data_error_bands): Study()
     {
+      //Constructing recoil variable in bins of pt/pz. Just make a map of it all.
+      std::vector<double> myRecoilBins;
+      const double myRecoilBinWidth = 1.0/50.;
+      for(int whichBin = 0; whichBin < 51; ++whichBin) myRecoilBins.push_back(myRecoilBinWidth * whichBin);
+
+      int nBins = 14;//Hard-coded from bins from Amit's analysis... Not appropriate binning given my cuts, but going to get the structure going first.
+      int lowBin = -1;//Default return value. hard-coded as well.
+
+      for (int iBin=lowBin; iBin < nBins; ++iBin){
+	std::string binName = std::to_string(iBin);
+	if (iBin == lowBin) binName = "lost";
+	fRecoilBinned[iBin] = new Variable(("recoilE_bin_"+binName).c_str(), "Recoil E [GeV]", myRecoilBins, &CVUniverse::GetDANRecoilEnergyGeV);
+	fRecoilBinned[iBin]->InitializeMCHists(mc_error_bands, truth_error_bands);
+	fRecoilBinned[iBin]->InitializeDATAHists(data_error_bands);
+      }
+
       for (auto& var : vars){
 	fVars.push_back(new Variable((var->GetName()+"_PreRecoilCut").c_str(), var->GetAxisLabel(), var->GetBinVec(),var->GetRecoFunc(),var->GetTrueFunc()));
       }
@@ -34,11 +51,13 @@ class RecoilSB: public Study
 
     void SaveOrDrawMC(TFile& outFile)
     {
+      for (auto& recoil : fRecoilBinned) recoil.second->WriteMC(outFile);
       for (auto& var : fVars) var->WriteMC(outFile);
     }
 
     void SaveOrDrawData(TFile& outFile)
     {
+      for (auto& recoil : fRecoilBinned) recoil.second->WriteData(outFile);
       for (auto& var : fVars) var->WriteData(outFile);
     }
     
@@ -50,9 +69,16 @@ class RecoilSB: public Study
       int intType = evt.GetIntType();
       int tgtType = evt.GetTgtZ();
       int leadBlobType = evt.GetLeadingNeutCand().GetPDGBin();
+      int iBin = evt.GetBinPTPZ();
       
       if (evt.IsMC()){
 	if (evt.IsSignal()){
+	  fRecoilBinned[iBin]->selectedMCReco->FillUniverse(&univ, fRecoilBinned[iBin]->GetRecoValue(univ), weight); //"Fake data" for closure
+	  fRecoilBinned[iBin]->selectedSignalReco->FillUniverse(&univ, fRecoilBinned[iBin]->GetRecoValue(univ), weight);
+	  (*fRecoilBinned[iBin]->m_SigIntTypeHists)[intType].FillUniverse(&univ, fRecoilBinned[iBin]->GetRecoValue(univ), weight);
+	  (*fRecoilBinned[iBin]->m_SigTargetTypeHists)[tgtType].FillUniverse(&univ, fRecoilBinned[iBin]->GetRecoValue(univ), weight);
+	  (*fRecoilBinned[iBin]->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, fRecoilBinned[iBin]->GetRecoValue(univ), weight);
+
 	  for (auto& var: fVars){
 	    var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(univ), weight); //"Fake data" for closure
 	    var->selectedSignalReco->FillUniverse(&univ, var->GetRecoValue(univ), weight);
@@ -65,6 +91,13 @@ class RecoilSB: public Study
 	else{
 	  int bkgd_ID = -1;	  
 	  bkgd_ID = util::GetBackgroundID(univ);
+	  
+	  fRecoilBinned[iBin]->selectedMCReco->FillUniverse(&univ, fRecoilBinned[iBin]->GetRecoValue(univ), weight); //"Fake data" for closure
+	  (*fRecoilBinned[iBin]->m_backgroundHists)[bkgd_ID].FillUniverse(&univ, fRecoilBinned[iBin]->GetRecoValue(univ), weight);
+	  (*fRecoilBinned[iBin]->m_BkgIntTypeHists)[intType].FillUniverse(&univ, fRecoilBinned[iBin]->GetRecoValue(univ), weight);
+	  (*fRecoilBinned[iBin]->m_BkgTargetTypeHists)[tgtType].FillUniverse(&univ, fRecoilBinned[iBin]->GetRecoValue(univ), weight);
+	  (*fRecoilBinned[iBin]->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, fRecoilBinned[iBin]->GetRecoValue(univ), weight);
+
 	  for(auto& var: fVars){
 	    var->selectedMCReco->FillUniverse(&univ, var->GetRecoValue(univ), weight); //"Fake data" for closure
 	    (*var->m_backgroundHists)[bkgd_ID].FillUniverse(&univ, var->GetRecoValue(univ), weight);
@@ -76,6 +109,8 @@ class RecoilSB: public Study
       }
       
       else{
+	fRecoilBinned[iBin]->dataHist->FillUniverse(&univ, fRecoilBinned[iBin]->GetRecoValue(univ), 1);
+
 	for (auto& var : fVars){
 	  var->dataHist->FillUniverse(&univ, var->GetRecoValue(univ), 1);
 	}

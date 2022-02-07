@@ -164,6 +164,8 @@ void LoopAndFillEventSelection(
 	myevent.SetIntType(intType);
 	myevent.SetTgtZ(tgtType);
 
+	myevent.SetBinPTPZ(universe->GetPTPZBin());
+
 	myevent.SetMaxFSNeutronKE(universe->GetMaxFSNeutronKE());
 	//myevent.SetBKGID(bkgd_ID); Maybe add later...
 
@@ -255,6 +257,8 @@ void LoopAndFillData( PlotUtils::ChainWrapper* data,
       myevent.SetSideBandStat(SBStat);
 
       if (SBStat.none()) continue;
+
+      myevent.SetBinPTPZ(universe->GetPTPZBin());
 
       for(auto& study: studies) study->Selected(*universe, myevent, 1); 
 

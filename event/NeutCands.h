@@ -171,14 +171,15 @@ class NeutronEvent{
   bool fIsMC;
   int fIntType;
   int fTgtZ;
+  int fBinPTPZ;
   double fEMNBlobs, fEMBlobE, fEMBlobNHits;
   double fMaxFSNeutronKE;
   std::bitset<64> fSideBands;
   NeutronCandidates::NeutCands fNeutCands;
 
  public:
-  NeutronEvent() : fNeutCands(), fIsSignal(false), fIsMC(false), fIntType(-999), fTgtZ(-999), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0), fMaxFSNeutronKE(-999.0), fSideBands(0) { }
-  NeutronEvent(NeutronCandidates::NeutCands cands) : fIsSignal(false), fIsMC(false), fIntType(-999), fTgtZ(-999), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0), fMaxFSNeutronKE(-999.0), fSideBands(0) { fNeutCands = cands; }
+  NeutronEvent() : fNeutCands(), fIsSignal(false), fIsMC(false), fIntType(-999), fTgtZ(-999), fBinPTPZ(-1.0), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0), fMaxFSNeutronKE(-999.0), fSideBands(0) { }
+  NeutronEvent(NeutronCandidates::NeutCands cands) : fIsSignal(false), fIsMC(false), fIntType(-999), fTgtZ(-999), fBinPTPZ(-1.0), fEMNBlobs(-999.0), fEMBlobE(-999.0), fEMBlobNHits(-999.0), fMaxFSNeutronKE(-999.0), fSideBands(0) { fNeutCands = cands; }
 
   //Use in Variable-like classes
   double GetDummyVar() const { return -999.; }
@@ -187,6 +188,7 @@ class NeutronEvent{
   bool IsMC() const { return fIsMC; }
   int GetIntType() const { return fIntType; }
   int GetTgtZ() const { return fTgtZ; }
+  int GetBinPTPZ() const { return fBinPTPZ; }
   double GetEMNBlobs() const { return fEMNBlobs; }
   double GetEMBlobE() const { return fEMBlobE; }
   double GetEMBlobNHits() const { return fEMBlobNHits; }
@@ -205,6 +207,7 @@ class NeutronEvent{
   void SetIsMC(){ fIsMC = true; }
   void SetIntType(int intType){ fIntType = intType; }
   void SetTgtZ(int tgtZ){ fTgtZ = tgtZ; }
+  void SetBinPTPZ(int binPTPZ){ fBinPTPZ = binPTPZ; }
   void SetEMBlobInfo(std::vector<double> EMInfo)
   {
     fEMNBlobs = EMInfo.at(0);
