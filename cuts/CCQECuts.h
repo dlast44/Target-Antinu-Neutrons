@@ -170,7 +170,8 @@ namespace MyCCQECuts{
       double Q2GeV = univ.GetQ2QEPickledGeV();
       double recoilEGeV = univ.GetDANRecoilEnergyGeV();
       if (Q2GeV < 0.0 || recoilEGeV < 0.0) return false;
-      else if (Q2GeV < 0.3) return (recoilEGeV < (0.04+0.43*Q2GeV));
+      else if (Q2GeV < 0.175) return (recoilEGeV < 0.13);
+      //else if (Q2GeV < 0.3) return (recoilEGeV < (0.04+0.43*Q2GeV)); Tejin modification. Removed since it's hydrogen specific. Need to revisit this optimization at some point though.
       else if (Q2GeV < 1.4) return (recoilEGeV < (0.08+0.3*Q2GeV));
       else return (recoilEGeV < 0.5);
     }
