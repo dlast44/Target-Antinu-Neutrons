@@ -143,6 +143,144 @@ TCanvas* DrawRatioFromMnvH1Ds(MnvH1D* h_data, MnvH1D* h_sig, MnvH1D* h_bkg){
   return c1;
 }
 
+int FitAndDraw(MnvH1D* dataHist, MnvH1D* sigHist, MnvH1D* bkgTotHist, TString varName, TString outDir, int lowBin, int hiBin){
+  MnvH1D* mcTotHist = bkgTotHist->Clone();
+  mcTotHist->Add(sigHist);
+
+  TH1D* hData = (TH1D*)dataHist->GetCVHistoWithStatError().Clone();
+  TH1D* hMC = (TH1D*)mcTotHist->GetCVHistoWithStatError().Clone();
+  TH1D* hSig = (TH1D*)sigHist->GetCVHistoWithStatError().Clone();
+  TH1D* hBKG = (TH1D*)bkgTotHist->GetCVHistoWithStatError().Clone();
+
+  double dataInt = hData->Integral(lowBin,hiBin);
+  double mcInt = hMC->Integral(lowBin,hiBin);
+  double sigInt = hSig->Integral(lowBin,hiBin);
+  double bkgInt = hBKG->Integral(lowBin,hiBin);
+
+  double sigFrac = sigInt/mcInt;
+  double bkgFrac = bkgInt/mcInt;
+
+  cout << "Initial Sig Frac." << sigFrac << endl;
+
+  double scale = dataInt/mcInt;
+  hMC->Scale(scale);
+  hSig->Scale(scale);
+  hBKG->Scale(scale);
+  
+  TObjArray* mcList = new TObjArray(2);
+  mcList->Add(hSig);
+  mcList->Add(hBKG);
+
+  TFractionFitter* fit = new TFractionFitter(hData,mcList,"V");
+  /* Unclear how to translate into c++ code... very confused since I see this used elsewhere as well... outdated root thing maybe?
+  TVirtualFitter* vFit = fit->GetFitter();
+  vFit->Config().ParSettings(0).Set("sig", sigFrac, binWidth, 0.0, 1.0);
+  vFit->Config().ParSettings(1).Set("bkg", bkgFrac, binWidth, 0.0, 1.0);
+  */
+  //This constraint requires one to area normalize the totalMChist to the dataHist.
+  fit->Constrain(0.0,0.0,1.0);
+  fit->Constrain(1.0,0.0,1.0);
+  fit->SetRangeX(lowBin,hiBin);
+
+  int status = fit->Fit();
+  double scale0, scale1, err0, err1;
+
+  if (status==0){
+    cout << "Fit Successful!" << endl;
+    fit->GetResult(0,scale0,err0);
+    fit->GetResult(1,scale1,err1);
+    cout << "Par 0: " << scale0 << " with error: " << err0 << endl;
+    cout << "Par 1: " << scale1 << " with error: " << err1 << endl;
+  }
+  else{
+    cout << "FIT FAILED. Exiting..." << endl;
+    return 6;
+  }
+
+  //scale factor by newly derived signal fraction.
+  scale0=scale0/sigFrac;
+  scale1=scale1/bkgFrac;
+  err0=err0/sigFrac;
+  err1=err1/bkgFrac;
+
+  //Parameters to maybe be used later to scale histograms that aren't the one in question. Necessary because of the initial scaling of the histo to the area normalization in the fit region.
+  double scale0_full=scale0*scale;
+  double scale1_full=scale1*scale;
+  double err0_full=err0*scale;
+  double err1_full=err1*scale;
+
+  TCanvas* c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
+  TPad* top = (TPad*)c1->GetPrimitive("Overlay");
+  c1->Print((TString)outDir+varName+"_preFit_POTScale.pdf");
+  c1->Print((TString)outDir+varName+"_preFit_POTScale.png");
+  top->SetLogy();
+  c1->Update();
+  c1->Print((TString)outDir+varName+"_preFit_POTScale_log.pdf");
+  c1->Print((TString)outDir+varName+"_preFit_POTScale_log.png");  
+  delete c1;
+
+  //Scaling to the area normalizaion
+  sigHist->Scale(scale);
+  bkgTotHist->Scale(scale);
+
+  c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
+  top = (TPad*)c1->GetPrimitive("Overlay");
+  c1->Print((TString)outDir+varName+"_preFit_areaScale.pdf");
+  c1->Print((TString)outDir+varName+"_preFit_areaScale.png");
+  top->SetLogy();
+  c1->Update();
+  c1->Print((TString)outDir+varName+"_preFit_areaScale_log.pdf");
+  c1->Print((TString)outDir+varName+"_preFit_areaScale_log.png");  
+  delete c1;
+
+  sigHist->Scale(1.0/scale);
+  bkgTotHist->Scale(1.0/scale);
+
+  sigHist->Scale(scale0);
+  bkgTotHist->Scale(scale1);
+
+  c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
+  top = (TPad*)c1->GetPrimitive("Overlay");
+  c1->Print((TString)outDir+varName+"_postFit_fitScaleONLY.pdf");
+  c1->Print((TString)outDir+varName+"_postFit_fitScaleONLY.png");
+  top->SetLogy();
+  c1->Update();
+  c1->Print((TString)outDir+varName+"_postFit_fitScaleONLY_log.pdf");
+  c1->Print((TString)outDir+varName+"_postFit_fitScaleONLY_log.png");  
+  delete c1;
+
+  sigHist->Scale(1.0/scale0);
+  bkgTotHist->Scale(1.0/scale1);
+
+  sigHist->Scale(scale0_full);
+  bkgTotHist->Scale(scale1_full);
+
+  c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
+  top = (TPad*)c1->GetPrimitive("Overlay");
+  c1->Print((TString)outDir+varName+"_postFit_fitAreaScale.pdf");
+  c1->Print((TString)outDir+varName+"_postFit_fitAreaScale.png");
+  top->SetLogy();
+  c1->Update();
+  c1->Print((TString)outDir+varName+"_postFit_fitAreaScale_log.pdf");
+  c1->Print((TString)outDir+varName+"_postFit_fitAreaScale_log.png");  
+  delete c1;
+
+  sigHist->Scale(1.0/scale0_full);
+  bkgTotHist->Scale(1.0/scale1_full);
+
+  c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
+  top = (TPad*)c1->GetPrimitive("Overlay");
+  c1->Print((TString)outDir+varName+"_checkScaling.pdf");
+  c1->Print((TString)outDir+varName+"_checkScaling.png");
+  top->SetLogy();
+  c1->Update();
+  c1->Print((TString)outDir+varName+"_checkScaling_log.pdf");
+  c1->Print((TString)outDir+varName+"_checkScaling_log.png");  
+  delete c1;
+
+  return 0;
+}
+
 bool PathExists(string path){
   struct stat buffer;
   return (stat (path.c_str(), &buffer) == 0);
@@ -233,159 +371,45 @@ int main(int argc, char* argv[]) {
   TParameter<double>* mcPOT = (TParameter<double>*)mcFile->Get("POTUsed");
   TParameter<double>* dataPOT = (TParameter<double>*)dataFile->Get("POTUsed");
 
+  std::vector<TString> tags = {"_PreRecoilCut","_bin_lost"};
+  for (int iBin=0; iBin < 14; ++iBin){
+    TString tag = "_bin_"+to_string(iBin);
+    //cout << tag << endl;
+    tags.push_back(tag);
+  }
+
   double POTscale = dataPOT->GetVal()/mcPOT->GetVal();
   //cout << "POT scale factor: " << scale << endl;
   
-  TString varName = "recoilE_PreRecoilCut";
+  TString varName = "recoilE";
 
-  MnvH1D* dataHist = (MnvH1D*)(dataFile->Get(varName+"_data"))->Clone();
-  MnvH1D* sigHist = (MnvH1D*)(mcFile->Get(varName+"_selected_signal_reco"))->Clone();
-  MnvH1D* chargePiHist = (MnvH1D*)(mcFile->Get(varName+"_background_1chargePi"))->Clone();
-  MnvH1D* neutPiHist = (MnvH1D*)(mcFile->Get(varName+"_background_1neutPi"))->Clone();
-  MnvH1D* NPiHist = (MnvH1D*)(mcFile->Get(varName+"_background_NPi"))->Clone();
-  MnvH1D* otherHist = (MnvH1D*)(mcFile->Get(varName+"_background_Other"))->Clone();
+  for (int iTag=0; iTag < tags.size(); ++iTag){
 
-  MnvH1D* bkgTotHist = chargePiHist->Clone();
-  bkgTotHist->Add(neutPiHist);
-  bkgTotHist->Add(NPiHist);
-  bkgTotHist->Add(otherHist);
+    TString tag = tags.at(iTag);
+    TString name = varName+tag;
 
-  sigHist->Scale(POTscale);
-  bkgTotHist->Scale(POTscale);
+    cout << "Performing Fitting and Scaling for: " << name << endl;
 
-  MnvH1D* mcTotHist = bkgTotHist->Clone();
-  mcTotHist->Add(sigHist);
+    MnvH1D* dataHist = (MnvH1D*)(dataFile->Get(name+"_data"))->Clone();
+    MnvH1D* sigHist = (MnvH1D*)(mcFile->Get(name+"_selected_signal_reco"))->Clone();
+    MnvH1D* chargePiHist = (MnvH1D*)(mcFile->Get(name+"_background_1chargePi"))->Clone();
+    MnvH1D* neutPiHist = (MnvH1D*)(mcFile->Get(name+"_background_1neutPi"))->Clone();
+    MnvH1D* NPiHist = (MnvH1D*)(mcFile->Get(name+"_background_NPi"))->Clone();
+    MnvH1D* otherHist = (MnvH1D*)(mcFile->Get(name+"_background_Other"))->Clone();
 
-  TH1D* hData = (TH1D*)dataHist->GetCVHistoWithStatError().Clone();
-  TH1D* hMC = (TH1D*)mcTotHist->GetCVHistoWithStatError().Clone();
-  TH1D* hSig = (TH1D*)sigHist->GetCVHistoWithStatError().Clone();
-  TH1D* hBKG = (TH1D*)bkgTotHist->GetCVHistoWithStatError().Clone();
+    MnvH1D* bkgTotHist = chargePiHist->Clone();
+    bkgTotHist->Add(neutPiHist);
+    bkgTotHist->Add(NPiHist);
+    bkgTotHist->Add(otherHist);
+    
+    sigHist->Scale(POTscale);
+    bkgTotHist->Scale(POTscale);
 
-  double dataInt = hData->Integral(lowBin,hiBin);
-  double mcInt = hMC->Integral(lowBin,hiBin);
-  double sigInt = hSig->Integral(lowBin,hiBin);
-  double bkgInt = hBKG->Integral(lowBin,hiBin);
-
-  double sigFrac = sigInt/mcInt;
-  double bkgFrac = bkgInt/mcInt;
-
-  cout << "Initial Sig Frac." << sigFrac << endl;
-
-  double scale = dataInt/mcInt;
-  hMC->Scale(scale);
-  hSig->Scale(scale);
-  hBKG->Scale(scale);
-  
-  TObjArray* mcList = new TObjArray(2);
-  mcList->Add(hSig);
-  mcList->Add(hBKG);
-
-  TFractionFitter* fit = new TFractionFitter(hData,mcList,"V");
-  /* Unclear how to translate into c++ code... very confused since I see this used elsewhere as well... outdated root thing maybe?
-  TVirtualFitter* vFit = fit->GetFitter();
-  vFit->Config().ParSettings(0).Set("sig", sigFrac, binWidth, 0.0, 1.0);
-  vFit->Config().ParSettings(1).Set("bkg", bkgFrac, binWidth, 0.0, 1.0);
-  */
-  //This constraint requires one to area normalize the totalMChist to the dataHist.
-  fit->Constrain(0.0,0.0,1.0);
-  fit->Constrain(1.0,0.0,1.0);
-  fit->SetRangeX(lowBin,hiBin);
-
-  int status = fit->Fit();
-  double scale0, scale1, err0, err1;
-
-  if (status==0){
-    cout << "Fit Successful!" << endl;
-    fit->GetResult(0,scale0,err0);
-    fit->GetResult(1,scale1,err1);
-    cout << "Par 0: " << scale0 << " with error: " << err0 << endl;
-    cout << "Par 1: " << scale1 << " with error: " << err1 << endl;
+    int result = FitAndDraw(dataHist, sigHist, bkgTotHist, name, outDir, lowBin, hiBin);
+    if (result != 0){
+      return result;
+    }
   }
-  else{
-    cout << "FIT FAILED. Exiting..." << endl;
-    return 6;
-  }
-
-  //scale factor by newly derived signal fraction.
-  scale0=scale0/sigFrac;
-  scale1=scale1/bkgFrac;
-  err0=err0/sigFrac;
-  err1=err1/bkgFrac;
-
-  //Parameters to maybe be used later to scale histograms that aren't the one in question. Necessary because of the initial scaling of the histo to the area normalization in the fit region.
-  double scale0_full=scale0*scale;
-  double scale1_full=scale1*scale;
-  double err0_full=err0*scale;
-  double err1_full=err1*scale;
-
-  TCanvas* c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
-  TPad* top = (TPad*)c1->GetPrimitive("Overlay");
-  c1->Print((TString)outDir+"recoilE_preFit_POTScale.pdf");
-  c1->Print((TString)outDir+"recoilE_preFit_POTScale.png");
-  top->SetLogy();
-  c1->Update();
-  c1->Print((TString)outDir+"recoilE_preFit_POTScale_log.pdf");
-  c1->Print((TString)outDir+"recoilE_preFit_POTScale_log.png");  
-  delete c1;
-
-  //Scaling to the area normalizaion
-  sigHist->Scale(scale);
-  bkgTotHist->Scale(scale);
-
-  c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
-  top = (TPad*)c1->GetPrimitive("Overlay");
-  c1->Print((TString)outDir+"recoilE_preFit_areaScale.pdf");
-  c1->Print((TString)outDir+"recoilE_preFit_areaScale.png");
-  top->SetLogy();
-  c1->Update();
-  c1->Print((TString)outDir+"recoilE_preFit_areaScale_log.pdf");
-  c1->Print((TString)outDir+"recoilE_preFit_areaScale_log.png");  
-  delete c1;
-
-  sigHist->Scale(1.0/scale);
-  bkgTotHist->Scale(1.0/scale);
-
-  sigHist->Scale(scale0);
-  bkgTotHist->Scale(scale1);
-
-  c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
-  top = (TPad*)c1->GetPrimitive("Overlay");
-  c1->Print((TString)outDir+"recoilE_postFit_fitScaleONLY.pdf");
-  c1->Print((TString)outDir+"recoilE_postFit_fitScaleONLY.png");
-  top->SetLogy();
-  c1->Update();
-  c1->Print((TString)outDir+"recoilE_postFit_fitScaleONLY_log.pdf");
-  c1->Print((TString)outDir+"recoilE_postFit_fitScaleONLY_log.png");  
-  delete c1;
-
-  sigHist->Scale(1.0/scale0);
-  bkgTotHist->Scale(1.0/scale1);
-
-  sigHist->Scale(scale0_full);
-  bkgTotHist->Scale(scale1_full);
-
-  c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
-  top = (TPad*)c1->GetPrimitive("Overlay");
-  c1->Print((TString)outDir+"recoilE_postFit_fitAreaScale.pdf");
-  c1->Print((TString)outDir+"recoilE_postFit_fitAreaScale.png");
-  top->SetLogy();
-  c1->Update();
-  c1->Print((TString)outDir+"recoilE_postFit_fitAreaScale_log.pdf");
-  c1->Print((TString)outDir+"recoilE_postFit_fitAreaScale_log.png");  
-  delete c1;
-
-  sigHist->Scale(1.0/scale0_full);
-  bkgTotHist->Scale(1.0/scale1_full);
-
-  c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
-  top = (TPad*)c1->GetPrimitive("Overlay");
-  c1->Print((TString)outDir+"recoilE_checkScaling.pdf");
-  c1->Print((TString)outDir+"recoilE_checkScaling.png");
-  top->SetLogy();
-  c1->Update();
-  c1->Print((TString)outDir+"recoilE_checkScaling_log.pdf");
-  c1->Print((TString)outDir+"recoilE_checkScaling_log.png");  
-  delete c1;
 
   cout << "Closing Files... Does this solve the issue of seg fault." << endl;
   mcFile->Close();
