@@ -638,6 +638,7 @@ int main(const int argc, const char** argv)
   std::vector<Variable2D*> vars2D = {
     new Variable2D(*vars[4],*vars[3]),//recoil v. Q2
   };
+
   if(doCCQENuValidation)
   {
     std::cerr << "Detected that tree name is CCQENu.  Making validation histograms.\n";

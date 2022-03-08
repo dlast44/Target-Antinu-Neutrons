@@ -6,6 +6,7 @@
 #include "util/NeutronVariable.h"
 #include "util/EventVariable.h"
 #include "util/Variable.h"
+#include "util/Variable2D.h"
 #include "util/GetBackgroundID.h"
 #include "event/CVUniverse.h"
 
@@ -13,6 +14,7 @@ class RecoilSB: public Study
 {
   private:
     std::vector<Variable*> fVars;
+    std::vector<Variable2D*> fVars2D;
     std::map<int,Variable*> fRecoilBinned;
     bool fSplitRecoil;
 
@@ -22,15 +24,16 @@ class RecoilSB: public Study
 		     std::map<std::string, std::vector<CVUniverse*>>& truth_error_bands,
 	     std::vector<CVUniverse*>& data_error_bands, bool splitRecoil): Study(), fSplitRecoil(splitRecoil)
     {
-      //Constructing recoil variable in bins of pt/pz. Just make a map of it all.
-      std::vector<double> myRecoilBins;
-      const double myRecoilBinWidth = 1.0/50.;
-      for(int whichBin = 0; whichBin < 51; ++whichBin) myRecoilBins.push_back(myRecoilBinWidth * whichBin);
-
-      int nBins = 14;//Hard-coded from bins from Amit's analysis... Not appropriate binning given my cuts, but going to get the structure going first.
-      int lowBin = -1;//Default return value. hard-coded as well.
 
       if (fSplitRecoil){
+	//Constructing recoil variable in bins of pt/pz. Just make a map of it all.
+	std::vector<double> myRecoilBins;
+	const double myRecoilBinWidth = 1.0/50.;
+	for(int whichBin = 0; whichBin < 51; ++whichBin) myRecoilBins.push_back(myRecoilBinWidth * whichBin);
+
+	int nBins = 14;//Hard-coded from bins from Amit's analysis... Not appropriate binning given my cuts, but going to get the structure going first.
+	int lowBin = -1;//Default return value. hard-coded as well.
+
 	for (int iBin=lowBin; iBin < nBins; ++iBin){
 	  std::string binName = std::to_string(iBin);
 	  if (iBin == lowBin) binName = "lost";
@@ -44,8 +47,15 @@ class RecoilSB: public Study
 	fVars.push_back(new Variable((var->GetName()+"_PreRecoilCut").c_str(), var->GetAxisLabel(), var->GetBinVec(),var->GetRecoFunc(),var->GetTrueFunc()));
       }
 
+      fVars2D = {
+	new Variable2D(*fVars[4],*fVars[3]),//recoil v. Q2     
+      };
+
       for(auto& var: fVars) var->InitializeMCHists(mc_error_bands, truth_error_bands);
       for(auto& var: fVars) var->InitializeDATAHists(data_error_bands);
+
+      for(auto& var: fVars2D) var->InitializeMCHists(mc_error_bands, truth_error_bands);
+      for(auto& var: fVars2D) var->InitializeDATAHists(data_error_bands);
     }
 
     void SaveOrDraw(TDirectory& outDir){
@@ -56,6 +66,7 @@ class RecoilSB: public Study
     {
       for (auto& recoil : fRecoilBinned) recoil.second->WriteMC(outFile);
       for (auto& var : fVars) var->WriteMC(outFile);
+      for (auto& var : fVars2D) var->Write(outFile);
     }
 
     void SaveOrDrawData(TFile& outFile)
@@ -91,6 +102,14 @@ class RecoilSB: public Study
 	    (*var->m_SigTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(univ), weight);
 	    (*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(univ), weight);
 	  }
+
+	  for (auto& var: fVars2D){
+	    var->selectedMCReco->FillUniverse(&univ, var->GetRecoValueX(univ), var->GetRecoValueY(univ), weight); //"Fake data" for closure
+	    var->selectedSignalReco->FillUniverse(&univ, var->GetRecoValueX(univ), var->GetRecoValueY(univ), weight);
+	    (*var->m_SigIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValueX(univ), var->GetRecoValueY(univ), weight);
+	    (*var->m_SigTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValueX(univ), var->GetRecoValueY(univ), weight);
+	    (*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValueX(univ), var->GetRecoValueY(univ), weight);
+	  }
 	}
 	
 	else{
@@ -112,6 +131,14 @@ class RecoilSB: public Study
 	    (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValue(univ), weight);
 	    (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValue(univ), weight);
 	  }
+
+	  for(auto& var: fVars2D){
+	    var->selectedMCReco->FillUniverse(&univ, var->GetRecoValueX(univ), var->GetRecoValueY(univ), weight); //"Fake data" for closure
+	    (*var->m_backgroundHists)[bkgd_ID].FillUniverse(&univ, var->GetRecoValueX(univ), var->GetRecoValueY(univ), weight);
+	    (*var->m_BkgIntTypeHists)[intType].FillUniverse(&univ, var->GetRecoValueX(univ), var->GetRecoValueY(univ), weight);
+	    (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(&univ, var->GetRecoValueX(univ), var->GetRecoValueY(univ), weight);
+	    (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(&univ, var->GetRecoValueX(univ), var->GetRecoValueY(univ), weight);
+	  }
 	}
       }
       
@@ -120,6 +147,10 @@ class RecoilSB: public Study
 
 	for (auto& var : fVars){
 	  var->dataHist->FillUniverse(&univ, var->GetRecoValue(univ), 1);
+	}
+
+	for (auto& var : fVars2D){
+	  var->dataHist->FillUniverse(&univ, var->GetRecoValueX(univ), var->GetRecoValueY(univ), 1);
 	}
       }
       return;
