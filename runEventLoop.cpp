@@ -426,6 +426,7 @@ int main(const int argc, const char** argv)
   TString nameExt = ".root";
 
   bool doNeutronCuts = true;
+  bool splitRecoil = false;
   double neutKESig = 10.0;
 
   if (argc > nArgsMandatory + 1){
@@ -437,6 +438,7 @@ int main(const int argc, const char** argv)
   }
 
   if (doNeutronCuts) nameExt = "_wNeutCuts_neutKE_"+std::to_string(neutKESig)+nameExt;
+  else splitRecoil = true;
  
   if (tuneVer != "1" && tuneVer != "2"){
     std::cerr << "Must choose between 1 and 2 for the <MnvTune_v> argument. Check usage printed below. \n" << USAGE << "\n";
@@ -636,8 +638,8 @@ int main(const int argc, const char** argv)
   std::vector<Study*> studies = {
     //new EMSideBands(vars, error_bands, truth_bands, data_band),
     //new MichelAndNBlobSB(vars, error_bands, truth_bands, data_band),
-    new NeutronVariables(maxZ, minZ, error_bands, truth_bands, data_band),
-    new RecoilSB(vars, error_bands, truth_bands, data_band),
+    //new NeutronVariables(maxZ, minZ, error_bands, truth_bands, data_band),
+    new RecoilSB(vars, error_bands, truth_bands, data_band, splitRecoil),
   };
 
   for(auto& var: vars) var->InitializeMCHists(error_bands, truth_bands);
