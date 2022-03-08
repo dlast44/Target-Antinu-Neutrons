@@ -192,6 +192,8 @@ void LoopAndFillEventSelection(
 
         for(auto& var: vars) var->selectedMCReco->FillUniverse(universe, var->GetRecoValue(*universe), weight); //"Fake data" for closure
 
+	for(auto& var: vars2D) var->selectedMCReco->FillUniverse(universe, var->GetRecoValueX(*universe), var->GetRecoValueY(*universe), weight); //"Fake data" for closure
+
         if(isSignal)
         {
           //for(auto& study: studies) study->SelectedSignal(*universe, myevent, weight);
@@ -211,9 +213,19 @@ void LoopAndFillEventSelection(
 
           for(auto& var: vars2D)
           {
+            //Cross section components
             var->efficiencyNumerator->FillUniverse(universe, var->GetTrueValueX(*universe), var->GetTrueValueY(*universe), weight);
+            var->selectedSignalReco->FillUniverse(universe, var->GetRecoValueX(*universe), var->GetRecoValueY(*universe), weight);; //Efficiency numerator in reco variables.  Useful for warping studies.
+
+	    //Various breakdowns of selected signal reco
+	    (*var->m_SigIntTypeHists)[intType].FillUniverse(universe, var->GetRecoValueX(*universe), var->GetRecoValueY(*universe), weight);;
+	    (*var->m_SigTargetTypeHists)[tgtType].FillUniverse(universe, var->GetRecoValueX(*universe), var->GetRecoValueY(*universe), weight);;
+	    (*var->m_SigLeadBlobTypeHists)[leadBlobType].FillUniverse(universe, var->GetRecoValueX(*universe), var->GetRecoValueY(*universe), weight);
+
+            //var->efficiencyNumerator->FillUniverse(universe, var->GetTrueValueX(*universe), var->GetTrueValueY(*universe), weight);
           }
         }
+
         else
         {
           int bkgd_ID = -1;
@@ -228,7 +240,14 @@ void LoopAndFillEventSelection(
 	    (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
 	    (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(universe, var->GetRecoValue(*universe), weight);
 	  }
-          for(auto& var: vars2D) (*var->m_backgroundHists)[bkgd_ID].FillUniverse(universe, var->GetRecoValueX(*universe), var->GetRecoValueY(*universe), weight);
+
+          for(auto& var: vars2D){
+	    (*var->m_backgroundHists)[bkgd_ID].FillUniverse(universe, var->GetRecoValueX(*universe), var->GetRecoValueY(*universe), weight);
+	    //Various breakdowns of selected backgrounds
+	    (*var->m_BkgIntTypeHists)[intType].FillUniverse(universe, var->GetRecoValueX(*universe), var->GetRecoValueY(*universe), weight);
+	    (*var->m_BkgTargetTypeHists)[tgtType].FillUniverse(universe, var->GetRecoValueX(*universe), var->GetRecoValueY(*universe), weight);
+	    (*var->m_BkgLeadBlobTypeHists)[leadBlobType].FillUniverse(universe, var->GetRecoValueX(*universe), var->GetRecoValueY(*universe), weight);
+	  }
         }
       } // End band's universe loop
     } // End Band loop
@@ -617,7 +636,7 @@ int main(const int argc, const char** argv)
   };
 
   std::vector<Variable2D*> vars2D = {
-  //new Variable2D(*vars[3],*vars[4]),//recoil v. Q2
+    new Variable2D(*vars[4],*vars[3]),//recoil v. Q2
   };
   if(doCCQENuValidation)
   {
