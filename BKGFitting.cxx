@@ -305,7 +305,7 @@ int main(int argc, char* argv[]) {
   string outDir = string(argv[3]);
 
   //int lowBin = 11;//For 200 MeV for the neutron sample.
-  int lowBin = 6;//For 200 MeV for the neutron sample.
+  int lowBin = 6;//For 100 MeV for the no neutron sample.
   int hiBin = 25;
   double binWidth = 20.0;//hard-coded from the recoil variable for now.
   if (argc > 4) lowBin = atoi(argv[4]);
