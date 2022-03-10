@@ -186,6 +186,20 @@ void LoopAndFillEventSelection(
 
 	int leadBlobType = myevent.GetLeadingNeutCand().GetPDGBin();
 
+	/*
+	if ((TString)(universe->ShortName()) == "cv"){
+	  std::cout << "Event in MC CV: " << universe->GetDouble("eventID") << std::endl;
+	  if (SBStat.all()) std::cout << "Selected" << std::endl;
+	  else std::cout << "NOT Selected" << std::endl;
+	  std::cout << "Int Type: " << intType << std::endl;
+	  std::cout << "Lead Blob Type: " << leadBlobType << std::endl;
+	  if (isSignal) std::cout << "Is Signal with lead true neutron KE: " << myevent.GetMaxFSNeutronKE() << std::endl;
+	  else std::cout << "Is Not Signal w/ bkgd. ID: " << util::GetBackgroundID(*universe) << std::endl;
+	  for (auto& var:vars) std::cout << "Var " << var->GetName() << ": " << var->GetRecoValue(*universe) << std::endl;
+	  std::cout << "" << std::endl;
+	}
+	*/
+
 	for(auto& study: studies) study->Selected(*universe, myevent, weight);
 
 	if (!SBStat.all()) continue;
@@ -276,6 +290,18 @@ void LoopAndFillData( PlotUtils::ChainWrapper* data,
       myevent.SetSideBandStat(SBStat);
 
       if (SBStat.none()) continue;
+
+      std::cout << std::setprecision(16);
+
+      /*
+      if ((TString)(universe->ShortName()) == "cv"){
+	std::cout << "Event in Data CV: " << universe->GetDouble("eventID") << std::endl;
+	if (SBStat.all()) std::cout << "Selected" << std::endl;
+	else std::cout << "NOT Selected" << std::endl;
+	for (auto& var:vars) std::cout << "Var " << var->GetName() << ": " << var->GetRecoValue(*universe) << std::endl;
+	std::cout << "" << std::endl;
+      }
+      */
 
       myevent.SetBinPTPZ(universe->GetPTPZBin());
 
