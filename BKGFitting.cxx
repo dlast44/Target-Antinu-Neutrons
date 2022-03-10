@@ -2,7 +2,7 @@
 //Info: This script is intended to fit recoil plots using TFractionFitter
 //The following is lifted/translated from git repo MinervaExpt/CCQENu/make_hists/nhv/bkgfitting/FractionFitTest.py
 //
-//Usage: BKGFitting <mc_file> <data_file> <outdir> optional: <lowFitBinNum> <hiFitBinNum> TODO: Save the information beyond just printing it out
+//Usage: BKGFitting <mc_file> <data_file> <outdir> <do fits in bins of muon momentum (only 0 means no)> optional: <lowFitBinNum> <hiFitBinNum> TODO: Save the information beyond just printing it out
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //TODO: Same SegFault Business From My Plotting Code... I'm assuming I just need to delete things carefully that I'm not yet.
@@ -55,8 +55,12 @@
 using namespace std;
 using namespace PlotUtils;
 
-//TCanvas* DrawRatioFromTH1Ds maybe?
+bool PathExists(string path){
+  struct stat buffer;
+  return (stat (path.c_str(), &buffer) == 0);
+}
 
+//TCanvas* DrawRatioFromTH1Ds maybe?
 TCanvas* DrawRatioFromMnvH1Ds(MnvH1D* h_data, MnvH1D* h_sig, MnvH1D* h_bkg){
 
   MnvH1D* mcSum = (MnvH1D*)h_sig->Clone();
@@ -143,25 +147,33 @@ TCanvas* DrawRatioFromMnvH1Ds(MnvH1D* h_data, MnvH1D* h_sig, MnvH1D* h_bkg){
   return c1;
 }
 
-int FitAndDraw(MnvH1D* dataHist, MnvH1D* sigHist, MnvH1D* bkgTotHist, TString varName, TString outDir, int lowBin, int hiBin){
+int FitAndDraw0(MnvH1D* dataHist, MnvH1D* sigHist, MnvH1D* bkgTotHist, TString varName, TString outDir, int lowBin, int hiBin){
+  TString name = varName+"_low_"+(TString)(to_string(lowBin))+"_hi_"+(TString)(to_string(hiBin));
+
+  if (PathExists((string)(outDir+name+"_postFit_fitScaleONLY.pdf"))){
+    cout << "Already performed fits over this range for this histo." << endl;
+    cout << "If you are doing this because of updated histos, it is in your best interest to save this elsewhere or remove the old plots." << endl;
+    return 6;
+  }
+
   MnvH1D* mcTotHist = bkgTotHist->Clone();
   mcTotHist->Add(sigHist);
-
+  
   TH1D* hData = (TH1D*)dataHist->GetCVHistoWithStatError().Clone();
   TH1D* hMC = (TH1D*)mcTotHist->GetCVHistoWithStatError().Clone();
   TH1D* hSig = (TH1D*)sigHist->GetCVHistoWithStatError().Clone();
   TH1D* hBKG = (TH1D*)bkgTotHist->GetCVHistoWithStatError().Clone();
-
+  
   double dataInt = hData->Integral(lowBin,hiBin);
   double mcInt = hMC->Integral(lowBin,hiBin);
   double sigInt = hSig->Integral(lowBin,hiBin);
   double bkgInt = hBKG->Integral(lowBin,hiBin);
-
+  
   double sigFrac = sigInt/mcInt;
   double bkgFrac = bkgInt/mcInt;
-
+  
   cout << "Initial Sig Frac." << sigFrac << endl;
-
+  
   double scale = dataInt/mcInt;
   hMC->Scale(scale);
   hSig->Scale(scale);
@@ -170,7 +182,7 @@ int FitAndDraw(MnvH1D* dataHist, MnvH1D* sigHist, MnvH1D* bkgTotHist, TString va
   TObjArray* mcList = new TObjArray(2);
   mcList->Add(hSig);
   mcList->Add(hBKG);
-
+  
   TFractionFitter* fit = new TFractionFitter(hData,mcList,"V");
   /* Unclear how to translate into c++ code... very confused since I see this used elsewhere as well... outdated root thing maybe?
   TVirtualFitter* vFit = fit->GetFitter();
@@ -194,7 +206,7 @@ int FitAndDraw(MnvH1D* dataHist, MnvH1D* sigHist, MnvH1D* bkgTotHist, TString va
   }
   else{
     cout << "FIT FAILED. Exiting..." << endl;
-    return 6;
+    return 7;
   }
 
   //scale factor by newly derived signal fraction.
@@ -209,44 +221,49 @@ int FitAndDraw(MnvH1D* dataHist, MnvH1D* sigHist, MnvH1D* bkgTotHist, TString va
   double err0_full=err0*scale;
   double err1_full=err1*scale;
 
-  TCanvas* c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
-  TPad* top = (TPad*)c1->GetPrimitive("Overlay");
-  c1->Print((TString)outDir+varName+"_preFit_POTScale.pdf");
-  c1->Print((TString)outDir+varName+"_preFit_POTScale.png");
-  top->SetLogy();
-  c1->Update();
-  c1->Print((TString)outDir+varName+"_preFit_POTScale_log.pdf");
-  c1->Print((TString)outDir+varName+"_preFit_POTScale_log.png");  
-  delete c1;
+  //TODO: ONLY DRAW THE PREFIT IF IT HASN'T BEEN DONE ALREADY.
+  if (!PathExists((string)(outDir+varName+"_preFit_POTScale.pdf"))){
+    TCanvas* c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
+    TPad* top = (TPad*)c1->GetPrimitive("Overlay");
+    c1->Print(outDir+varName+"_preFit_POTScale.pdf");
+    c1->Print(outDir+varName+"_preFit_POTScale.png");
+    top->SetLogy();
+    c1->Update();
+    c1->Print(outDir+varName+"_preFit_POTScale_log.pdf");
+    c1->Print(outDir+varName+"_preFit_POTScale_log.png");  
+    delete c1;
+  }
+    
+  if (!PathExists((string)(outDir+varName+"_preFit_areaScale.pdf"))){
+    //Scaling to the area normalizaion
+    sigHist->Scale(scale);
+    bkgTotHist->Scale(scale);
 
-  //Scaling to the area normalizaion
-  sigHist->Scale(scale);
-  bkgTotHist->Scale(scale);
-
-  c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
-  top = (TPad*)c1->GetPrimitive("Overlay");
-  c1->Print((TString)outDir+varName+"_preFit_areaScale.pdf");
-  c1->Print((TString)outDir+varName+"_preFit_areaScale.png");
-  top->SetLogy();
-  c1->Update();
-  c1->Print((TString)outDir+varName+"_preFit_areaScale_log.pdf");
-  c1->Print((TString)outDir+varName+"_preFit_areaScale_log.png");  
-  delete c1;
-
-  sigHist->Scale(1.0/scale);
-  bkgTotHist->Scale(1.0/scale);
+    TCanvas* c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
+    TPad* top = (TPad*)c1->GetPrimitive("Overlay");
+    c1->Print(outDir+varName+"_preFit_areaScale.pdf");
+    c1->Print(outDir+varName+"_preFit_areaScale.png");
+    top->SetLogy();
+    c1->Update();
+    c1->Print(outDir+varName+"_preFit_areaScale_log.pdf");
+    c1->Print(outDir+varName+"_preFit_areaScale_log.png");  
+    delete c1;
+  
+    sigHist->Scale(1.0/scale);
+    bkgTotHist->Scale(1.0/scale);
+  }
 
   sigHist->Scale(scale0);
   bkgTotHist->Scale(scale1);
 
-  c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
-  top = (TPad*)c1->GetPrimitive("Overlay");
-  c1->Print((TString)outDir+varName+"_postFit_fitScaleONLY.pdf");
-  c1->Print((TString)outDir+varName+"_postFit_fitScaleONLY.png");
+  TCanvas* c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
+  TPad* top = (TPad*)c1->GetPrimitive("Overlay");
+  c1->Print(outDir+name+"_postFit_fitScaleONLY.pdf");
+  c1->Print(outDir+name+"_postFit_fitScaleONLY.png");
   top->SetLogy();
   c1->Update();
-  c1->Print((TString)outDir+varName+"_postFit_fitScaleONLY_log.pdf");
-  c1->Print((TString)outDir+varName+"_postFit_fitScaleONLY_log.png");  
+  c1->Print(outDir+name+"_postFit_fitScaleONLY_log.pdf");
+  c1->Print(outDir+name+"_postFit_fitScaleONLY_log.png");  
   delete c1;
 
   sigHist->Scale(1.0/scale0);
@@ -257,33 +274,30 @@ int FitAndDraw(MnvH1D* dataHist, MnvH1D* sigHist, MnvH1D* bkgTotHist, TString va
 
   c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
   top = (TPad*)c1->GetPrimitive("Overlay");
-  c1->Print((TString)outDir+varName+"_postFit_fitAreaScale.pdf");
-  c1->Print((TString)outDir+varName+"_postFit_fitAreaScale.png");
+  c1->Print(outDir+name+"_postFit_fitAreaScale.pdf");
+  c1->Print(outDir+name+"_postFit_fitAreaScale.png");
   top->SetLogy();
   c1->Update();
-  c1->Print((TString)outDir+varName+"_postFit_fitAreaScale_log.pdf");
-  c1->Print((TString)outDir+varName+"_postFit_fitAreaScale_log.png");  
+  c1->Print(outDir+name+"_postFit_fitAreaScale_log.pdf");
+  c1->Print(outDir+name+"_postFit_fitAreaScale_log.png");  
   delete c1;
 
+  /*
   sigHist->Scale(1.0/scale0_full);
   bkgTotHist->Scale(1.0/scale1_full);
 
   c1 = DrawRatioFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
   top = (TPad*)c1->GetPrimitive("Overlay");
-  c1->Print((TString)outDir+varName+"_checkScaling.pdf");
-  c1->Print((TString)outDir+varName+"_checkScaling.png");
+  c1->Print(outDir+varName+"_checkScaling.pdf");
+  c1->Print(outDir+varName+"_checkScaling.png");
   top->SetLogy();
   c1->Update();
-  c1->Print((TString)outDir+varName+"_checkScaling_log.pdf");
-  c1->Print((TString)outDir+varName+"_checkScaling_log.png");  
+  c1->Print(outDir+varName+"_checkScaling_log.pdf");
+  c1->Print(outDir+varName+"_checkScaling_log.png");  
   delete c1;
+  */
 
   return 0;
-}
-
-bool PathExists(string path){
-  struct stat buffer;
-  return (stat (path.c_str(), &buffer) == 0);
 }
 
 int main(int argc, char* argv[]) {
@@ -295,7 +309,7 @@ int main(int argc, char* argv[]) {
   #endif
 
   //Pass an input file name to this script now
-  if (argc < 4 || argc > 6) {
+  if (argc < 5 || argc > 7) {
     cout << "Check usage..." << endl;
     return 2;
   }
@@ -303,13 +317,19 @@ int main(int argc, char* argv[]) {
   string MCfileName = string(argv[1]);
   string DATAfileName = string(argv[2]);
   string outDir = string(argv[3]);
+  int fitMuonBins = atoi(argv[4]);
 
   //int lowBin = 11;//For 200 MeV for the neutron sample.
   int lowBin = 6;//For 100 MeV for the no neutron sample.
   int hiBin = 25;
-  double binWidth = 20.0;//hard-coded from the recoil variable for now.
-  if (argc > 4) lowBin = atoi(argv[4]);
-  if (argc > 5) hiBin = atoi(argv[5]);
+  int binWidth = 20;//hard-coded from the recoil variable for now.
+  if (argc > 5) lowBin = atoi(argv[5])/binWidth + 1;//Will truncate to the lower value of the bin this energy falls into.
+  if (argc > 6) hiBin = atoi(argv[6])/binWidth;//Truncates to the lower value of the bin this energy falls into... Is the high bin inclusive in the fit or exclusive? I'm treating as inclusive so no "+1".
+
+  if (hiBin > 50){
+    cout << "Fit can only extend to 1 GeV recoil energy. Forcing that value now." << endl;
+    hiBin=50;
+  }
 
   string rootExt = ".root";
   string slash = "/";
@@ -324,7 +344,6 @@ int main(int argc, char* argv[]) {
     cout << "Output directory doesn't exist. Exiting" << endl;
     return 3;
   }
-
 
   //cout << sigNameStub << endl;
   while ((pos = fileNameStub.find(slash)) != string::npos){
@@ -371,11 +390,14 @@ int main(int argc, char* argv[]) {
   TParameter<double>* mcPOT = (TParameter<double>*)mcFile->Get("POTUsed");
   TParameter<double>* dataPOT = (TParameter<double>*)dataFile->Get("POTUsed");
 
-  std::vector<TString> tags = {"_PreRecoilCut","_bin_lost"};
-  for (int iBin=0; iBin < 14; ++iBin){
-    TString tag = "_bin_"+to_string(iBin);
-    //cout << tag << endl;
-    tags.push_back(tag);
+  std::vector<TString> tags = {"_PreRecoilCut"};
+  if (fitMuonBins){
+    tags.push_back((TString)("_bin_lost"));
+    for (int iBin=0; iBin < 14; ++iBin){
+      TString tag = "_bin_"+to_string(iBin);
+      //cout << tag << endl;
+      tags.push_back(tag);
+    }
   }
 
   double POTscale = dataPOT->GetVal()/mcPOT->GetVal();
@@ -405,7 +427,7 @@ int main(int argc, char* argv[]) {
     sigHist->Scale(POTscale);
     bkgTotHist->Scale(POTscale);
 
-    int result = FitAndDraw(dataHist, sigHist, bkgTotHist, name, outDir, lowBin, hiBin);
+    int result = FitAndDraw0(dataHist, sigHist, bkgTotHist, name, outDir, lowBin, hiBin);
     if (result != 0){
       return result;
     }
