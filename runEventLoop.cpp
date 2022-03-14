@@ -620,6 +620,7 @@ int main(const int argc, const char** argv)
 		      nBlobsBins,
 		      n5Bins,
 		      myRecoilBins,
+		      myRecoilQ2Bins,
 		      myPmuBins,
 		      myVtxZBins//,
 		      //myBlobEBins
@@ -636,6 +637,9 @@ int main(const int argc, const char** argv)
 
   const double myRecoilBinWidth = 1.0/50.;
   for(int whichBin = 0; whichBin < 51; ++whichBin) myRecoilBins.push_back(myRecoilBinWidth * whichBin);
+
+  const double myRecoilQ2BinWidth = 1.0;
+  for(int whichBin = 0; whichBin < 15*50+1; ++whichBin) myRecoilQ2Bins.push_back(myRecoilQ2BinWidth * whichBin);
 
   const double myPmuBinWidth = 0.5;
   for(int whichBin = 0; whichBin < 41; ++whichBin) myPmuBins.push_back(myPmuBinWidth * whichBin);
@@ -659,10 +663,12 @@ int main(const int argc, const char** argv)
     new Variable("nTrack","No.", n5Bins, &CVUniverse::GetNTracks),
     new Variable("pmu", "p_{#mu} [GeV/c]", myPmuBins, &CVUniverse::GetMuonP, &CVUniverse::GetMuonPTrue),//Don't need GetDummyTrue perhaps...
     new Variable("vtxZ", "Z [mm]", myVtxZBins, &CVUniverse::GetVtxZ),//Don't need GetDummyTrue perhaps...
+    new Variable("recQ2Bin","No.",myRecoilQ2Bins, &CVUniverse::GetRecoilQ2Bin),
   };
 
   std::vector<Variable2D*> vars2D = {
     new Variable2D(*vars[4],*vars[3]),//recoil v. Q2
+    new Variable2D(*vars[vars.size()-1],*vars[0]),//pT v. recoilQ2Bin
   };
 
   if(doCCQENuValidation)

@@ -49,6 +49,7 @@ class RecoilSB: public Study
 
       fVars2D = {
 	new Variable2D(*fVars[4],*fVars[3]),//recoil v. Q2     
+	new Variable2D(*fVars[fVars.size()-1],*fVars[0]),//pT v. recoilQ2Bin     
       };
 
       for(auto& var: fVars) var->InitializeMCHists(mc_error_bands, truth_error_bands);

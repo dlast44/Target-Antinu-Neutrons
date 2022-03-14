@@ -346,6 +346,35 @@ class CVUniverse : public PlotUtils::MinervaUniverse {
     return bin;
   }
 
+  virtual double GetRecoilQ2Bin() const{
+    double bin = -0.5;
+    double binSize = 1.0/50.0; //Hard-coded bin size for recoil energy
+
+    double recE = GetDANRecoilEnergyGeV();
+    double Q2 = GetQ2QEPickledGeV();
+    if (recE < 0 || Q2 < 0 || recE > 1.0 || Q2 > 2.0) return bin;
+
+    int binRec = (int)(recE/binSize);
+    int binQ2 = -1;
+    if (Q2 < 0.00625) binQ2 = 0;
+    else if (Q2 < 0.0125) binQ2 = 1;
+    else if (Q2 < 0.025) binQ2 = 2;
+    else if (Q2 < 0.0375) binQ2 = 3;
+    else if (Q2 < 0.05) binQ2 = 4;
+    else if (Q2 < 0.1) binQ2 = 5;
+    else if (Q2 < 0.15) binQ2 = 6;
+    else if (Q2 < 0.2) binQ2 = 7;
+    else if (Q2 < 0.3) binQ2 = 8;
+    else if (Q2 < 0.4) binQ2 = 9;
+    else if (Q2 < 0.6) binQ2 = 10;
+    else if (Q2 < 0.8) binQ2 = 11;
+    else if (Q2 < 1.0) binQ2 = 12;
+    else if (Q2 < 1.2) binQ2 = 13;
+    else binQ2 = 14;
+    bin = binRec*1.0+binQ2*50.0+0.5;
+    return bin;
+  }
+
   //Neutron Candidate Business. May change at some point, but this is current to what was used before/validating against...
   virtual std::vector<double> GetNeutCandEs() const{ return GetVec<double>((GetAnaToolName()+"_BlobTotalE").c_str()); }
 
