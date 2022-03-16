@@ -60,7 +60,7 @@ namespace fit{
       int whichParam = 0;
       double fitSum = 0.0;
 
-      for(unsigned int whichFit; whichFit < fFitHists.size(); ++whichFit){
+      for(unsigned int whichFit=0; whichFit < fFitHists.size(); ++whichFit){
 	fitSum += fFitHists.at(whichFit)->GetBinContent(whichBin)*((parameters+whichParam)[0]);
 	whichParam+=1;
       }
@@ -72,8 +72,13 @@ namespace fit{
       double dataContent = fDataHist->GetBinContent(whichBin);
       double dataErr = fDataHist->GetBinError(whichBin);
       double diff = fitSum-dataContent;
-      if (dataErr < 1e-10) chi2 += (diff*diff)/(dataErr*dataErr);
+      //std::cout << "Fit Sum: " << fitSum << ", Data: " << dataContent << ", Difference: " << diff << ", Error: " << dataErr << std::endl;
+      //std::cout << "How the chi2 should change: " << (diff*diff)/(dataErr*dataErr) << std::endl;
+      if (dataErr > 1e-10) chi2 += (diff*diff)/(dataErr*dataErr);
+      //std::cout << "Updated chi2: " << chi2 << std::endl;
     }
+
+    //std::cout << "About to return chi2 of: " << chi2 << std::endl;
 
     return chi2;
   }
