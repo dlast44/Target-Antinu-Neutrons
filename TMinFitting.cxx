@@ -63,6 +63,24 @@
 using namespace std;
 using namespace PlotUtils;
 
+
+//Borrowed Directly from Andrew.
+void printCorrMatrix(const ROOT::Math::Minimizer& minim, const int nPars)
+{
+  std::vector<double> covMatrix(nPars * nPars, 0);
+  minim.GetCovMatrix(covMatrix.data());
+  const double* errors = minim.Errors();
+  
+  for(int xPar = 0; xPar < nPars; ++xPar){
+    std::cout << "[";
+    for(int yPar = 0; yPar < nPars-1; ++yPar){ 
+      std::cout << std::fixed << std::setprecision(2) << std::setw(5) << covMatrix[xPar * nPars + yPar]/errors[xPar]/errors[yPar] << ", ";
+    }
+    std::cout << std::fixed << std::setprecision(2) << std::setw(5) << covMatrix[xPar * nPars + nPars-1]/errors[xPar]/errors[nPars-1] << "]\n";
+  }
+}
+
+
 int main(int argc, char* argv[]) {
 
   gStyle->SetOptStat(0);
@@ -182,11 +200,20 @@ int main(int argc, char* argv[]) {
     MnvH1D* bkg1PiHist = chargePiHist->Clone();
     bkg1PiHist->Add(neutPiHist);
 
+    MnvH1D* bkgNNeutPiHist = neutPiHist->Clone();
+    bkgNNeutPiHist->Add(NPiHist);
+
+    MnvH1D* bkgNonResHist = QEHist->Clone();
+    bkgNonResHist->Add(DISHist);
+    bkgNonResHist->Add(MECHist);
+    bkgNonResHist->Add(OtherIntTypeHist);
+
     TH1D* dataHistCV = (TH1D*)dataHist->GetCVHistoWithStatError().Clone();
 
-    vector<TH1D*> fitHistsCV1 = {(TH1D*)bkg1PiHist->GetCVHistoWithStatError().Clone()};
+    vector<TH1D*> fitHistsCV1 = {(TH1D*)chargePiHist->GetCVHistoWithStatError().Clone()};
+    fitHistsCV1.push_back((TH1D*)bkgNNeutPiHist->GetCVHistoWithStatError().Clone());
     vector<TH1D*> unfitHistsCV1 = {(TH1D*)sigHist->GetCVHistoWithStatError().Clone()};
-    unfitHistsCV1.push_back((TH1D*)NPiHist->GetCVHistoWithStatError().Clone());
+    //unfitHistsCV1.push_back((TH1D*)NPiHist->GetCVHistoWithStatError().Clone());
     unfitHistsCV1.push_back((TH1D*)otherHist->GetCVHistoWithStatError().Clone());
 
     vector<TH1D*> fitHistsCV2 = {(TH1D*)bkg1PiHist->GetCVHistoWithStatError().Clone()};
@@ -200,13 +227,28 @@ int main(int argc, char* argv[]) {
     vector<TH1D*> unfitHistsCV3 = {(TH1D*)sigHist->GetCVHistoWithStatError().Clone()};
     unfitHistsCV3.push_back((TH1D*)otherHist->GetCVHistoWithStatError().Clone());
 
+    vector<TH1D*> fitHistsCV4 = {(TH1D*)RESHist->GetCVHistoWithStatError().Clone()};
+    fitHistsCV4.push_back((TH1D*)bkgNonResHist->GetCVHistoWithStatError().Clone());
+    vector<TH1D*> unfitHistsCV4 = {(TH1D*)sigHist->GetCVHistoWithStatError().Clone()};
+
+    vector<TH1D*> fitHistsCV5 = {(TH1D*)RESHist->GetCVHistoWithStatError().Clone()};
+    fitHistsCV5.push_back((TH1D*)DISHist->GetCVHistoWithStatError().Clone());
+    vector<TH1D*> unfitHistsCV5 = {(TH1D*)sigHist->GetCVHistoWithStatError().Clone()};
+    unfitHistsCV5.push_back((TH1D*)QEHist->GetCVHistoWithStatError().Clone());
+    unfitHistsCV5.push_back((TH1D*)MECHist->GetCVHistoWithStatError().Clone());
+    unfitHistsCV5.push_back((TH1D*)OtherIntTypeHist->GetCVHistoWithStatError().Clone());
+
     fit::ScaleFactors func1(fitHistsCV1,unfitHistsCV1,dataHistCV,lowBin,hiBin);
     fit::ScaleFactors func2(fitHistsCV2,unfitHistsCV2,dataHistCV,lowBin,hiBin);
     fit::ScaleFactors func3(fitHistsCV3,unfitHistsCV3,dataHistCV,lowBin,hiBin);
+    fit::ScaleFactors func4(fitHistsCV4,unfitHistsCV4,dataHistCV,lowBin,hiBin);
+    fit::ScaleFactors func5(fitHistsCV5,unfitHistsCV5,dataHistCV,lowBin,hiBin);
     
     auto* mini1 = new ROOT::Minuit2::Minuit2Minimizer(ROOT::Minuit2::kMigrad);
     auto* mini2 = new ROOT::Minuit2::Minuit2Minimizer(ROOT::Minuit2::kMigrad);
     auto* mini3 = new ROOT::Minuit2::Minuit2Minimizer(ROOT::Minuit2::kMigrad);
+    auto* mini4 = new ROOT::Minuit2::Minuit2Minimizer(ROOT::Minuit2::kMigrad);
+    auto* mini5 = new ROOT::Minuit2::Minuit2Minimizer(ROOT::Minuit2::kMigrad);
 
     int nextPar = 0;
     for(unsigned int i=0; i < fitHistsCV1.size(); ++i){
@@ -244,20 +286,48 @@ int main(int argc, char* argv[]) {
       return 6;
     }
 
+    nextPar = 0;
+    for(unsigned int i=0; i < fitHistsCV4.size(); ++i){
+      string var = "par"+to_string(i);
+      mini4->SetVariable(nextPar,var,1.0,1.0);
+      nextPar++;
+    }
+
+    if (nextPar != func4.NDim()){
+      cout << "The number of parameters was unexpected for some reason for fitHists4." << endl;
+      return 6;
+    }
+
+    nextPar = 0;
+    for(unsigned int i=0; i < fitHistsCV5.size(); ++i){
+      string var = "par"+to_string(i);
+      mini5->SetVariable(nextPar,var,1.0,1.0);
+      nextPar++;
+    }
+
+    if (nextPar != func5.NDim()){
+      cout << "The number of parameters was unexpected for some reason for fitHists5." << endl;
+      return 6;
+    }
+
     mini1->SetFunction(func1);
     mini2->SetFunction(func2);
     mini3->SetFunction(func3);
+    mini4->SetFunction(func4);
+    mini5->SetFunction(func5);
 
     cout << "Fitting 1" << endl;
     if(!mini1->Minimize()){
       cout << "Printing Results." << endl;
       mini1->PrintResults();
+      printCorrMatrix(*mini1, func1.NDim());
       cout << "FIT FAILED" << endl;
       //return 7;
     }
     else{
       cout << "Printing Results." << endl;
       mini1->PrintResults();
+      printCorrMatrix(*mini1, func1.NDim());
       //cout << mini->X() << endl;
       //cout << mini->Errors() << endl;
       cout << "FIT SUCCEEDED" << endl;
@@ -267,12 +337,14 @@ int main(int argc, char* argv[]) {
     if(!mini2->Minimize()){
       cout << "Printing Results." << endl;
       mini2->PrintResults();
+      printCorrMatrix(*mini2, func2.NDim());
       cout << "FIT FAILED" << endl;
       //return 7;
     }
     else{
       cout << "Printing Results." << endl;
       mini2->PrintResults();
+      printCorrMatrix(*mini2, func2.NDim());
       //cout << mini->X() << endl;
       //cout << mini->Errors() << endl;
       cout << "FIT SUCCEEDED" << endl;
@@ -282,12 +354,48 @@ int main(int argc, char* argv[]) {
     if(!mini3->Minimize()){
       cout << "Printing Results." << endl;
       mini3->PrintResults();
+      printCorrMatrix(*mini3, func3.NDim());
       cout << "FIT FAILED" << endl;
       //return 7;
     }
     else{
       cout << "Printing Results." << endl;
       mini3->PrintResults();
+      printCorrMatrix(*mini3, func3.NDim());
+      //cout << mini->X() << endl;
+      //cout << mini->Errors() << endl;
+      cout << "FIT SUCCEEDED" << endl;
+    }
+
+    cout << "Fitting 4" << endl;
+    if(!mini4->Minimize()){
+      cout << "Printing Results." << endl;
+      mini4->PrintResults();
+      printCorrMatrix(*mini4, func4.NDim());
+      cout << "FIT FAILED" << endl;
+      //return 7;
+    }
+    else{
+      cout << "Printing Results." << endl;
+      mini4->PrintResults();
+      printCorrMatrix(*mini4, func4.NDim());
+      //cout << mini->X() << endl;
+      //cout << mini->Errors() << endl;
+      cout << "FIT SUCCEEDED" << endl;
+    }
+
+    cout << "Fitting 5" << endl;
+    if(!mini5->Minimize()){
+      cout << "Printing Results." << endl;
+      mini5->PrintResults();
+      printCorrMatrix(*mini5, func5.NDim());
+      cout << "FIT FAILED" << endl;
+      //return 7;
+    }
+    else{
+      cout << "Printing Results." << endl;
+      mini5->PrintResults();
+      printCorrMatrix(*mini5, func5.NDim());
       //cout << mini->X() << endl;
       //cout << mini->Errors() << endl;
       cout << "FIT SUCCEEDED" << endl;
