@@ -63,6 +63,7 @@ include_directories(${GENIEXSecExtract_INCLUDE_DIR})
 add_subdirectory(playlists)
 add_subdirectory(util)
 add_subdirectory(event)
+add_subdirectory(fits)
 #TODO: Split these directories' headers into .cpp files
 #add_subdirectory(cuts)
 #add_subdirectory(studies)
@@ -70,11 +71,11 @@ add_subdirectory(event)
 
 #Build main executables
 add_executable(runEventLoop runEventLoop.cpp)
-target_link_libraries(runEventLoop ${ROOT_LIBRARIES} util event MAT MAT-MINERvA) #event cuts studies systematics)
+target_link_libraries(runEventLoop ${ROOT_LIBRARIES} util event fits MAT MAT-MINERvA) #event cuts studies systematics)
 install(TARGETS runEventLoop DESTINATION bin)
 
 add_executable(ExtractCrossSection ExtractCrossSection.cpp)
-target_link_libraries(ExtractCrossSection ${ROOT_LIBRARIES} util event MAT UnfoldUtils)
+target_link_libraries(ExtractCrossSection ${ROOT_LIBRARIES} util event fits MAT UnfoldUtils)
 install(TARGETS ExtractCrossSection DESTINATION bin)
 
 add_executable(runXSecLooper runXSecLooper.cpp)
