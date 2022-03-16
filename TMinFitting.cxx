@@ -79,9 +79,14 @@ int main(int argc, char* argv[]) {
 
   string MCfileName = string(argv[1]);
   string DATAfileName = string(argv[2]);
+  
+  /*
+  int lowBin1 = 6;
+  int hiBin1 = 25;
+  */
 
-  int lowBin = 6;//For 100 MeV for the no neutron sample.
-  int hiBin = 25;
+  int lowBin = 25;
+  int hiBin = 50;
 
   string rootExt = ".root";
   string slash = "/";
@@ -158,7 +163,6 @@ int main(int argc, char* argv[]) {
     MnvH1D* otherHist = (MnvH1D*)(mcFile->Get(name+"_background_Other"))->Clone();
     otherHist->Scale(POTscale);
 
-    /*
     MnvH1D* QEHist = (MnvH1D*)(mcFile->Get(name+"_bkg_IntType_QE"))->Clone();
     QEHist->Scale(POTscale);
     MnvH1D* RESHist = (MnvH1D*)(mcFile->Get(name+"_bkg_IntType_RES"))->Clone();
@@ -169,45 +173,123 @@ int main(int argc, char* argv[]) {
     MECHist->Scale(POTscale);
     MnvH1D* OtherIntTypeHist = (MnvH1D*)(mcFile->Get(name+"_bkg_IntType_Other"))->Clone();
     OtherIntTypeHist->Scale(POTscale);
-    */
 
     MnvH1D* bkgTotHist = chargePiHist->Clone();
     bkgTotHist->Add(neutPiHist);
     bkgTotHist->Add(NPiHist);
     bkgTotHist->Add(otherHist);
 
-    TH1D* dataHistCV = (TH1D*)dataHist->GetCVHistoWithStatError().Clone();
-    vector<TH1D*> fitHistsCV = {(TH1D*)bkgTotHist->GetCVHistoWithStatError().Clone()};
-    fitHistsCV.push_back((TH1D*)sigHist->GetCVHistoWithStatError().Clone());
-    //vector<TH1D*> unfitHists = {sigHist->GetCVHistoWithStatError().Clone()};
-    vector<TH1D*> unfitHistsCV;
+    MnvH1D* bkg1PiHist = chargePiHist->Clone();
+    bkg1PiHist->Add(neutPiHist);
 
-    fit::ScaleFactors func(fitHistsCV,unfitHistsCV,dataHistCV,lowBin,hiBin);
+    TH1D* dataHistCV = (TH1D*)dataHist->GetCVHistoWithStatError().Clone();
+
+    vector<TH1D*> fitHistsCV1 = {(TH1D*)bkg1PiHist->GetCVHistoWithStatError().Clone()};
+    vector<TH1D*> unfitHistsCV1 = {(TH1D*)sigHist->GetCVHistoWithStatError().Clone()};
+    unfitHistsCV1.push_back((TH1D*)NPiHist->GetCVHistoWithStatError().Clone());
+    unfitHistsCV1.push_back((TH1D*)otherHist->GetCVHistoWithStatError().Clone());
+
+    vector<TH1D*> fitHistsCV2 = {(TH1D*)bkg1PiHist->GetCVHistoWithStatError().Clone()};
+    fitHistsCV2.push_back((TH1D*)NPiHist->GetCVHistoWithStatError().Clone());
+    vector<TH1D*> unfitHistsCV2 = {(TH1D*)sigHist->GetCVHistoWithStatError().Clone()};
+    unfitHistsCV2.push_back((TH1D*)otherHist->GetCVHistoWithStatError().Clone());
+
+    vector<TH1D*> fitHistsCV3 = {(TH1D*)neutPiHist->GetCVHistoWithStatError().Clone()};
+    fitHistsCV3.push_back((TH1D*)chargePiHist->GetCVHistoWithStatError().Clone());
+    fitHistsCV3.push_back((TH1D*)NPiHist->GetCVHistoWithStatError().Clone());
+    vector<TH1D*> unfitHistsCV3 = {(TH1D*)sigHist->GetCVHistoWithStatError().Clone()};
+    unfitHistsCV3.push_back((TH1D*)otherHist->GetCVHistoWithStatError().Clone());
+
+    fit::ScaleFactors func1(fitHistsCV1,unfitHistsCV1,dataHistCV,lowBin,hiBin);
+    fit::ScaleFactors func2(fitHistsCV2,unfitHistsCV2,dataHistCV,lowBin,hiBin);
+    fit::ScaleFactors func3(fitHistsCV3,unfitHistsCV3,dataHistCV,lowBin,hiBin);
     
-    auto* mini = new ROOT::Minuit2::Minuit2Minimizer(ROOT::Minuit2::kMigrad);
+    auto* mini1 = new ROOT::Minuit2::Minuit2Minimizer(ROOT::Minuit2::kMigrad);
+    auto* mini2 = new ROOT::Minuit2::Minuit2Minimizer(ROOT::Minuit2::kMigrad);
+    auto* mini3 = new ROOT::Minuit2::Minuit2Minimizer(ROOT::Minuit2::kMigrad);
 
     int nextPar = 0;
-    for(unsigned int i; i < fitHistsCV.size(); ++i){
+    for(unsigned int i=0; i < fitHistsCV1.size(); ++i){
       string var = "par"+to_string(i);
-      mini->SetVariable(nextPar,var,1.0,1.0);
+      mini1->SetVariable(nextPar,var,1.0,1.0);
       nextPar++;
     }
 
-    //cout << "Next Par: " << nextPar << endl;
-
-    if (nextPar != func.NDim()){
-      cout << "The number of parameters was unexpected for some reason." << endl;
+    if (nextPar != func1.NDim()){
+      cout << "The number of parameters was unexpected for some reason for fitHists1." << endl;
       return 6;
     }
 
-    mini->SetFunction(func);
-    if(!mini->Minimize()){
+    nextPar = 0;
+    for(unsigned int i=0; i < fitHistsCV2.size(); ++i){
+      string var = "par"+to_string(i);
+      mini2->SetVariable(nextPar,var,1.0,1.0);
+      nextPar++;
+    }
+
+    if (nextPar != func2.NDim()){
+      cout << "The number of parameters was unexpected for some reason for fitHists2." << endl;
+      return 6;
+    }
+
+    nextPar = 0;
+    for(unsigned int i=0; i < fitHistsCV3.size(); ++i){
+      string var = "par"+to_string(i);
+      mini3->SetVariable(nextPar,var,1.0,1.0);
+      nextPar++;
+    }
+
+    if (nextPar != func3.NDim()){
+      cout << "The number of parameters was unexpected for some reason for fitHists3." << endl;
+      return 6;
+    }
+
+    mini1->SetFunction(func1);
+    mini2->SetFunction(func2);
+    mini3->SetFunction(func3);
+
+    cout << "Fitting 1" << endl;
+    if(!mini1->Minimize()){
       cout << "Printing Results." << endl;
-      mini->PrintResults();
+      mini1->PrintResults();
       cout << "FIT FAILED" << endl;
-      return 7;
+      //return 7;
     }
     else{
+      cout << "Printing Results." << endl;
+      mini1->PrintResults();
+      //cout << mini->X() << endl;
+      //cout << mini->Errors() << endl;
+      cout << "FIT SUCCEEDED" << endl;
+    }
+
+    cout << "Fitting 2" << endl;
+    if(!mini2->Minimize()){
+      cout << "Printing Results." << endl;
+      mini2->PrintResults();
+      cout << "FIT FAILED" << endl;
+      //return 7;
+    }
+    else{
+      cout << "Printing Results." << endl;
+      mini2->PrintResults();
+      //cout << mini->X() << endl;
+      //cout << mini->Errors() << endl;
+      cout << "FIT SUCCEEDED" << endl;
+    }
+
+    cout << "Fitting 3" << endl;
+    if(!mini3->Minimize()){
+      cout << "Printing Results." << endl;
+      mini3->PrintResults();
+      cout << "FIT FAILED" << endl;
+      //return 7;
+    }
+    else{
+      cout << "Printing Results." << endl;
+      mini3->PrintResults();
+      //cout << mini->X() << endl;
+      //cout << mini->Errors() << endl;
       cout << "FIT SUCCEEDED" << endl;
     }
   }
