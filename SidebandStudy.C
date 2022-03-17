@@ -220,7 +220,7 @@ void SidebandStudy() {
 	}	
       }
 
-      cout << "Distance past cut A: " << A << " Distance past cut B: " << endl;
+      cout << "Distance past cut A: " << A << " Distance past cut B: " << B << endl;
       cout << "Chi2 BKG: " << Chi2(h_BKG_SB,h_BKG) << endl;
       cout << "Chi2 QE: " << Chi2(h_QE_SB,h_QE) << endl;
       cout << "Chi2 RES: " << Chi2(h_RES_SB,h_RES) << endl;
