@@ -44,6 +44,8 @@ using namespace std;
 using namespace PlotUtils;
 
 double Chi2(TH1D* h1, TH1D* h2){
+  h1->Scale(1.0/h1->Integral(0,-1));
+  h2->Scale(1.0/h2->Integral(0,-1));
   double chi2 = -999.0;
   if (h1->GetNbinsX() != h2->GetNbinsX() ) return chi2;
   chi2=0.0;
