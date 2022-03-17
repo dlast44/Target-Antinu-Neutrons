@@ -148,7 +148,7 @@ void SidebandStudy() {
   TH1D* h_Tot_Pre = GetTH1D("recQ2Bin_PreRecoilCut_data",inFile);
 
   for (int A=0; A<21; ++A){
-    for(int B=A+4; B<25; ++B){
+    for(int B=A+4; B<43; ++B){
       TH1D* h_BKG_SB;
       TH1D* h_PiC_SB;
       TH1D* h_Pi0_SB;
@@ -164,7 +164,7 @@ void SidebandStudy() {
 
       for(int iQ2=0; iQ2<15; ++iQ2){
 	int lowBin = iQ2*50+recoilCut[iQ2]+A;
-	int hiBin = iQ2*50+recoilCut[iQ2]+B;
+	int hiBin = min(iQ2*50+recoilCut[iQ2]+B,(iQ2+1)*50);
 
 	TString name = "Junk_"+to_string(iQ2);
 
