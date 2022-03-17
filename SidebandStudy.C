@@ -145,6 +145,8 @@ void SidebandStudy() {
   h_BKG->Add(h_NPi);
   h_BKG->Add(h_Other);
 
+  TH1D* h_Tot_Pre = GetTH1D("recQ2Bin_PreRecoilCut_data",inFile);
+
   for (int A=0; A<21; ++A){
     for(int B=A+4; B<25; ++B){
       TH1D* h_BKG_SB;
@@ -157,6 +159,8 @@ void SidebandStudy() {
       TH1D* h_DIS_SB;
       TH1D* h_2p2h_SB; 
       TH1D* h_OtherInt_SB;
+
+      double selected = 0.0;
 
       for(int iQ2=0; iQ2<15; ++iQ2){
 	int lowBin = iQ2*50+recoilCut[iQ2]+A;
@@ -189,6 +193,8 @@ void SidebandStudy() {
 	Proj_Other[iQ2]=h_Other_Pre->ProjectionY(name_Other, lowBin, hiBin);
 
 	Proj_BKG[iQ2]=h_BKG_Pre->ProjectionY(name_BKG, lowBin, hiBin);
+
+	selected+=h_Tot_Pre->Integral(lowBin, hiBin);
 
 	if (iQ2==0){
 	  TH1D* h = (TH1D*)(Proj_QE[iQ2]->Clone());
@@ -223,6 +229,7 @@ void SidebandStudy() {
       }
 
       cout << "Distance past cut A: " << A << " Distance past cut B: " << B << endl;
+      cout << "Total BKG % in Sideband: " << 100.0*h_BKG_SB->Integral()/selected << endl;
       cout << "Chi2 BKG: " << Chi2(h_BKG_SB,h_BKG) << endl;
       cout << "Chi2 QE: " << Chi2(h_QE_SB,h_QE) << endl;
       cout << "Chi2 RES: " << Chi2(h_RES_SB,h_RES) << endl;
