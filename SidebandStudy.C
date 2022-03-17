@@ -228,6 +228,7 @@ void SidebandStudy() {
 	}	
       }
 
+      cout << "" << endl;
       cout << "Distance past cut A: " << A << " Distance past cut B: " << B << endl;
       cout << "Total BKG % in Sideband: " << 100.0*h_BKG_SB->Integral()/selected << endl;
       cout << "Chi2 BKG: " << Chi2(h_BKG_SB,h_BKG) << endl;
@@ -240,7 +241,6 @@ void SidebandStudy() {
       cout << "Chi2 Pi0: " << Chi2(h_Pi0_SB,h_Pi0) << endl;
       cout << "Chi2 NPi: " << Chi2(h_NPi_SB,h_NPi) << endl;
       cout << "Chi2 Other: " << Chi2(h_Other_SB,h_Other) << endl;
-      cout << "" << endl;
     }
   }
 
