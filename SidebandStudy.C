@@ -147,8 +147,19 @@ void SidebandStudy() {
 
   TH1D* h_Tot_Pre = GetTH1D("recQ2Bin_PreRecoilCut_data",inFile);
 
-  for (int A=0; A<21; ++A){
-    for(int B=A+4; B<43; ++B){
+  TH1D* h_BKG_x = new TH1D("h_BKG_x",";Distance from cut line in bins;#chi^{2}",25,0,25);
+  TH1D* h_QE_x = new TH1D("h_QE_x",";Distance from cut line in bins;#chi^{2}",25,0,25);
+  TH1D* h_RES_x = new TH1D("h_RES_x",";Distance from cut line in bins;#chi^{2}",25,0,25);
+  TH1D* h_DIS_x = new TH1D("h_DIS_x",";Distance from cut line in bins;#chi^{2}",25,0,25);
+  TH1D* h_2p2h_x = new TH1D("h_2p2h_x",";Distance from cut line in bins;#chi^{2}",25,0,25);
+  TH1D* h_OtherInt_x = new TH1D("h_OtherInt_x",";Distance from cut line in bins;#chi^{2}",25,0,25);
+  TH1D* h_PiC_x = new TH1D("h_PiC_x",";Distance from cut line in bins;#chi^{2}",25,0,25);
+  TH1D* h_Pi0_x = new TH1D("h_Pi0_x",";Distance from cut line in bins;#chi^{2}",25,0,25);
+  TH1D* h_NPi_x = new TH1D("h_NPi_x",";Distance from cut line in bins;#chi^{2}",25,0,25);
+  TH1D* h_Other_x = new TH1D("h_Other_x",";Distance from cut line in bins;#chi^{2}",25,0,25);
+
+  for (int A=7; A<8; ++A){
+    for(int B=A+1; B<25; ++B){
       TH1D* h_BKG_SB;
       TH1D* h_PiC_SB;
       TH1D* h_Pi0_SB;
@@ -231,18 +242,76 @@ void SidebandStudy() {
       cout << "" << endl;
       cout << "Distance past cut A: " << A << " Distance past cut B: " << B << endl;
       cout << "Total BKG % in Sideband: " << 100.0*h_BKG_SB->Integral()/selected << endl;
+      cout << "Total stats in Sideband: " << selected << endl;
+      cout << "Total BKG stats in Sideband: " << h_BKG_SB->Integral() << endl;
       cout << "Chi2 BKG: " << Chi2(h_BKG_SB,h_BKG) << endl;
+      h_BKG_x->Fill(B,Chi2(h_BKG_SB,h_BKG));
       cout << "Chi2 QE: " << Chi2(h_QE_SB,h_QE) << endl;
+      h_QE_x->Fill(B,Chi2(h_QE_SB,h_QE));
       cout << "Chi2 RES: " << Chi2(h_RES_SB,h_RES) << endl;
+      h_RES_x->Fill(B,Chi2(h_RES_SB,h_RES));
       cout << "Chi2 DIS: " << Chi2(h_DIS_SB,h_DIS) << endl;
+      h_DIS_x->Fill(B,Chi2(h_DIS_SB,h_DIS));
       cout << "Chi2 2p2h: " << Chi2(h_2p2h_SB,h_2p2h) << endl;
+      h_2p2h_x->Fill(B,Chi2(h_2p2h_SB,h_2p2h));
       cout << "Chi2 Other Int: " << Chi2(h_OtherInt_SB,h_OtherInt) << endl;
+      h_OtherInt_x->Fill(B,Chi2(h_OtherInt_SB,h_OtherInt));
       cout << "Chi2 PiC: " << Chi2(h_PiC_SB,h_PiC) << endl;
+      h_PiC_x->Fill(B,Chi2(h_PiC_SB,h_PiC));
       cout << "Chi2 Pi0: " << Chi2(h_Pi0_SB,h_Pi0) << endl;
+      h_Pi0_x->Fill(B,Chi2(h_Pi0_SB,h_Pi0));
       cout << "Chi2 NPi: " << Chi2(h_NPi_SB,h_NPi) << endl;
+      h_NPi_x->Fill(B,Chi2(h_NPi_SB,h_NPi));
       cout << "Chi2 Other: " << Chi2(h_Other_SB,h_Other) << endl;
+      h_Other_x->Fill(B,Chi2(h_Other_SB,h_Other));
     }
   }
+
+  gStyle->SetOptStat(0);
+  TCanvas* c1 = new TCanvas("c1","",800,800);
+  TLegend* leg = new TLegend(0.8,0.8,0.95,0.95);
+  TLegend* leg2 = new TLegend(0.8,0.8,0.95,0.95);
+  c1->cd();
+  h_BKG_x->Draw("hist");
+  h_BKG_x->GetYaxis()->SetRangeUser(0,0.5);
+  h_BKG_x->SetTitle("All Backgrounds #chi^{2} Scan");
+  c1->Print("../SideBandStudy7/SideBandStudy_BKG_Only.pdf");
+  c1->Print("../SideBandStudy7/SideBandStudy_BKG_Only.png");
+  h_QE_x->SetTitle("Backgrounds By Interaction Type #chi^{2} Scan");
+  h_QE_x->GetYaxis()->SetRangeUser(0,0.5);
+  h_QE_x->Draw("hist");
+  h_2p2h_x->SetLineColor(kBlack);
+  h_2p2h_x->Draw("same,hist");
+  h_OtherInt_x->SetLineColor(kOrange);
+  h_OtherInt_x->Draw("same,hist");
+  h_RES_x->SetLineColor(kRed);
+  h_RES_x->Draw("same,hist");
+  h_DIS_x->SetLineColor(kGreen);
+  h_DIS_x->Draw("same,hist");
+  leg->AddEntry(h_QE_x,"QE");
+  leg->AddEntry(h_RES_x,"RES");
+  leg->AddEntry(h_DIS_x,"DIS");
+  leg->AddEntry(h_2p2h_x,"2p2h");
+  leg->AddEntry(h_OtherInt_x,"Other");
+  leg->Draw();
+  c1->Print("../SideBandStudy7/SideBandStudy_IntTypes.pdf");
+  c1->Print("../SideBandStudy7/SideBandStudy_IntTypes.png");
+  h_Other_x->SetLineColor(kBlack);
+  h_Other_x->GetYaxis()->SetRangeUser(0,0.5);
+  h_Other_x->SetTitle("Backgrounds By FS #chi^{2} Scan");
+  h_Other_x->Draw("hist");
+  h_PiC_x->Draw("same,hist");
+  h_Pi0_x->SetLineColor(kRed);
+  h_Pi0_x->Draw("same,hist");
+  h_NPi_x->SetLineColor(kGreen);
+  h_NPi_x->Draw("same,hist");
+  leg2->AddEntry(h_PiC_x,"single #pi^{#pm}");
+  leg2->AddEntry(h_Pi0_x,"single #pi^{0}");
+  leg2->AddEntry(h_NPi_x,"N #pi");
+  leg2->AddEntry(h_Other_x,"Other");
+  leg2->Draw();
+  c1->Print("../SideBandStudy7/SideBandStudy_BKGTypes.pdf");
+  c1->Print("../SideBandStudy7/SideBandStudy_BKGTypes.png");
 
   return;
 }
