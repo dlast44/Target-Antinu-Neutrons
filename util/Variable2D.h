@@ -177,7 +177,7 @@ class Variable2D: public PlotUtils::Variable2DBase<CVUniverse>
       if(selectedMCReco)
 	{
 	  selectedMCReco->hist->SetDirectory(&file);
-	  selectedMCReco->hist->Write((GetName() + "_data").c_str()); //Make this histogram look just like the data for closure tests
+	  selectedMCReco->hist->Write(("TwoD_"+GetName() + "_data").c_str()); //Make this histogram look just like the data for closure tests
 	}
     }
 
