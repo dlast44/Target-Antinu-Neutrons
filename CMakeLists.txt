@@ -87,8 +87,12 @@ target_link_libraries(signalBKGStack ${ROOT_LIBRARIES} MAT MAT-MINERvA)
 install(TARGETS signalBKGStack DESTINATION bin)
 
 add_executable(BKGFitting BKGFitting.cxx)
-target_link_libraries(BKGFitting ${ROOT_LIBRARIES} MAT MAT-MINERvA)
+target_link_libraries(BKGFitting ${ROOT_LIBRARIES} fits MAT MAT-MINERvA)
 install(TARGETS BKGFitting DESTINATION bin)
+
+add_executable(BKGFittingTFrac BKGFittingTFrac.cxx)
+target_link_libraries(BKGFittingTFrac ${ROOT_LIBRARIES} MAT MAT-MINERvA)
+install(TARGETS BKGFittingTFrac DESTINATION bin)
 
 add_executable(TMinFitting TMinFitting.cxx)
 target_link_libraries(TMinFitting ${ROOT_LIBRARIES} fits MAT MAT-MINERvA)

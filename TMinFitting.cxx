@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
   int hiBin1 = 25;
   */
 
-  int lowBin = 25;
+  int lowBin = 26;
   int hiBin = 50;
 
   string rootExt = ".root";
