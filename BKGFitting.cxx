@@ -62,6 +62,8 @@
 using namespace std;
 using namespace PlotUtils;
 
+map<int, TString> colors = {{0,"#117733"},{1,"#CC6677"},{2,"#882255"}};
+
 bool PathExists(string path){
   struct stat buffer;
   return (stat (path.c_str(), &buffer) == 0);
@@ -92,25 +94,67 @@ void printCorrMatrix(const ROOT::Math::Minimizer& minim, const int nPars)
   }
 }
 
-TCanvas* DrawFromMnvH1Ds(MnvH1D* h_data, MnvH1D* h_sig, MnvH1D* h_bkg, MnvH1D* h_bkg_Others, TString legName){
+TCanvas* DrawFromMnvH1Ds(MnvH1D* h_data, map<TString, MnvH1D*> hFit, map<TString, MnvH1D*> hUnfit, bool sigFit = false){
 
-  MnvH1D* mcSum = (MnvH1D*)h_sig->Clone();
-  mcSum->Add(h_bkg);
-  mcSum->Add(h_bkg_Others);
+  if (hFit.size()==0){
+    cout << "This script should not be used to plot histograms not involved with fitting at this time." << endl;
+    return new TCanvas();
+  }
+
+  MnvH1D* mcSum;
+  MnvH1D* unfitSum;
+  MnvH1D* h_sig;
+
+  bool allFit = ((sigFit && hUnfit.size()==0) || (!sigFit && hUnfit.size()==1));
   
+  //cout << "Getting signal hist." << endl;
+
+  if (sigFit) h_sig = hFit["Signal"];
+  else h_sig = hUnfit["Signal"];
+
+  mcSum = h_sig->Clone();
+
+  //cout << "Summing hists." << endl;
+
+  for (auto hist:hFit){
+    if (hist.first != "Signal") mcSum->Add(hist.second);
+  }
+
+  int iHist = 0;
+  for (auto hist:hUnfit){
+    if (hist.first != "Signal"){
+      mcSum->Add(hist.second);
+      if (iHist!=0)unfitSum->Add(hist.second);
+      else unfitSum = hist.second->Clone();
+      iHist++;
+    }
+  }
+
+  //cout << "Coloring hists." << endl;  
   h_sig->SetLineColor(TColor::GetColor("#999933"));
   h_sig->SetFillColor(TColor::GetColor("#999933"));
-  h_bkg->SetLineColor(TColor::GetColor("#88CCEE"));
-  h_bkg->SetFillColor(TColor::GetColor("#88CCEE"));
-  h_bkg_Others->SetLineColor(TColor::GetColor("#882255"));
-  h_bkg_Others->SetFillColor(TColor::GetColor("#882255"));
+  if (!allFit){
+    unfitSum->SetLineColor(TColor::GetColor("#882255"));
+    unfitSum->SetFillColor(TColor::GetColor("#882255"));
+  }
+
+  iHist = 0;
+  for (auto hist:hFit){
+    hist.second->SetLineColor(TColor::GetColor(colors[iHist%3]));
+    hist.second->SetFillColor(TColor::GetColor(colors[iHist%3]));
+    iHist++;
+  }
+
+  //cout << "Stacking hists." << endl;
 
   THStack* h = new THStack();
-  h->Add((TH1D*)h_bkg_Others->GetCVHistoWithError().Clone());
-  h->Add((TH1D*)h_bkg->GetCVHistoWithError().Clone());
+  if(!allFit) h->Add((TH1D*)unfitSum->GetCVHistoWithError().Clone());
+  for (auto hist:hFit) h->Add((TH1D*)hist.second->GetCVHistoWithError().Clone());
   h->Add((TH1D*)h_sig->GetCVHistoWithError().Clone());
 
   TH1D* dataHist = (TH1D*)h_data->GetCVHistoWithError().Clone();
+
+  //cout << "Drawing hists." << endl;
 
   TCanvas* c1 = new TCanvas("c1","c1",1200,800);
   TPad* top = new TPad("Overlay","Overlay",0,0.078+0.2,1,1);
@@ -124,7 +168,7 @@ TCanvas* DrawFromMnvH1Ds(MnvH1D* h_data, MnvH1D* h_sig, MnvH1D* h_bkg, MnvH1D* h
 
   double areaScale = topArea/bottomArea;
 
-  cout << "areaScale: " << areaScale << endl;
+  //cout << "areaScale: " << areaScale << endl;
 
   h->Draw("hist");
   h->SetMaximum((dataHist->GetMaximum())*1.05);
@@ -132,12 +176,13 @@ TCanvas* DrawFromMnvH1Ds(MnvH1D* h_data, MnvH1D* h_sig, MnvH1D* h_bkg, MnvH1D* h
   dataHist->Draw("same");
   c1->Update();
 
+  //cout << "Legend time." << endl;
   TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
  
   leg->AddEntry(dataHist,"DATA");
   leg->AddEntry(h_sig,"Signal");
-  leg->AddEntry(h_bkg,"BKG + "+legName);
-  leg->AddEntry(h_bkg_Others,"Other BKGs");
+  for (auto hist:hFit) leg->AddEntry(hist.second,hist.first);
+  if (!allFit) leg->AddEntry(unfitSum,"Not fit BKGs");
 
   leg->Draw();
   c1->Update();
@@ -146,6 +191,7 @@ TCanvas* DrawFromMnvH1Ds(MnvH1D* h_data, MnvH1D* h_sig, MnvH1D* h_bkg, MnvH1D* h
   bottom->SetTopMargin(0.05);
   bottom->SetBottomMargin(0.3);
 
+  //cout << "Ratio business." << endl;
   MnvH1D* ratio = (MnvH1D*)h_data->Clone();
   ratio->Divide(ratio,mcSum);
 
@@ -211,8 +257,8 @@ int FitScaleFactorsAndDraw(MnvH1D* dataHist, map<TString, MnvH1D*> fitHistsAndNa
   auto* mini = new ROOT::Minuit2::Minuit2Minimizer(ROOT::Minuit2::kMigrad);
 
   int nextPar = 0;
-  for (unsigned int i=0; i < fitHists.size(); ++i){
-    string var = "par"+to_string(i);
+  for (auto hist:fitHistsAndNames){
+    string var = hist.first.Data();
     mini->SetVariable(nextPar,var,1.0,1.0);
     nextPar++;
   }
@@ -237,10 +283,11 @@ int FitScaleFactorsAndDraw(MnvH1D* dataHist, map<TString, MnvH1D*> fitHistsAndNa
     printCorrMatrix(*mini, func.NDim());
   }
 
-  /*
+  cout << "Trying to draw pre-scaling." << endl;
+
   //TODO: ONLY DRAW THE PREFIT IF IT HASN'T BEEN DONE ALREADY.
   if (!PathExists((string)(outDir+varName+"_preFit_POTScale.pdf"))){
-    TCanvas* c1 = DrawSigBKGFromMnvH1Ds(dataHist, sigHist, bkgTotHist);
+    TCanvas* c1 = DrawFromMnvH1Ds(dataHist,fitHistsAndNames,unfitHistsAndNames);
     TPad* top = (TPad*)c1->GetPrimitive("Overlay");
     c1->Print(outDir+varName+"_preFit_POTScale.pdf");
     c1->Print(outDir+varName+"_preFit_POTScale.png");
@@ -250,7 +297,8 @@ int FitScaleFactorsAndDraw(MnvH1D* dataHist, map<TString, MnvH1D*> fitHistsAndNa
     c1->Print(outDir+varName+"_preFit_POTScale_log.png");  
     delete c1;
   }
-    
+
+  /*    
   if (!PathExists((string)(outDir+varName+"_preFit_areaScale.pdf"))){
     //Scaling to the area normalizaion
     sigHist->Scale(scale);
@@ -500,27 +548,27 @@ int main(int argc, char* argv[]) {
     unfitHists5["Other"]=OtherIntTypeHist;
 
     cout << "Fitting 1" << endl;
-    int result = FitScaleFactorsAndDraw(dataHist, fitHists1, unfitHists1, name, outDir, lowBin, hiBin);
+    int result = FitScaleFactorsAndDraw(dataHist, fitHists1, unfitHists1, name+"_fit1", outDir, lowBin, hiBin);
     cout << "Result: " << result << endl;
     cout << "" << endl;
 
     cout << "Fitting 2" << endl;
-    result = FitScaleFactorsAndDraw(dataHist, fitHists2, unfitHists2, name, outDir, lowBin, hiBin);
+    result = FitScaleFactorsAndDraw(dataHist, fitHists2, unfitHists2, name+"_fit2", outDir, lowBin, hiBin);
     cout << "Result: " << result << endl;
     cout << "" << endl;
 
     cout << "Fitting 3" << endl;
-    result = FitScaleFactorsAndDraw(dataHist, fitHists3, unfitHists3, name, outDir, lowBin, hiBin);
+    result = FitScaleFactorsAndDraw(dataHist, fitHists3, unfitHists3, name+"_fit3", outDir, lowBin, hiBin);
     cout << "Result: " << result << endl;
     cout << "" << endl;
 
     cout << "Fitting 4" << endl;
-    result = FitScaleFactorsAndDraw(dataHist, fitHists4, unfitHists4, name, outDir, lowBin, hiBin);
+    result = FitScaleFactorsAndDraw(dataHist, fitHists4, unfitHists4, name+"_fit4", outDir, lowBin, hiBin);
     cout << "Result: " << result << endl;
     cout << "" << endl;
 
     cout << "Fitting 5" << endl;
-    result = FitScaleFactorsAndDraw(dataHist, fitHists5, unfitHists5, name, outDir, lowBin, hiBin);
+    result = FitScaleFactorsAndDraw(dataHist, fitHists5, unfitHists5, name+"_fit5", outDir, lowBin, hiBin);
     cout << "Result: " << result << endl;
     cout << "" << endl;
     //if (result != 0) return result;
